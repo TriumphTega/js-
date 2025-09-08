@@ -1,11 +1,23 @@
 body {
-    background-color: aquamarine;
+    background-color: palevioletred;
+    border: 10px;
+    border-radius: 50%;
+    border-color: green;
 }
 
 #main {
     text-align: center;
+    font-style: oblique;
 }
 
 #counter {
     text-align: center;
+    font-style: oblique;
+    padding-bottom: 10px;
+}
+
+#centerpiece {
+    text-align: center;
+    font-style: oblique;
+    padding-top: 10px;
 }

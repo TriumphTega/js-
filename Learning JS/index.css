@@ -1,5 +1,6 @@
 body {
-    background-color: palevioletred;
+    background-color: black;
+    color: aliceblue;
     border: 10px;
     border-radius: 50%;
     border-color: green;
@@ -21,5 +22,5 @@ body {
     margin: auto;
     text-align: center;
     font-style: oblique;
-    padding-top: 10px;
+    padding-top: 10px:
 }

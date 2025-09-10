@@ -17,7 +17,10 @@ body {
 }
 
 #centerpiece {
+    display: block;
+    margin: auto;
     text-align: center;
     font-style: oblique;
     padding-top: 10px;
+    object-position: center;
 }

@@ -24,3 +24,16 @@ body {
     font-style: oblique;
     padding-top: 10px:
 }
+
+#button {
+background-color: #ccc;
+-moz-border-radius: 5px;
+-webkit-border-radius: 5px;
+border-radius:6px;
+color: #fff;
+font-family: 'Oswald';
+font-size: 20px;
+text-decoration: none;
+cursor: pointer;
+border:none;
+}

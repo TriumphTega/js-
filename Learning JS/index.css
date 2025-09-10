@@ -37,3 +37,10 @@ text-decoration: none;
 cursor: pointer;
 border:none;
 }
+
+#my-button {
+  position: fixed;
+  left: 0; /* Aligns the button to the very left edge of the viewport */
+  top: 2%; /* Positions the button vertically in the middle */
+  transform: translateY(-50%); /* Adjusts vertical alignment for perfect centering */
+}

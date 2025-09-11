@@ -29,11 +29,10 @@ body {
 }
 
 #button {
-background-color: #ccc;
+background-color: green;
 -moz-border-radius: 5px;
 -webkit-border-radius: 5px;
 border-radius:6px;
-color: #fff;
 font-family:'Courier New', Courier, monospace;
 font-size: 20px;
 text-decoration: none;

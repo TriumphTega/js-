@@ -21,10 +21,10 @@ body {
 }
 
 #centerpiece {
-    display: block;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     margin: auto;
-    text-align: center;
-    font-style: normal;
     padding-top: 10px:
 }
 

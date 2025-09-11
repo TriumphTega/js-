@@ -6,44 +6,6 @@
     <meta name='viewport' content='width=device-width, initial-scale=1'>
     <link rel="stylesheet" type="text/css" href="/Learning JS/index.css">
     <script src='/Learning JS/index.js'></script>
-  <!-- CODEX: Marquee styles (safe to remove to revert) -->
-  <style>
-    /* Hide horizontal overflow so scrolling text doesn't create a scrollbar */
-    html, body { overflow-x: hidden; }
-
-    @keyframes pageMarquee {
-      0%   { transform: translateX(100vw); }
-      100% { transform: translateX(-100%); }
-    }
-
-    /* Headings, paragraphs, quotes at top level */
-    body > h1, body > h2, body > h3, body > h4, body > h5, body > h6,
-    body > p, body > blockquote {
-      display: inline-block;
-      white-space: nowrap;
-      animation: pageMarquee 12s linear infinite;
-      will-change: transform;
-    }
-
-    /* List items */
-    body > ul > li,
-    body > ol > li {
-      display: inline-block;
-      white-space: nowrap;
-      animation: pageMarquee 12s linear infinite;
-      will-change: transform;
-    }
-
-    /* Respect reduced motion preferences */
-    @media (prefers-reduced-motion: reduce) {
-      body > h1, body > h2, body > h3, body > h4, body > h5, body > h6,
-      body > p, body > blockquote,
-      body > ul > li, body > ol > li {
-        animation: none !important;
-      }
-    }
-  </style>
-  <!-- /CODEX: Marquee styles -->
 </head>
 <body>
 

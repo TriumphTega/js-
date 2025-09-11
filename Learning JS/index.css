@@ -49,6 +49,6 @@ border:none;
 #mainsflex {
     text-align: center;
     padding-block: 10px;
-    flex-direction:column-reverse;
+    scroll-padding: ;
     font-family: 'Courier New', Courier, monospace;
 }

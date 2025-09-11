@@ -21,7 +21,7 @@ body {
 }
 
 #centerpiece {
-    display: flex;
+    display:flex;
     justify-content: center;
     align-items: center;
     margin: auto;
@@ -47,7 +47,8 @@ border:none;
 }
 
 #mainsflex {
-    display: flex;
+    text-align: center;
+    padding-block: 10px;
     flex-direction:column-reverse;
     font-family: 'Courier New', Courier, monospace;
 }

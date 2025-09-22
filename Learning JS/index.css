@@ -12,6 +12,14 @@ body {
     font-family: 'Courier New', Courier, monospace;
 }
 
+#counter {
+     text-align: center;
+    font-style: normal;
+    font-family: 'Courier New', Courier, monospace;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
 #counter-human {
     text-align: center;
     font-style: normal;
@@ -19,15 +27,6 @@ body {
     padding-top: 10px;
 }
 
-#counter {
-    display: flex;
-    justify-content: center;
-    text-align: center;
-    font-style: italic;
-    font-family: 'Courier New', Courier, monospace;
-    padding-bottom: 10px;
-    padding-top: 10px;
-}
 
 #counter-card {
     text-align: center;
@@ -52,7 +51,7 @@ body {
 
 }
 
-#button {
+button {
 background-color: green;
 -moz-border-radius: 5px;
 -webkit-border-radius: 5px;
@@ -68,11 +67,7 @@ padding-top: 5px;
 padding-bottom: 5px;
 }
 
-#my-button {
-  position: fixed;
-  left: 0; /* Aligns the button to the very left edge of the viewport */
-  transform: translateY(-50%); /* Adjusts vertical alignment for perfect centering */
-}
+
 
 #mainsflex {
     text-align: center;
@@ -84,7 +79,7 @@ padding-bottom: 5px;
 }
 
 
-#modal {
+.modal {
   display: none; /* Hidden by default */
   position: fixed; /* Stay in place */
   z-index: 1; /* Sit on top */
@@ -126,3 +121,14 @@ padding-bottom: 5px;
   margin-bottom: 10px;
 }
 
+#confirmChoiceBtn {
+    background-color: black; /* Your color win—keeping it */
+    color: white;
+    border: 2px solid white; /* Width + solid style + dark red color for contrast */
+    padding: 12px 24px; /* Inner space: more vertical for button feel */
+    margin-top: 20px; /* Top gap to separate from options text */
+    border-radius: 5px; /* Soft corners, optional but clean */
+    cursor: pointer; /* Hand icon on hover, UX bonus */
+    display: flex;
+    align-items: center;
+}

@@ -5,112 +5,101 @@
     <title>Console</title>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
     <link rel="stylesheet" type="text/css" href="/Learning JS/index.css">
-    <script src='/Learning JS/index.js'></script>
+    <!-- Moved script to end of body for better perf -->
 </head>
 <body>
-
-    <div id="my-button"><butto id="button"><a href="/index.html">Back</a></button></div>
-    
-        <div id="counter"><h1>Pick Your Poison</h1></div>
-
-
-
-<button id="openModalBtn">Open Options</button>
-
-<div id="myModal" class="modal">
-  <div class="modal-content">
-    <span class="close-btn">&times;</span>
-    <h2>Choose an Option:</h2>
-    <div class="options-container">
-      <label>
-        <input type="radio" name="choice" value="option1"> <div id="mainsflex"> 1. Base Engineer 🔧
-
-<ul>Lore: Responsible for keeping habitats safe, air systems running, and power online.</ul>
-
-<ul>Perks: +10% efficiency when upgrading base structures (spends fewer tokens).</ul>
-
-<ul>Daily check-ins give an extra oxygen resource.</ul>
-
-<ul>Unlocks exclusive “Habitat Module” skins.</ul> </div>
-      </label>
-      
-      <label>
-        <input type="radio" name="choice" value="option2"> <div id="mainsflex"> 2. Exploratory Engineer 🛰️ 
-
-<ul>Lore: Specialists who adapt rovers, drones, and equipment for expeditions.</ul>
-
-<ul>Perks: +5% Lunaris earned from exploration tasks (walking, outdoor activities).</ul>
-
-<ul>Unlocks early access to the Red Dunes Zone.</ul>
-
-<ul>Rare chance of finding bonus “Martian Mineral NFTs” on quests.</ul> </div>
-      </label>
-      
-      <label>
-        <input type="radio" name="choice" value="option3"> <div id="mainsflex"> 3. Food Tech & Survival Skills Expert 🌱 
-
-<ul>Lore: Masters of hydroponics, rationing, and making Martian soil fertile.</ul>
-
-<ul>Perks: +10% yield from food/habit tasks (hydration, journaling, sleep).</ul>
-
-<ul>Daily bonus: Hydroponics Tokens (used to trade at Crater Nexus).</ul>
-
-<ul>Special recipes (NFTs) to grow rare crops with token benefits.</ul> </div>
-      </label>
-      
-<label>
-        <input type="radio" name="choice" value="option4"> <div id="mainsflex"> 4. Comms Specialist 📡 
-
-<ul>Lore: Maintains communication networks between colonists and Earth.</ul>
-
-<ul>Perks: +5% staking rewards (better efficiency in DAO/community missions)</ul>
-
-<ul>Ability to broadcast colony-wide boosts (mini-events).</ul>
-
-<ul>Exclusive cosmetic perks: animated holographic badges.</ul> </div>
-
-      </label>
-      <input type="radio" name="choice" value="option2">
-      <div id="mainsflex"> 5. Resource Miner ⛏️ 
-
-<ul>Lore: Extracts raw materials from Martian crust for colony use.</ul>
-
-<ul>Perks: +15% efficiency when gathering rare resources.</ul>
-
-<ul>Bonus NFT drops when participating in mining missions.</ul>
-
-<ul>Unlocks special trade deals at Crater Nexus.</ul> </div>
-
-        <label>
-          <input type="radio" name="choice" value="option2">
-      <div id="mainsflex">   6. Medical Officer 🩺
-
-<ul>Lore: Ensures colonists remain healthy and fit for survival.</ul>
-
-<ul>Perks: +5% daily token boost when logging wellness tasks (sleep, hydration).</ul>
-
-<ul>Ability to “heal” other colonists in co-op missions (share buffs).</ul>
-
-<ul>Special gear: medical pods that double as collectibles.</ul> </div>
-        </label>
-
-        <label>
-            <input type="radio" name="choice" value="option2">
-      <div id="mainsflex"> 7. Navigator 🌌
-
-<ul>Lore: Charts safe paths across dunes, craters, and ice caps.</ul>
-
-<ul>Perks: Shortens time/requirements for exploration quests.</ul>
-
-<ul>Unlocks fast travel between colony zones.</ul>
-
-<ul>Extra bonus tokens for completing streaks.</ul> </div>
-        </label>
-        
+    <div id="my-button">
+        <button id="backButton">
+            <a href="/index.html">Back</a>
+        </button>
     </div>
-    <button id="confirmChoiceBtn">Confirm</button>
-  </div>
-</div>
+    
+    <div id="counter">
+        <h1>Pick Your Poison</h1>
+    </div>
 
+    <button id="openModalBtn" style="display: block; margin: 0 auto; background-color: green; color: white; padding: 10px 20px; border: none; border-radius: 5px;">Open Options</button>
+
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Choose an Option:</h2>
+            <div class="options-container">
+                <label>
+                    <input type="radio" name="choice" value="option1">
+                    <div class="mainsflex">1. Base Engineer 🔧
+                        <ul><li>Lore: Responsible for keeping habitats safe, air systems running, and power online.</li></ul>
+                        <ul><li>Perks: +10% efficiency when upgrading base structures (spends fewer tokens).</li></ul>
+                        <ul><li>Daily check-ins give an extra oxygen resource.</li></ul>
+                        <ul><li>Unlocks exclusive “Habitat Module” skins.</li></ul>
+                    </div>
+                </label>
+                
+                <label>
+                    <input type="radio" name="choice" value="option2">
+                    <div class="mainsflex">2. Exploratory Engineer 🛰️
+                        <ul><li>Lore: Specialists who adapt rovers, drones, and equipment for expeditions.</li></ul>
+                        <ul><li>Perks: +5% Lunaris earned from exploration tasks (walking, outdoor activities).</li></ul>
+                        <ul><li>Unlocks early access to the Red Dunes Zone.</li></ul>
+                        <ul><li>Rare chance of finding bonus “Martian Mineral NFTs” on quests.</li></ul>
+                    </div>
+                </label>
+                
+                <label>
+                    <input type="radio" name="choice" value="option3">
+                    <div class="mainsflex">3. Food Tech & Survival Skills Expert 🌱
+                        <ul><li>Lore: Masters of hydroponics, rationing, and making Martian soil fertile.</li></ul>
+                        <ul><li>Perks: +10% yield from food/habit tasks (hydration, journaling, sleep).</li></ul>
+                        <ul><li>Daily bonus: Hydroponics Tokens (used to trade at Crater Nexus).</li></ul>
+                        <ul><li>Special recipes (NFTs) to grow rare crops with token benefits.</li></ul>
+                    </div>
+                </label>
+                
+                <label>
+                    <input type="radio" name="choice" value="option4">
+                    <div class="mainsflex">4. Comms Specialist 📡
+                        <ul><li>Lore: Maintains communication networks between colonists and Earth.</li></ul>
+                        <ul><li>Perks: +5% staking rewards (better efficiency in DAO/community missions)</li></ul>
+                        <ul><li>Ability to broadcast colony-wide boosts (mini-events).</li></ul>
+                        <ul><li>Exclusive cosmetic perks: animated holographic badges.</li></ul>
+                    </div>
+                </label>
+                
+                <label>
+                    <input type="radio" name="choice" value="option5">
+                    <div class="mainsflex">5. Resource Miner ⛏️
+                        <ul><li>Lore: Extracts raw materials from Martian crust for colony use.</li></ul>
+                        <ul><li>Perks: +15% efficiency when gathering rare resources.</li></ul>
+                        <ul><li>Bonus NFT drops when participating in mining missions.</li></ul>
+                        <ul><li>Unlocks special trade deals at Crater Nexus.</li></ul>
+                    </div>
+                </label>
+                
+                <label>
+                    <input type="radio" name="choice" value="option6">
+                    <div class="mainsflex">6. Medical Officer 🩺
+                        <ul><li>Lore: Ensures colonists remain healthy and fit for survival.</li></ul>
+                        <ul><li>Perks: +5% daily token boost when logging wellness tasks (sleep, hydration).</li></ul>
+                        <ul><li>Ability to “heal” other colonists in co-op missions (share buffs).</li></ul>
+                        <ul><li>Special gear: medical pods that double as collectibles.</li></ul>
+                    </div>
+                </label>
+                
+                <label>
+                    <input type="radio" name="choice" value="option7">
+                    <div class="mainsflex">7. Navigator 🌌
+                        <ul><li>Lore: Charts safe paths across dunes, craters, and ice caps.</li></ul>
+                        <ul><li>Perks: Shortens time/requirements for exploration quests.</li></ul>
+                        <ul><li>Unlocks fast travel between colony zones.</li></ul>
+                        <ul><li>Extra bonus tokens for completing streaks.</li></ul>
+                    </div>
+                </label>
+            </div>
+            <button id="confirmChoiceBtn">Confirm</button>
+        </div>
+    </div>
+
+    <!-- Add script here at end -->
+    <script src='/Learning JS/index.js'></script>
 </body>
 </html>

@@ -6,8 +6,8 @@ body {
     border-color: green;
     font-family: "Orbitron", sans-serjpgif;
     background-image: url("/Learning JS/images/Lunaris\ 03.jpeg");
-    background-size: 100% 100%;
-    background-repeat: ;
+    background-size: ;
+    background-repeat: no-repeat;
     font-optical-sizing: auto;
     font-weight: <weight>;
     font-style: normal;

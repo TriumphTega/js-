@@ -621,6 +621,153 @@
                 padding: 10px 15px;
             }
         }
+
+        /* Custom Modal System */
+        .custom-modal {
+            display: none;
+            position: fixed;
+            z-index: 10001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-dialog {
+            position: relative;
+            margin: 10% auto;
+            max-width: 500px;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-content-custom {
+            background: linear-gradient(135deg, #1e5128 0%, #2d6a4f 100%);
+            border: 3px solid #FFCC00;
+            border-radius: 15px;
+            padding: 0;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-header-custom {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 25px;
+            border-bottom: 2px solid rgba(255, 204, 0, 0.3);
+            border-radius: 15px 15px 0 0;
+        }
+
+        .modal-title-custom {
+            color: #FFCC00;
+            font-size: 1.8rem;
+            text-align: center;
+            margin: 0;
+        }
+
+        .modal-body-custom {
+            padding: 30px;
+            text-align: center;
+        }
+
+        .modal-message {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .modal-btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-btn-primary {
+            background-color: #FFCC00;
+            color: #1e5128;
+        }
+
+        .modal-btn-primary:hover {
+            background-color: #e6b800;
+            transform: translateY(-2px);
+        }
+
+        .modal-btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .modal-btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        .modal-icon {
+            font-size: 4rem;
+            margin-bottom: 15px;
+        }
+
+        /* Admin Floating Button */
+        .admin-float-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 204, 0, 0.9);
+            border: 2px solid #FFCC00;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.8rem;
+            box-shadow: 0 4px 15px rgba(255, 204, 0, 0.4);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            text-decoration: none;
+        }
+
+        .admin-float-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(255, 204, 0, 0.6);
+        }
+
+        @media (max-width: 768px) {
+            .admin-float-btn {
+                bottom: 20px;
+                right: 20px;
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -780,6 +927,27 @@
         </div>
     </div>
 
+    <!-- Custom Modal -->
+    <div id="custom-modal" class="custom-modal">
+        <div class="modal-dialog">
+            <div class="modal-content-custom">
+                <div class="modal-header-custom">
+                    <h2 class="modal-title-custom" id="modal-title"></h2>
+                </div>
+                <div class="modal-body-custom">
+                    <div class="modal-icon" id="modal-icon"></div>
+                    <div class="modal-message" id="modal-message"></div>
+                    <div class="modal-buttons" id="modal-buttons"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Floating Button -->
+    <a href="/Learning JS/admin.html" class="admin-float-btn" id="admin-btn" title="Admin Dashboard">
+        ⚙️
+    </a>
+
     <!-- Firebase & Dashboard Logic -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
@@ -834,6 +1002,9 @@
                 localStorage.setItem('currentUser', JSON.stringify(currentUser));
                 console.log('User authenticated:', user.email);
 
+                // Check admin access
+                checkAdminAccess(user);
+
                 // Reload data when auth state changes
                 if (!colonyData.lunaris && !colonyData.tasks.length) {
                     initializeDashboard();
@@ -842,6 +1013,124 @@
                 console.log('No user authenticated');
             }
         });
+
+        // ============================================
+        // CUSTOM MODAL SYSTEM
+        // Beautiful modals replacing alert/confirm
+        // ============================================
+
+        function showModal(type, title, message, callback) {
+            const modal = document.getElementById('custom-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalIcon = document.getElementById('modal-icon');
+            const modalMessage = document.getElementById('modal-message');
+            const modalButtons = document.getElementById('modal-buttons');
+
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+
+            // Set icon based on type
+            const icons = {
+                success: '✅',
+                error: '❌',
+                warning: '⚠️',
+                info: 'ℹ️',
+                confirm: '❓'
+            };
+            modalIcon.textContent = icons[type] || '💬';
+
+            // Clear previous buttons
+            modalButtons.innerHTML = '';
+
+            // Add OK button
+            const okBtn = document.createElement('button');
+            okBtn.className = 'modal-btn modal-btn-primary';
+            okBtn.textContent = 'OK';
+            okBtn.onclick = () => {
+                modal.style.display = 'none';
+                if (callback) callback(true);
+            };
+            modalButtons.appendChild(okBtn);
+
+            modal.style.display = 'block';
+
+            // Close on outside click
+            modal.onclick = (e) => {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                    if (callback) callback(false);
+                }
+            };
+        }
+
+        function showConfirm(title, message, onConfirm, onCancel) {
+            const modal = document.getElementById('custom-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalIcon = document.getElementById('modal-icon');
+            const modalMessage = document.getElementById('modal-message');
+            const modalButtons = document.getElementById('modal-buttons');
+
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+            modalIcon.textContent = '❓';
+
+            // Clear previous buttons
+            modalButtons.innerHTML = '';
+
+            // Add Cancel button
+            const cancelBtn = document.createElement('button');
+            cancelBtn.className = 'modal-btn modal-btn-secondary';
+            cancelBtn.textContent = 'Cancel';
+            cancelBtn.onclick = () => {
+                modal.style.display = 'none';
+                if (onCancel) onCancel();
+            };
+            modalButtons.appendChild(cancelBtn);
+
+            // Add Confirm button
+            const confirmBtn = document.createElement('button');
+            confirmBtn.className = 'modal-btn modal-btn-primary';
+            confirmBtn.textContent = 'Confirm';
+            confirmBtn.onclick = () => {
+                modal.style.display = 'none';
+                if (onConfirm) onConfirm();
+            };
+            modalButtons.appendChild(confirmBtn);
+
+            modal.style.display = 'block';
+
+            // Close on outside click = cancel
+            modal.onclick = (e) => {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                    if (onCancel) onCancel();
+                }
+            };
+        }
+
+        // ============================================
+        // ADMIN ACCESS CHECK
+        // Shows admin button only for admins
+        // ============================================
+
+        async function checkAdminAccess(user) {
+            if (!user) return false;
+
+            try {
+                const adminRef = ref(database, `admins/${user.uid}`);
+                const snapshot = await get(adminRef);
+
+                if (snapshot.exists()) {
+                    // User is admin - show admin button
+                    document.getElementById('admin-btn').style.display = 'flex';
+                    console.log('Admin access granted');
+                    return true;
+                }
+            } catch (error) {
+                console.error('Error checking admin access:', error);
+            }
+            return false;
+        }
 
         // Colony data
         let colonyData = {
@@ -1057,12 +1346,12 @@
             const minutes = parseInt(timeCommitment.value);
 
             if (!taskType) {
-                alert('Please select a mission type!');
+                showModal('warning', '⚠️ Missing Information', 'Please select a mission type!');
                 return;
             }
 
             if (!minutes || minutes < 1) {
-                alert('Please set a valid time commitment!');
+                showModal('warning', '⚠️ Invalid Time', 'Please set a valid time commitment!');
                 return;
             }
 
@@ -1139,9 +1428,17 @@
             const task = colonyData.tasks.find(t => t.id === taskId);
             if (!task) return;
 
-            if (!confirm(`Start Focus Mode for ${task.timeCommitment} minutes?\n\nLeaving early will result in penalties:\n• -10 Lunaris\n• Mission failed\n• Streak reset`)) {
-                return;
-            }
+            showConfirm(
+                '🔒 Start Focus Mode?',
+                `${task.name}\nDuration: ${task.timeCommitment} minutes\n\n⚠️ Leaving early = Penalties:\n• -10 Lunaris\n• Mission failed\n• Streak reset`,
+                () => {
+                    // User confirmed - start focus mode
+                    beginFocusMode(task);
+                }
+            );
+        };
+
+        function beginFocusMode(task) {
 
             currentFocusTask = task;
             focusDuration = task.timeCommitment * 60;

@@ -1,83 +1,278 @@
 <!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset='utf-8'>
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
     <title>Welcome to Lunaris</title>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
-    <link rel="stylesheet" type="text/css" href="/Learning JS/index.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1e5128 0%, #2d6a4f 50%, #1e5128 100%);
+            color: white;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #app-container {
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        #main-title {
+            font-size: clamp(3rem, 8vw, 5rem);
+            color: #FFCC00;
+            text-align: center;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            min-height: 80px;
+        }
+
+        #beta-badge {
+            text-align: center;
+            color: rgba(255, 204, 0, 0.7);
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+            font-style: italic;
+        }
+
+        .content-section {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 25px;
+            border: 2px solid rgba(255, 204, 0, 0.3);
+            opacity: 0;
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-title {
+            color: #FFCC00;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .story-text {
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.8;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #FFCC00;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #1e5128;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px 30px;
+            background-color: #FFCC00;
+            color: #1e5128;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #e6b800;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(255, 204, 0, 0.4);
+        }
+
+        .google-signin-btn {
+            width: 100%;
+            background-color: white !important;
+            color: #3c4043 !important;
+            border: 1px solid #dadce0 !important;
+            border-radius: 8px !important;
+            padding: 12px 20px !important;
+            font-family: 'Courier New', Courier, monospace !important;
+            font-size: 1rem !important;
+            font-weight: 500 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 12px !important;
+            transition: all 0.3s ease !important;
+            box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15) !important;
+            cursor: pointer;
+        }
+
+        .google-signin-btn:hover {
+            background-color: #f8f9fa !important;
+            border-color: #d2e3fc !important;
+            box-shadow: 0 1px 3px 0 rgba(60,64,67,0.3), 0 4px 8px 3px rgba(60,64,67,0.15) !important;
+            transform: translateY(-2px) !important;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 20px 0;
+            color: rgba(255, 204, 0, 0.7);
+            font-size: 1.1rem;
+        }
+
+        #user-info {
+            display: none;
+            text-align: center;
+        }
+
+        #user-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 3px solid #FFCC00;
+            margin: 0 auto 15px;
+            display: block;
+        }
+
+        .user-name {
+            color: #FFCC00;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+
+        .btn-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid, .btn-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animation delays */
+        .content-section:nth-child(1) { animation-delay: 0.2s; }
+        .content-section:nth-child(2) { animation-delay: 0.4s; }
+        .content-section:nth-child(3) { animation-delay: 0.6s; }
+        .content-section:nth-child(4) { animation-delay: 0.8s; }
+    </style>
 </head>
 <body>
-    <!-- Main title with typing animation -->
-    <div id="main">
-        <h1 id="typing-text" className=ing-animati>Lunaris</h1>
-    </div>
+    <div id="app-container">
+        <!-- Main Title -->
+        <h1 id="main-title">Lunaris</h1>
+        <div id="beta-badge">Beta Version</div>
 
-    <!-- Headline with wave animation -->
-    <div id="counter" className=eee style="animation-delay: 0.5s;">
-        <h1 id="wave-text">Humans have reached Mars</h1>
-    </div>
+        <!-- Story Section -->
+        <div class="content-section">
+            <h2 class="section-title">🚀 Humans have reached Mars</h2>
+            <p class="story-text">The Starship rocket successfully landed on the red planet this morning.</p>
+            <p class="story-text">After a 115 days long journey, the crew of 12 finally arrived at their destination. This is the first time humans have set foot on a planet other than Earth.</p>
+        </div>
 
-    <!-- Content with staggered fade-in animations -->
-    <div id="counter" className=eee style="animation-delay: 1s;">
-        <h3>The Starship rocket successfully landed on the red planet this morning.</h3>
-        <h3><p>After a 115 days long journey, the crew of 12 finally arrived at their destination. This is the first time humans have set foot on a planet other than Earth.</p></h3>
-    </div>
+        <!-- Sign Up Form -->
+        <div class="content-section" id="signup-section">
+            <h2 class="section-title">Sign up to join the first colony!</h2>
 
-    <!-- Sign up section with slide-in animations -->
-    <div id="counter" className=eee style="animation-delay: 1.5s;">
-        <h3>Sign up to join the first colony here!</h3>
-        <input type="text" id="nameInput" placeholder="Name" style="margin: 5px;">
-        <input type="number" id="ageInput" placeholder="Age" style="margin: 5px;">
-    </div>
+            <div class="form-grid">
+                <input type="text" id="nameInput" placeholder="Name" class="form-input">
+                <input type="number" id="ageInput" placeholder="Age" class="form-input">
+            </div>
 
-    <div id="counter" className=eee style="animation-delay: 1.8s;">
-        <input type="email" id="emailInput" placeholder="Email" style="margin: 5px;">
-        <input type="text" id="genderInput" placeholder="Gender" style="margin: 5px;">
-    </div>
+            <div class="form-grid">
+                <input type="email" id="emailInput" placeholder="Email" class="form-input">
+                <input type="text" id="genderInput" placeholder="Gender" class="form-input">
+            </div>
 
-    <div id="counter" className=eee style="animation-delay: 2s;">
-        <button id="regularSignUp">Sign Up for Colony</button>
-    </div>
+            <button id="regularSignUp" class="btn">🚀 Sign Up for Colony</button>
+        </div>
 
-    <div id="counter" className=eee style="animation-delay: 2.2s;">
-        <p>OR</p>
-        <button id="googleSignIn" className=google-sig>
-            <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
-                <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-                <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-                <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
-                <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
-                <path fill="none" d="M0 0h48v48H0z"/>
-            </svg>
-            <span>Sign in with Google</span>
-        </button>
-    </div>
+        <!-- Google Sign In -->
+        <div class="content-section" id="google-section">
+            <div class="divider">OR</div>
+            <button id="googleSignIn" class="google-signin-btn">
+                <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+                    <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                    <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                    <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+                    <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                    <path fill="none" d="M0 0h48v48H0z"/>
+                </svg>
+                <span>Sign in with Google</span>
+            </button>
+        </div>
 
-    <!-- User info display (hidden by default) -->
-    <div id="userInfo" style="display: none;" className=eee>
-        <h3>Welcome, <span id="userName"></span>!</h3>
-        <img id="userPhoto" src="" alt="Profile" style="display: none; width: 50px; height: 50px; border-radius: 50%; margin: 10px auto;">
-        <button id="signOut">Sign Out</button>
-        <br>
-        <button id="goToNotes" style="margin-top: 15px;">📝 My Notes</button>
-    </div>
+        <!-- User Info (shown after sign-in) -->
+        <div class="content-section" id="user-info">
+            <h2 class="section-title">Welcome!</h2>
+            <img id="userPhoto" src="" alt="Profile" id="user-avatar" style="display: none;">
+            <div class="user-name" id="userName"></div>
 
-    <div id="counter" className=eee style="animation-delay: 2.5s;">
-        <h3>Skip straight to Console</h3>
-        <button><a href="/Learning JS/console.html">Console</a></button>
+            <div class="btn-grid">
+                <button id="goToDashboard" class="btn">🚀 Colony Dashboard</button>
+                <button id="goToNotes" class="btn">📝 My Notes</button>
+            </div>
+
+            <button id="signOut" class="btn btn-secondary" style="margin-top: 15px;">Sign Out</button>
+        </div>
     </div>
 
     <!-- Firebase SDK -->
     <script type="module">
-        // Firebase configuration will be added here
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
         import { getDatabase, ref, push, set, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
-        // Your Firebase configuration
+        // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyClPgII54QDvJB3kiV1dWbqm1et_lHasvs",
             authDomain: "lunaris-45d84.firebaseapp.com",
@@ -86,7 +281,7 @@
             messagingSenderId: "74359858445",
             appId: "1:74359858445:web:37772cebcbb0d71d707c44",
             measurementId: "G-ETRK2NL1N2",
-            databaseURL: "https://lunaris-45d84-default-rtdb.firebaseio.com"  // Add your Realtime Database URL
+            databaseURL: "https://lunaris-45d84-default-rtdb.firebaseio.com"
         };
 
         // Initialize Firebase
@@ -117,14 +312,14 @@
             }
         });
 
-        // Monitor auth state
+        // Monitor auth state and handle redirects
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 // User is signed in
                 document.getElementById('userName').textContent = user.displayName || user.email;
-                document.getElementById('userInfo').style.display = 'block';
-                document.getElementById('googleSignIn').style.display = 'none';
-                document.getElementById('regularSignIn').style.display = 'none';
+                document.getElementById('user-info').style.display = 'block';
+                document.getElementById('signup-section').style.display = 'none';
+                document.getElementById('google-section').style.display = 'none';
 
                 // Show user photo if available
                 if (user.photoURL) {
@@ -133,30 +328,49 @@
                     userPhoto.style.display = 'block';
                 }
 
-                // Store user in localStorage for notes page
+                // Store user in localStorage
                 localStorage.setItem('currentUser', JSON.stringify({
                     uid: user.uid,
                     email: user.email,
                     displayName: user.displayName,
                     photoURL: user.photoURL
                 }));
+
+                // Check if user has a role
+                const userRole = localStorage.getItem('userRole');
+                if (userRole) {
+                    // Returning user with role - redirect to dashboard
+                    console.log('Returning user detected, redirecting to dashboard...');
+                    setTimeout(() => {
+                        window.location.href = '/Learning JS/dashboard.html';
+                    }, 1500);
+                }
             } else {
                 // User is signed out
-                document.getElementById('userInfo').style.display = 'none';
-                document.getElementById('googleSignIn').style.display = 'inline-block';
-                document.getElementById('regularSignIn').style.display = 'inline-block';
+                document.getElementById('user-info').style.display = 'none';
+                document.getElementById('signup-section').style.display = 'block';
+                document.getElementById('google-section').style.display = 'block';
                 localStorage.removeItem('currentUser');
             }
         });
 
-        // Navigate to notes page
+        // Navigate to dashboard
+        document.getElementById('goToDashboard').addEventListener('click', () => {
+            const userRole = localStorage.getItem('userRole');
+            if (userRole) {
+                window.location.href = '/Learning JS/dashboard.html';
+            } else {
+                window.location.href = '/Learning JS/console.html';
+            }
+        });
+
+        // Navigate to notes
         document.getElementById('goToNotes').addEventListener('click', () => {
             window.location.href = '/Learning JS/notes.html';
         });
 
         // Regular Sign Up - Save to Realtime Database
         document.getElementById('regularSignUp').addEventListener('click', async () => {
-            // Get form values
             const name = document.getElementById('nameInput').value.trim();
             const age = document.getElementById('ageInput').value.trim();
             const email = document.getElementById('emailInput').value.trim();
@@ -205,12 +419,12 @@
                     age: parseInt(age),
                     email: email,
                     gender: gender,
-                    signupId: newSignupRef.key  // Store the Firebase key
+                    signupId: newSignupRef.key
                 }));
 
                 console.log('Sign-up saved successfully! Redirecting...');
 
-                // Redirect to console page
+                // Redirect to console page for role selection
                 setTimeout(() => {
                     window.location.href = '/Learning JS/console.html';
                 }, 1000);
@@ -221,13 +435,11 @@
         });
     </script>
 
-    <!-- Animation Scripts -->
-    <script src='/Learning JS/index.js'></script>
+    <!-- Typing Animation -->
     <script>
-        // TYPING ANIMATION - Types text one character at a time
         function typeWriter(element, text, speed = 100) {
             let i = 0;
-            element.textContent = ''; // Clear existing text
+            element.textContent = '';
 
             function type() {
                 if (i < text.length) {
@@ -239,33 +451,10 @@
             type();
         }
 
-        // WAVE ANIMATION - Makes each letter wave
-        function createWaveText(element) {
-            const text = element.textContent;
-            element.innerHTML = ''; // Clear text
-
-            // Split text into individual letters and wrap in spans
-            text.split('').forEach((char, index) => {
-                const span = document.createElement('span');
-                span.textContent = char === ' ' ? '\u00A0' : char; // Preserve spaces
-                span.style.display = 'inline-block';
-                span.style.animation = `wave 1s ease-in-out infinite`;
-                span.style.animationDelay = `${index * 0.1}s`;
-                element.appendChild(span);
-            });
-        }
-
-        // Initialize animations when page loads
+        // Initialize typing animation
         window.addEventListener('DOMContentLoaded', () => {
-            // Start typing animation for main title
-            const typingElement = document.getElementById('typing-text');
-            typeWriter(typingElement, 'Lunaris (Test Javascript App)', 80);
-
-            // Start wave animation for headline
-            const waveElement = document.getElementById('wave-text');
-            setTimeout(() => {
-                createWaveText(waveElement);
-            }, 2000); // Wait 2 seconds before wave starts
+            const typingElement = document.getElementById('main-title');
+            typeWriter(typingElement, 'Lunaris', 120);
         });
     </script>
 </body>

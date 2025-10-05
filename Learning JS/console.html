@@ -47,6 +47,56 @@
             margin-top: 10px;
         }
 
+        .user-profile-section {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 15px;
+            border: 2px solid rgba(255, 204, 0, 0.2);
+        }
+
+        .profile-display {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-name {
+            color: white;
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+
+        .profile-email {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .edit-name-btn {
+            padding: 10px 20px;
+            background-color: rgba(255, 204, 0, 0.3);
+            color: #FFCC00;
+            border: 2px solid #FFCC00;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .edit-name-btn:hover {
+            background-color: rgba(255, 204, 0, 0.5);
+            transform: translateY(-2px);
+        }
+
         .nav-btn {
             padding: 12px 25px;
             background-color: rgba(255, 204, 0, 0.2);
@@ -337,6 +387,18 @@
         <div class="header-section">
             <h1 class="page-title">🎯 Mission Control</h1>
             <p class="user-greeting" id="userGreeting"></p>
+
+            <!-- User Profile Section -->
+            <div class="user-profile-section" id="userProfileSection" style="display: none;">
+                <div class="profile-display">
+                    <div class="profile-info">
+                        <div class="profile-name" id="profileDisplayName"></div>
+                        <div class="profile-email" id="profileEmail"></div>
+                    </div>
+                    <button class="edit-name-btn" id="editNameBtn">✏️ Edit Name</button>
+                </div>
+            </div>
+
             <a href="/index.html" class="nav-btn">← Back to Home</a>
         </div>
 
@@ -508,9 +570,30 @@
         </div>
     </div>
 
+    <!-- Edit Name Modal -->
+    <div id="editNameModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close-btn" id="closeEditName">&times;</span>
+                <h2>✏️ Edit Your Name</h2>
+            </div>
+            <div class="modal-body">
+                <p style="color: rgba(255, 255, 255, 0.8); margin-bottom: 20px; text-align: center;">
+                    Change how your name appears in Lunaris
+                </p>
+                <div style="margin-bottom: 15px;">
+                    <label style="color: #FFCC00; font-weight: bold; display: block; margin-bottom: 8px;">Display Name:</label>
+                    <input type="text" id="newDisplayName" placeholder="Enter your new name" class="form-input" style="width: 100%; padding: 12px; border: 2px solid #FFCC00; border-radius: 8px; background: rgba(255, 255, 255, 0.95); color: #1e5128; font-family: 'Courier New', Courier, monospace; font-size: 1rem;">
+                </div>
+                <button id="saveNameBtn" class="confirm-btn">💾 Save Changes</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Firebase & JavaScript -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
         import { getDatabase, ref, update } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
         const firebaseConfig = {
@@ -525,6 +608,7 @@
         };
 
         const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
         const database = getDatabase(app);
 
         // Role data
@@ -700,6 +784,103 @@
         startMissionsBtn.addEventListener('click', () => {
             instructionsModal.style.display = 'none';
             window.location.href = '/Learning JS/dashboard.html';
+        });
+
+        // ============================================
+        // USER PROFILE & NAME EDITING
+        // ============================================
+
+        let authenticatedUser = null;
+
+        // Monitor auth state and load user data
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                authenticatedUser = user;
+                loadUserProfile(user);
+            }
+        });
+
+        // Load user profile from localStorage/Firebase
+        function loadUserProfile(user) {
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedUser) {
+                const userData = JSON.parse(savedUser);
+
+                // Display profile section
+                document.getElementById('userProfileSection').style.display = 'block';
+                document.getElementById('profileDisplayName').textContent = userData.displayName || user.displayName || user.email;
+                document.getElementById('profileEmail').textContent = user.email;
+            }
+        }
+
+        // Edit Name Modal
+        const editNameModal = document.getElementById('editNameModal');
+        const editNameBtn = document.getElementById('editNameBtn');
+        const closeEditName = document.getElementById('closeEditName');
+        const saveNameBtn = document.getElementById('saveNameBtn');
+        const newDisplayNameInput = document.getElementById('newDisplayName');
+
+        editNameBtn.addEventListener('click', () => {
+            // Pre-fill current name
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedUser) {
+                const userData = JSON.parse(savedUser);
+                newDisplayNameInput.value = userData.displayName || authenticatedUser?.displayName || '';
+            }
+            editNameModal.style.display = 'block';
+        });
+
+        closeEditName.addEventListener('click', () => {
+            editNameModal.style.display = 'none';
+        });
+
+        window.addEventListener('click', (e) => {
+            if (e.target === editNameModal) {
+                editNameModal.style.display = 'none';
+            }
+        });
+
+        saveNameBtn.addEventListener('click', async () => {
+            const newName = newDisplayNameInput.value.trim();
+
+            if (!newName) {
+                alert('Please enter a valid name!');
+                return;
+            }
+
+            if (!authenticatedUser) {
+                alert('You must be signed in to change your name.');
+                return;
+            }
+
+            try {
+                // Update localStorage
+                const savedUser = localStorage.getItem('currentUser');
+                if (savedUser) {
+                    const userData = JSON.parse(savedUser);
+                    userData.displayName = newName;
+                    localStorage.setItem('currentUser', JSON.stringify(userData));
+                }
+
+                // Update Firebase user-profiles node
+                const userProfileRef = ref(database, `user-profiles/${authenticatedUser.uid}`);
+                await update(userProfileRef, {
+                    displayName: newName,
+                    email: authenticatedUser.email,
+                    updatedAt: Date.now()
+                });
+
+                // Update display
+                document.getElementById('profileDisplayName').textContent = newName;
+
+                // Close modal
+                editNameModal.style.display = 'none';
+
+                alert(`✅ Name updated to "${newName}"!`);
+            } catch (error) {
+                console.error('Error updating name:', error);
+                alert('Failed to update name. Please try again.');
+            }
         });
 
         // Global functions for other pages

@@ -1508,7 +1508,7 @@
 
             if (success && !tabChangeDetected) {
                 completeTask(currentFocusTask.id);
-                alert(`🎉 Mission Complete!\n\n+${calculateReward(currentFocusTask)} Lunaris earned!\n\nExcellent focus, colonist!`);
+                showModal('success', '🎉 Mission Complete!', `+${calculateReward(currentFocusTask)} Lunaris earned!\n\nExcellent focus, colonist!`);
             } else {
                 applyFocusPenalties();
             }
@@ -1534,13 +1534,17 @@
             updateResourceDisplays();
             renderTasks();
 
-            alert('❌ Mission Failed\n\nPenalties applied:\n• -10 Lunaris\n• Streak reset\n• -10% Energy\n\nStay focused next time, colonist.');
+            showModal('error', '❌ Mission Failed', 'Penalties applied:\n• -10 Lunaris\n• Streak reset\n• -10% Energy\n\nStay focused next time, colonist.');
         }
 
         document.getElementById('emergency-exit').addEventListener('click', () => {
-            if (confirm('Are you sure? This will apply all penalties!')) {
-                completeFocusMode(false);
-            }
+            showConfirm(
+                '⚠️ Emergency Exit?',
+                'Are you sure? This will apply all penalties!',
+                () => {
+                    completeFocusMode(false);
+                }
+            );
         });
 
         window.completeTask = function(taskId) {
@@ -1574,14 +1578,18 @@
         };
 
         window.deleteTask = function(taskId) {
-            if (!confirm('Delete this mission?')) return;
-
-            const taskIndex = colonyData.tasks.findIndex(t => t.id === taskId);
-            if (taskIndex !== -1) {
-                colonyData.tasks.splice(taskIndex, 1);
-                saveColonyData();
-                renderTasks();
-            }
+            showConfirm(
+                '🗑️ Delete Mission?',
+                'Are you sure you want to delete this mission?',
+                () => {
+                    const taskIndex = colonyData.tasks.findIndex(t => t.id === taskId);
+                    if (taskIndex !== -1) {
+                        colonyData.tasks.splice(taskIndex, 1);
+                        saveColonyData();
+                        renderTasks();
+                    }
+                }
+            );
         };
 
         function calculateReward(task) {

@@ -204,23 +204,28 @@
                 <h2>✏️ Edit Your Name</h2>
             </div>
             <div class="modal-body">
-                <p style="color: rgba(255, 255, 255, 0.8); margin-bottom: 20px; text-align: center;">
+                <p class="modal-description">
                     Change how your name appears in Lunaris
                 </p>
-                <div style="margin-bottom: 15px;">
-                    <label style="color: #FFCC00; font-weight: bold; display: block; margin-bottom: 8px;">Display Name:</label>
-                    <input type="text" id="newDisplayName" placeholder="Enter your new name" class="form-input" style="width: 100%; padding: 12px; border: 2px solid #FFCC00; border-radius: 8px; background: rgba(255, 255, 255, 0.95); color: #1e5128; font-family: 'Courier New', Courier, monospace; font-size: 1rem;">
+                <div class="form-group">
+                    <label class="form-label">Display Name:</label>
+                    <input type="text" id="newDisplayName" placeholder="Enter your new name" class="form-input">
                 </div>
                 <button id="saveNameBtn" class="confirm-btn">💾 Save Changes</button>
             </div>
         </div>
     </div>
 
+    <!-- Admin Floating Button -->
+    <a href="/Learning JS/admin.html" class="admin-float-btn" id="admin-btn" title="Admin Dashboard">
+        ⚙️
+    </a>
+
     <!-- Firebase & JavaScript -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-        import { getDatabase, ref, update } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+        import { getDatabase, ref, update, get } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
         const firebaseConfig = {
             apiKey: "AIzaSyClPgII54QDvJB3kiV1dWbqm1et_lHasvs",
@@ -419,10 +424,13 @@
         let authenticatedUser = null;
 
         // Monitor auth state and load user data
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
                 authenticatedUser = user;
                 loadUserProfile(user);
+
+                // Check if user is admin and show admin button
+                await checkAdminStatus(user);
             }
         });
 
@@ -436,6 +444,22 @@
                 document.getElementById('userProfileSection').style.display = 'block';
                 document.getElementById('profileDisplayName').textContent = userData.displayName || user.displayName || user.email;
                 document.getElementById('profileEmail').textContent = user.email;
+            }
+        }
+
+        // Check admin status and show button if admin
+        async function checkAdminStatus(user) {
+            try {
+                const adminRef = ref(database, `admins/${user.uid}`);
+                const snapshot = await get(adminRef);
+
+                if (snapshot.exists() && snapshot.val() === true) {
+                    // User is admin - show admin button
+                    document.getElementById('admin-btn').style.display = 'flex';
+                    console.log('Admin access granted');
+                }
+            } catch (error) {
+                console.error('Error checking admin status:', error);
             }
         }
 
@@ -474,27 +498,30 @@
                 return;
             }
 
-            if (!authenticatedUser) {
-                alert('You must be signed in to change your name.');
-                return;
-            }
-
             try {
                 // Update localStorage
                 const savedUser = localStorage.getItem('currentUser');
-                if (savedUser) {
-                    const userData = JSON.parse(savedUser);
-                    userData.displayName = newName;
-                    localStorage.setItem('currentUser', JSON.stringify(userData));
+                if (!savedUser) {
+                    alert('You must be signed in to change your name.');
+                    return;
                 }
 
-                // Update Firebase user-profiles node
-                const userProfileRef = ref(database, `user-profiles/${authenticatedUser.uid}`);
-                await update(userProfileRef, {
-                    displayName: newName,
-                    email: authenticatedUser.email,
-                    updatedAt: Date.now()
-                });
+                const userData = JSON.parse(savedUser);
+                userData.displayName = newName;
+                localStorage.setItem('currentUser', JSON.stringify(userData));
+
+                // Update Firebase - handle both Google and wallet users
+                const userId = authenticatedUser?.uid || userData.uid || userData.walletAddress;
+
+                if (userId) {
+                    const userProfileRef = ref(database, `user-profiles/${userId}`);
+                    await update(userProfileRef, {
+                        displayName: newName,
+                        email: userData.email || null,
+                        walletAddress: userData.walletAddress || null,
+                        updatedAt: Date.now()
+                    });
+                }
 
                 // Update display
                 document.getElementById('profileDisplayName').textContent = newName;

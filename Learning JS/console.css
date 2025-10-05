@@ -187,6 +187,16 @@ body {
     overflow: auto;
     background-color: rgba(0, 0, 0, 0.85);
     padding: 20px;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 .modal-content {
@@ -200,6 +210,18 @@ body {
     max-height: 90vh;
     overflow-y: auto;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    animation: slideIn 0.4s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
 
 .modal-header {
@@ -306,23 +328,29 @@ body {
 
 .confirm-btn {
     width: 100%;
-    padding: 15px;
-    background-color: #FFCC00;
+    padding: 16px;
+    background: linear-gradient(135deg, #FFCC00 0%, #FFD700 100%);
     color: #1e5128;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     font-family: 'Courier New', Courier, monospace;
     font-size: 1.2rem;
     font-weight: bold;
     cursor: pointer;
     margin-top: 20px;
     transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(255, 204, 0, 0.3);
 }
 
 .confirm-btn:hover {
-    background-color: #e6b800;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(255, 204, 0, 0.4);
+    background: linear-gradient(135deg, #FFD700 0%, #FFCC00 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(255, 204, 0, 0.5);
+}
+
+.confirm-btn:active {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(255, 204, 0, 0.4);
 }
 
 /* Instructions Modal Styling */
@@ -357,6 +385,77 @@ body {
     color: #FFCC00;
 }
 
+/* Modal Form Styles */
+.modal-description {
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 25px;
+    text-align: center;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-label {
+    color: #FFCC00;
+    font-weight: bold;
+    display: block;
+    margin-bottom: 10px;
+    font-size: 1rem;
+}
+
+.form-input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #FFCC00;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.95);
+    color: #1e5128;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #FFD700;
+    background: white;
+    box-shadow: 0 0 10px rgba(255, 204, 0, 0.3);
+}
+
+.form-input::placeholder {
+    color: rgba(30, 81, 40, 0.5);
+}
+
+/* Admin Floating Button */
+.admin-float-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 204, 0, 0.9);
+    border: 2px solid #FFCC00;
+    border-radius: 50%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.8rem;
+    box-shadow: 0 4px 15px rgba(255, 204, 0, 0.4);
+    transition: all 0.3s ease;
+    text-decoration: none;
+    z-index: 1000;
+}
+
+.admin-float-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(255, 204, 0, 0.6);
+}
+
 @media (max-width: 768px) {
     .modal-content {
         width: 95%;
@@ -369,5 +468,13 @@ body {
 
     .role-title {
         font-size: 1.1rem;
+    }
+
+    .admin-float-btn {
+        bottom: 20px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
     }
 }

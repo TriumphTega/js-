@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>My Notes</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1e5128 0%, #2d6a4f 50%, #1e5128 100%);
+            color: white;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 20px;
+        }
+
+        #app-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        #page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        #page-title {
+            font-size: clamp(2rem, 5vw, 3rem);
+            color: #FFCC00;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        #auth-section {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        #user-display {
+            display: none;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid #FFCC00;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            background-color: #FFCC00;
+            color: #1e5128;
+            border: 3px solid #1e5128;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #e6b800;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(255, 204, 0, 0.4);
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+            border-color: #495057;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        /* Loading and Auth Messages */
+        #loading-screen, #auth-required {
+            text-align: center;
+            padding: 100px 20px;
+        }
+
+        #auth-required {
+            display: none;
+        }
+
+        .google-signin-btn {
+            background-color: white !important;
+            color: #3c4043 !important;
+            border: 1px solid #dadce0 !important;
+            border-radius: 4px !important;
+            padding: 12px 20px !important;
+            font-family: 'Roboto', 'Arial', sans-serif !important;
+            font-size: 16px !important;
+            font-weight: 500 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 12px !important;
+            transition: all 0.2s ease !important;
+            box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15) !important;
+        }
+
+        .google-signin-btn:hover {
+            background-color: #f8f9fa !important;
+            border-color: #d2e3fc !important;
+            box-shadow: 0 1px 3px 0 rgba(60,64,67,0.3), 0 4px 8px 3px rgba(60,64,67,0.15) !important;
+            transform: translateY(0) !important;
+        }
+
+        /* PUBLIC VIEW */
+        #public-view {
+            display: none;
+        }
+
+        #categories-container {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .category-section {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 25px;
+            border: 2px solid rgba(255, 204, 0, 0.3);
+        }
+
+        .category-title {
+            font-size: 1.8rem;
+            color: #FFCC00;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .category-notes {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .note-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 8px;
+            padding: 20px;
+            color: #333;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .note-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .note-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #1e5128;
+        }
+
+        .note-date {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .note-content {
+            line-height: 1.6;
+            color: #444;
+            white-space: pre-wrap;
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 40px;
+            color: rgba(255, 204, 0, 0.7);
+            font-style: italic;
+        }
+
+        /* EDITOR VIEW */
+        #editor-view {
+            display: none;
+        }
+
+        #editor-container {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 20px;
+            min-height: 600px;
+        }
+
+        #notes-list-panel {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            border: 2px solid rgba(255, 204, 0, 0.3);
+        }
+
+        #new-note-button {
+            width: 100%;
+            padding: 15px;
+            background-color: #FFCC00;
+            color: #1e5128;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        #new-note-button:hover {
+            background-color: #e6b800;
+            transform: translateY(-2px);
+        }
+
+        #notes-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .list-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .list-item:hover {
+            background: rgba(255, 204, 0, 0.2);
+            border-color: #FFCC00;
+        }
+
+        .list-item.active {
+            background: rgba(255, 204, 0, 0.3);
+            border-color: #FFCC00;
+        }
+
+        .list-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #FFCC00;
+        }
+
+        .list-category {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        #editor-panel {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 25px;
+            border: 2px solid rgba(255, 204, 0, 0.3);
+        }
+
+        #editor-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: rgba(255, 204, 0, 0.5);
+            font-size: 1.2rem;
+            font-style: italic;
+        }
+
+        #editor-form {
+            display: none;
+        }
+
+        #form-title-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border: 2px solid #FFCC00;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #1e5128;
+            font-family: 'Courier New', Courier, monospace;
+            margin-bottom: 15px;
+        }
+
+        #form-category-select {
+            width: 100%;
+            padding: 12px;
+            font-size: 1rem;
+            border: 2px solid #FFCC00;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #1e5128;
+            font-family: 'Courier New', Courier, monospace;
+            margin-bottom: 15px;
+            cursor: pointer;
+        }
+
+        #form-content-textarea {
+            width: 100%;
+            min-height: 300px;
+            padding: 15px;
+            font-size: 1rem;
+            line-height: 1.6;
+            border: 2px solid #FFCC00;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            font-family: 'Courier New', Courier, monospace;
+            resize: vertical;
+            margin-bottom: 15px;
+        }
+
+        #form-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        #save-button, #delete-button, #cancel-button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #save-button {
+            background-color: #FFCC00;
+            color: #1e5128;
+        }
+
+        #save-button:hover {
+            background-color: #e6b800;
+        }
+
+        #delete-button {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        #delete-button:hover {
+            background-color: #c82333;
+        }
+
+        #cancel-button {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        #cancel-button:hover {
+            background-color: #5a6268;
+        }
+
+        #back-button-container {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        #back-button {
+            padding: 15px 40px;
+            background-color: #FFCC00;
+            color: #1e5128;
+            border: 3px solid #1e5128;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        #back-button:hover {
+            background-color: #e6b800;
+            transform: translateY(-3px);
+        }
+
+        @media (max-width: 768px) {
+            #editor-container {
+                grid-template-columns: 1fr;
+            }
+
+            #notes-list-panel {
+                max-height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app-container">
+        <div id="page-header">
+            <h1 id="page-title">📝 My Notes</h1>
+            <div id="auth-section">
+                <div id="user-display">
+                    <img id="user-avatar" src="" alt="User">
+                    <span id="user-name"></span>
+                    <button id="signOutBtn" class="btn btn-secondary">Sign Out</button>
+                </div>
+                <button id="view-toggle" class="btn" style="display:none;">Toggle View</button>
+            </div>
+        </div>
+
+        <!-- Loading Screen -->
+        <div id="loading-screen">
+            <h2>Loading your notes...</h2>
+        </div>
+
+        <!-- Auth Required Screen -->
+        <div id="auth-required">
+            <h2 style="margin-bottom: 20px;">Please sign in to view your notes</h2>
+            <button id="googleSignInBtn" class="google-signin-btn">
+                <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+                    <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                    <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                    <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+                    <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                    <path fill="none" d="M0 0h48v48H0z"/>
+                </svg>
+                <span>Sign in with Google</span>
+            </button>
+            <br><br>
+            <a href="/index.html" style="color: #FFCC00;">← Back to Home</a>
+        </div>
+
+        <!-- PUBLIC VIEW -->
+        <div id="public-view">
+            <div id="categories-container">
+                <!-- Categories will be dynamically generated -->
+            </div>
+        </div>
+
+        <!-- EDITOR VIEW -->
+        <div id="editor-view">
+            <div id="editor-container">
+                <!-- Left Panel: Notes List -->
+                <div id="notes-list-panel">
+                    <button id="new-note-button">+ New Note</button>
+                    <div id="notes-list">
+                        <!-- Notes will be dynamically generated -->
+                    </div>
+                </div>
+
+                <!-- Right Panel: Editor -->
+                <div id="editor-panel">
+                    <div id="editor-placeholder">
+                        Select a note to edit or create a new one
+                    </div>
+                    <div id="editor-form">
+                        <input type="text" id="form-title-input" placeholder="Note Title">
+                        <select id="form-category-select">
+                            <option value="spirituality">✨ Spirituality</option>
+                            <option value="music">🎵 Music</option>
+                            <option value="life">🌱 Life</option>
+                            <option value="love">💛 Love</option>
+                        </select>
+                        <textarea id="form-content-textarea" placeholder="Write your thoughts..."></textarea>
+                        <div id="form-actions">
+                            <button id="save-button">💾 Save</button>
+                            <button id="delete-button">🗑️ Delete</button>
+                            <button id="cancel-button">✖ Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="back-button-container">
+            <a href="/index.html" id="back-button">← Back to Home</a>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, query, where, getDocs, orderBy, Timestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyClPgII54QDvJB3kiV1dWbqm1et_lHasvs",
+            authDomain: "lunaris-45d84.firebaseapp.com",
+            projectId: "lunaris-45d84",
+            storageBucket: "lunaris-45d84.firebasestorage.app",
+            messagingSenderId: "74359858445",
+            appId: "1:74359858445:web:37772cebcbb0d71d707c44",
+            measurementId: "G-ETRK2NL1N2"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const provider = new GoogleAuthProvider();
+
+        let currentUser = null;
+        let currentNoteId = null;
+        let isPublicView = true;
+        let userNotes = [];
+
+        // DOM Elements
+        const loadingScreen = document.getElementById('loading-screen');
+        const authRequired = document.getElementById('auth-required');
+        const publicView = document.getElementById('public-view');
+        const editorView = document.getElementById('editor-view');
+        const userDisplay = document.getElementById('user-display');
+        const viewToggle = document.getElementById('view-toggle');
+
+        // Authentication
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                loadingScreen.style.display = 'none';
+                authRequired.style.display = 'none';
+
+                // Show user info
+                document.getElementById('user-avatar').src = user.photoURL || '';
+                document.getElementById('user-name').textContent = user.displayName || user.email;
+                userDisplay.style.display = 'flex';
+                viewToggle.style.display = 'block';
+
+                // Load user's notes
+                await loadUserNotes();
+                renderPublicView();
+                publicView.style.display = 'block';
+            } else {
+                currentUser = null;
+                loadingScreen.style.display = 'none';
+                authRequired.style.display = 'block';
+                publicView.style.display = 'none';
+                editorView.style.display = 'none';
+                userDisplay.style.display = 'none';
+                viewToggle.style.display = 'none';
+            }
+        });
+
+        // Google Sign In
+        document.getElementById('googleSignInBtn').addEventListener('click', async () => {
+            try {
+                await signInWithPopup(auth, provider);
+            } catch (error) {
+                console.error('Error signing in:', error);
+                alert('Sign in failed: ' + error.message);
+            }
+        });
+
+        // Sign Out
+        document.getElementById('signOutBtn').addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+            } catch (error) {
+                console.error('Error signing out:', error);
+            }
+        });
+
+        // Load user's notes from Firestore
+        async function loadUserNotes() {
+            if (!currentUser) return;
+
+            try {
+                const q = query(
+                    collection(db, 'notes'),
+                    where('userId', '==', currentUser.uid),
+                    orderBy('createdAt', 'desc')
+                );
+
+                const querySnapshot = await getDocs(q);
+                userNotes = [];
+
+                querySnapshot.forEach((doc) => {
+                    userNotes.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+
+                console.log('Loaded notes:', userNotes.length);
+            } catch (error) {
+                console.error('Error loading notes:', error);
+            }
+        }
+
+        // Render public view
+        function renderPublicView() {
+            const container = document.getElementById('categories-container');
+            container.innerHTML = '';
+
+            const categories = {
+                spirituality: { title: '✨ Spirituality', notes: [] },
+                music: { title: '🎵 Music', notes: [] },
+                life: { title: '🌱 Life', notes: [] },
+                love: { title: '💛 Love', notes: [] }
+            };
+
+            // Group notes by category
+            userNotes.forEach(note => {
+                if (categories[note.category]) {
+                    categories[note.category].notes.push(note);
+                }
+            });
+
+            // Create category sections
+            Object.entries(categories).forEach(([key, cat]) => {
+                const section = document.createElement('div');
+                section.className = 'category-section';
+
+                const title = document.createElement('h2');
+                title.className = 'category-title';
+                title.textContent = cat.title;
+                section.appendChild(title);
+
+                const notesContainer = document.createElement('div');
+                notesContainer.className = 'category-notes';
+
+                if (cat.notes.length === 0) {
+                    const empty = document.createElement('div');
+                    empty.className = 'empty-message';
+                    empty.textContent = 'No notes yet in this category';
+                    notesContainer.appendChild(empty);
+                } else {
+                    cat.notes.forEach(note => {
+                        const noteCard = document.createElement('div');
+                        noteCard.className = 'note-card';
+
+                        const noteDate = note.createdAt?.toDate ?
+                            note.createdAt.toDate().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) :
+                            new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+
+                        noteCard.innerHTML = `
+                            <div class="note-header">
+                                <div class="note-title">${note.title}</div>
+                                <div class="note-date">${noteDate}</div>
+                            </div>
+                            <div class="note-content">${note.content}</div>
+                        `;
+                        notesContainer.appendChild(noteCard);
+                    });
+                }
+
+                section.appendChild(notesContainer);
+                container.appendChild(section);
+            });
+        }
+
+        // Render editor list
+        function renderEditorList() {
+            const notesList = document.getElementById('notes-list');
+            notesList.innerHTML = '';
+
+            const categoryEmojis = {
+                spirituality: '✨',
+                music: '🎵',
+                life: '🌱',
+                love: '💛'
+            };
+
+            userNotes.forEach(note => {
+                const listItem = document.createElement('div');
+                listItem.className = 'list-item';
+                listItem.dataset.noteId = note.id;
+
+                const noteDate = note.createdAt?.toDate ?
+                    note.createdAt.toDate().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) :
+                    new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+
+                listItem.innerHTML = `
+                    <div class="list-title">${note.title}</div>
+                    <div class="list-category">${categoryEmojis[note.category]} ${note.category.charAt(0).toUpperCase() + note.category.slice(1)} • ${noteDate}</div>
+                `;
+
+                listItem.addEventListener('click', () => openNote(note));
+                notesList.appendChild(listItem);
+            });
+        }
+
+        // Open note in editor
+        function openNote(note) {
+            currentNoteId = note.id;
+
+            document.getElementById('form-title-input').value = note.title;
+            document.getElementById('form-category-select').value = note.category;
+            document.getElementById('form-content-textarea').value = note.content;
+            document.getElementById('editor-placeholder').style.display = 'none';
+            document.getElementById('editor-form').style.display = 'block';
+            document.getElementById('delete-button').style.display = 'inline-block';
+
+            // Update active state
+            document.querySelectorAll('.list-item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            const activeItem = document.querySelector(`[data-note-id="${note.id}"]`);
+            if (activeItem) {
+                activeItem.classList.add('active');
+            }
+        }
+
+        // Toggle view
+        viewToggle.addEventListener('click', () => {
+            if (isPublicView) {
+                publicView.style.display = 'none';
+                editorView.style.display = 'block';
+                viewToggle.textContent = '👁️ Public View';
+                renderEditorList();
+                isPublicView = false;
+            } else {
+                editorView.style.display = 'none';
+                publicView.style.display = 'block';
+                viewToggle.textContent = '✏️ Editor View';
+                renderPublicView();
+                isPublicView = true;
+            }
+        });
+
+        // New note
+        document.getElementById('new-note-button').addEventListener('click', () => {
+            currentNoteId = null;
+            document.getElementById('form-title-input').value = '';
+            document.getElementById('form-category-select').value = 'spirituality';
+            document.getElementById('form-content-textarea').value = '';
+            document.getElementById('editor-placeholder').style.display = 'none';
+            document.getElementById('editor-form').style.display = 'block';
+            document.getElementById('delete-button').style.display = 'none';
+
+            document.querySelectorAll('.list-item').forEach(item => {
+                item.classList.remove('active');
+            });
+        });
+
+        // Save note
+        document.getElementById('save-button').addEventListener('click', async () => {
+            const title = document.getElementById('form-title-input').value.trim();
+            const category = document.getElementById('form-category-select').value;
+            const content = document.getElementById('form-content-textarea').value.trim();
+
+            if (!title || !content) {
+                alert('Please fill in both title and content');
+                return;
+            }
+
+            try {
+                if (currentNoteId) {
+                    // Update existing note
+                    const noteRef = doc(db, 'notes', currentNoteId);
+                    await updateDoc(noteRef, {
+                        title,
+                        category,
+                        content,
+                        updatedAt: Timestamp.now()
+                    });
+                } else {
+                    // Create new note
+                    await addDoc(collection(db, 'notes'), {
+                        userId: currentUser.uid,
+                        title,
+                        category,
+                        content,
+                        createdAt: Timestamp.now(),
+                        updatedAt: Timestamp.now()
+                    });
+                }
+
+                await loadUserNotes();
+                renderEditorList();
+                renderPublicView();
+
+                alert('Note saved successfully!');
+
+                // Reset form
+                document.getElementById('editor-placeholder').style.display = 'flex';
+                document.getElementById('editor-form').style.display = 'none';
+                currentNoteId = null;
+            } catch (error) {
+                console.error('Error saving note:', error);
+                alert('Error saving note: ' + error.message);
+            }
+        });
+
+        // Delete note
+        document.getElementById('delete-button').addEventListener('click', async () => {
+            if (!currentNoteId) return;
+
+            if (confirm('Are you sure you want to delete this note?')) {
+                try {
+                    await deleteDoc(doc(db, 'notes', currentNoteId));
+
+                    await loadUserNotes();
+                    renderEditorList();
+                    renderPublicView();
+
+                    alert('Note deleted successfully!');
+
+                    document.getElementById('editor-placeholder').style.display = 'flex';
+                    document.getElementById('editor-form').style.display = 'none';
+                    currentNoteId = null;
+                } catch (error) {
+                    console.error('Error deleting note:', error);
+                    alert('Error deleting note: ' + error.message);
+                }
+            }
+        });
+
+        // Cancel editing
+        document.getElementById('cancel-button').addEventListener('click', () => {
+            document.getElementById('editor-placeholder').style.display = 'flex';
+            document.getElementById('editor-form').style.display = 'none';
+            currentNoteId = null;
+
+            document.querySelectorAll('.list-item').forEach(item => {
+                item.classList.remove('active');
+            });
+        });
+    </script>
+</body>
+</html>

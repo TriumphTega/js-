@@ -2,107 +2,1028 @@
 <head>
     <meta charset='utf-8'>
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-    <title>Console</title>
+    <title>Console - Role Selection</title>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
     <link rel="stylesheet" type="text/css" href="/Learning JS/index.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&display=swap" rel="stylesheet">
-    <!-- Moved script to end of body for better perf -->
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&display=swap" rel="stylesheet">
 </head>
 <body>
+    <!-- ============================================
+         HEADER SECTION
+         Shows user info and navigation
+    ============================================ -->
     <div id="my-button">
         <button id="backButton">
             <a href="/index.html">Back</a>
         </button>
     </div>
-    
+
+    <!-- Welcome message for new users -->
     <div id="counter">
-        <h1>Pick Your Poison</h1>
+        <h1 id="welcomeMessage">Welcome to Mission Control</h1>
+        <p id="userGreeting" style="color: #FFCC00; font-size: 1.2rem;"></p>
     </div>
 
-    <button id="openModalBtn" style="display: block; margin: 0 auto; background-color: green; color: white; padding: 10px 20px; border: none; border-radius: 5px;">Open Options</button>
+    <!-- Current role display (hidden until role is selected) -->
+    <div id="roleDisplay" style="display: none; text-align: center; margin: 30px auto; padding: 20px; background: rgba(0,0,0,0.3); border-radius: 10px; max-width: 600px;">
+        <h2 style="color: #FFCC00;">Your Role</h2>
+        <h3 id="currentRoleName" style="color: white; margin: 10px 0;"></h3>
+        <p id="currentRoleLore" style="color: rgba(255,255,255,0.8); font-style: italic;"></p>
+        <p id="roleLockMessage" style="color: #FFCC00; margin-top: 10px; font-size: 0.9rem;">🔒 Role permanently locked</p>
+        <button id="progressBtn" style="margin-top: 20px; padding: 15px 40px; background-color: #FFCC00; color: #1e5128; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1.1rem; font-family: 'Orbitron', sans-serif;">Continue to Instructions →</button>
+    </div>
 
+    <button id="openModalBtn" style="display: block; margin: 20px auto; background-color: green; color: white; padding: 15px 30px; border: none; border-radius: 8px; font-size: 1.1rem; cursor: pointer; font-family: 'Orbitron', sans-serif;">Select Your Role</button>
+
+    <!-- ============================================
+         ROLE SELECTION MODAL
+         Modal for choosing colony role
+    ============================================ -->
     <div id="myModal" class="modal">
         <div class="modal-content">
             <span class="close-btn">&times;</span>
-            <h2>Choose an Option:</h2>
+            <h2>Choose Your Colony Role:</h2>
             <div class="options-container">
                 <label>
                     <input type="radio" name="choice" value="option1">
                     <div class="mainsflex">1. Base Engineer 🔧
-                        <ul><li>Lore: Responsible for keeping habitats safe, air systems running, and power online.</li></ul>
-                        <ul><li>Perks: +10% efficiency when upgrading base structures (spends fewer tokens).</li></ul>
+                        <ul><li><strong>Lore:</strong> Responsible for keeping habitats safe, air systems running, and power online.</li></ul>
+                        <ul><li><strong>Perks:</strong> +10% efficiency when upgrading base structures (spends fewer tokens).</li></ul>
                         <ul><li>Daily check-ins give an extra oxygen resource.</li></ul>
-                        <ul><li>Unlocks exclusive “Habitat Module” skins.</li></ul>
+                        <ul><li>Unlocks exclusive "Habitat Module" skins.</li></ul>
                     </div>
                 </label>
-                
+
                 <label>
                     <input type="radio" name="choice" value="option2">
                     <div class="mainsflex">2. Exploratory Engineer 🛰️
-                        <ul><li>Lore: Specialists who adapt rovers, drones, and equipment for expeditions.</li></ul>
-                        <ul><li>Perks: +5% Lunaris earned from exploration tasks (walking, outdoor activities).</li></ul>
+                        <ul><li><strong>Lore:</strong> Specialists who adapt rovers, drones, and equipment for expeditions.</li></ul>
+                        <ul><li><strong>Perks:</strong> +5% Lunaris earned from exploration tasks (walking, outdoor activities).</li></ul>
                         <ul><li>Unlocks early access to the Red Dunes Zone.</li></ul>
-                        <ul><li>Rare chance of finding bonus “Martian Mineral NFTs” on quests.</li></ul>
+                        <ul><li>Rare chance of finding bonus "Martian Mineral NFTs" on quests.</li></ul>
                     </div>
                 </label>
-                
+
                 <label>
                     <input type="radio" name="choice" value="option3">
                     <div class="mainsflex">3. Food Tech & Survival Skills Expert 🌱
-                        <ul><li>Lore: Masters of hydroponics, rationing, and making Martian soil fertile.</li></ul>
-                        <ul><li>Perks: +10% yield from food/habit tasks (hydration, journaling, sleep).</li></ul>
+                        <ul><li><strong>Lore:</strong> Masters of hydroponics, rationing, and making Martian soil fertile.</li></ul>
+                        <ul><li><strong>Perks:</strong> +10% yield from food/habit tasks (hydration, journaling, sleep).</li></ul>
                         <ul><li>Daily bonus: Hydroponics Tokens (used to trade at Crater Nexus).</li></ul>
                         <ul><li>Special recipes (NFTs) to grow rare crops with token benefits.</li></ul>
                     </div>
                 </label>
-                
+
                 <label>
                     <input type="radio" name="choice" value="option4">
                     <div class="mainsflex">4. Comms Specialist 📡
-                        <ul><li>Lore: Maintains communication networks between colonists and Earth.</li></ul>
-                        <ul><li>Perks: +5% staking rewards (better efficiency in DAO/community missions)</li></ul>
+                        <ul><li><strong>Lore:</strong> Maintains communication networks between colonists and Earth.</li></ul>
+                        <ul><li><strong>Perks:</strong> +5% staking rewards (better efficiency in DAO/community missions)</li></ul>
                         <ul><li>Ability to broadcast colony-wide boosts (mini-events).</li></ul>
                         <ul><li>Exclusive cosmetic perks: animated holographic badges.</li></ul>
                     </div>
                 </label>
-                
+
                 <label>
                     <input type="radio" name="choice" value="option5">
                     <div class="mainsflex">5. Resource Miner ⛏️
-                        <ul><li>Lore: Extracts raw materials from Martian crust for colony use.</li></ul>
-                        <ul><li>Perks: +15% efficiency when gathering rare resources.</li></ul>
+                        <ul><li><strong>Lore:</strong> Extracts raw materials from Martian crust for colony use.</li></ul>
+                        <ul><li><strong>Perks:</strong> +15% efficiency when gathering rare resources.</li></ul>
                         <ul><li>Bonus NFT drops when participating in mining missions.</li></ul>
                         <ul><li>Unlocks special trade deals at Crater Nexus.</li></ul>
                     </div>
                 </label>
-                
+
                 <label>
                     <input type="radio" name="choice" value="option6">
                     <div class="mainsflex">6. Medical Officer 🩺
-                        <ul><li>Lore: Ensures colonists remain healthy and fit for survival.</li></ul>
-                        <ul><li>Perks: +5% daily token boost when logging wellness tasks (sleep, hydration).</li></ul>
-                        <ul><li>Ability to “heal” other colonists in co-op missions (share buffs).</li></ul>
+                        <ul><li><strong>Lore:</strong> Ensures colonists remain healthy and fit for survival.</li></ul>
+                        <ul><li><strong>Perks:</strong> +5% daily token boost when logging wellness tasks (sleep, hydration).</li></ul>
+                        <ul><li>Ability to "heal" other colonists in co-op missions (share buffs).</li></ul>
                         <ul><li>Special gear: medical pods that double as collectibles.</li></ul>
                     </div>
                 </label>
-                
+
                 <label>
                     <input type="radio" name="choice" value="option7">
                     <div class="mainsflex">7. Navigator 🌌
-                        <ul><li>Lore: Charts safe paths across dunes, craters, and ice caps.</li></ul>
-                        <ul><li>Perks: Shortens time/requirements for exploration quests.</li></ul>
+                        <ul><li><strong>Lore:</strong> Charts safe paths across dunes, craters, and ice caps.</li></ul>
+                        <ul><li><strong>Perks:</strong> Shortens time/requirements for exploration quests.</li></ul>
                         <ul><li>Unlocks fast travel between colony zones.</li></ul>
                         <ul><li>Extra bonus tokens for completing streaks.</li></ul>
                     </div>
                 </label>
             </div>
-            <button id="confirmChoiceBtn">Confirm</button>
+            <button id="confirmChoiceBtn">Confirm Selection</button>
         </div>
     </div>
 
-    <!-- Add script here at end -->
+    <!-- ============================================
+         INSTRUCTIONS MODAL
+         Explains how the app works
+    ============================================ -->
+    <div id="instructionsModal" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <span class="close-instructions">&times;</span>
+            <h2 style="color: #FFCC00; text-align: center;">🚀 How Lunaris Works</h2>
+
+            <div style="text-align: left; padding: 20px; line-height: 1.8;">
+                <h3 style="color: #FFCC00; margin-top: 20px;">📋 Your Mission</h3>
+                <p>Lunaris is a productivity and to-do app with a Mars colony theme. Your role determines the bonuses and perks you receive as you complete tasks and build your colony.</p>
+
+                <h3 style="color: #FFCC00; margin-top: 20px;">🎯 Core Features</h3>
+                <ul style="margin-left: 20px;">
+                    <li><strong>Task Management:</strong> Create and complete daily missions (to-dos)</li>
+                    <li><strong>Role-Based Perks:</strong> Your selected role gives you unique bonuses</li>
+                    <li><strong>Progress Tracking:</strong> Track streaks, earn rewards, and level up</li>
+                    <li><strong>Colony Building:</strong> Unlock new zones and upgrades as you progress</li>
+                </ul>
+
+                <h3 style="color: #FFCC00; margin-top: 20px;">⚡ How Your Role Works</h3>
+                <p id="roleInstructions">Your role is now <strong>permanently locked</strong>. Each time you complete tasks, your role's perks will automatically apply bonus rewards and efficiency boosts.</p>
+
+                <h3 style="color: #FFCC00; margin-top: 20px;">🎮 Getting Started</h3>
+                <ol style="margin-left: 20px;">
+                    <li>Create your first mission task below</li>
+                    <li>Complete tasks to earn Lunaris tokens</li>
+                    <li>Track your daily streaks for bonus multipliers</li>
+                    <li>Unlock new colony zones and features</li>
+                </ol>
+
+                <h3 style="color: #FFCC00; margin-top: 20px;">💡 Pro Tips</h3>
+                <ul style="margin-left: 20px;">
+                    <li>Daily check-ins maximize your role's bonus rewards</li>
+                    <li>Completing task streaks unlocks special perks</li>
+                    <li>Your role's lore adds flavor to your experience</li>
+                    <li>Notes page available for journaling and planning</li>
+                </ul>
+
+                <div style="text-align: center; margin-top: 30px;">
+                    <button id="startMissionsBtn" style="padding: 15px 40px; background-color: #FFCC00; color: #1e5128; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1.2rem; font-family: 'Orbitron', sans-serif;">🚀 Start Your Missions!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+         COLONY DASHBOARD - MAIN PRODUCTIVITY SECTION
+         Daily check-in, resources, tasks, and tokens
+    ============================================ -->
+    <div id="colonyDashboard" style="max-width: 1200px; margin: 40px auto; padding: 20px; display: none;">
+
+        <!-- ============================================
+             RESOURCE DASHBOARD
+             Shows Oxygen, Hydroponics, Energy, Lunaris
+        ============================================ -->
+        <div id="resourceDashboard" style="background: rgba(0,0,0,0.4); border-radius: 15px; padding: 25px; margin-bottom: 30px; border: 2px solid rgba(255,204,0,0.3);">
+            <h2 style="color: #FFCC00; text-align: center; margin-bottom: 25px;">🏠 Base Camp Alpha - Resource Status</h2>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                <!-- Lunaris Tokens -->
+                <div style="background: rgba(255,204,0,0.1); border: 2px solid #FFCC00; border-radius: 10px; padding: 20px; text-align: center;">
+                    <div style="font-size: 2.5rem;">💰</div>
+                    <div style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin: 5px 0;">Lunaris Tokens</div>
+                    <div id="lunarisDisplay" style="color: #FFCC00; font-size: 2rem; font-weight: bold;">0</div>
+                </div>
+
+                <!-- Oxygen -->
+                <div style="background: rgba(135,206,250,0.1); border: 2px solid #87CEEB; border-radius: 10px; padding: 20px; text-align: center;">
+                    <div style="font-size: 2.5rem;">💨</div>
+                    <div style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin: 5px 0;">Oxygen</div>
+                    <div id="oxygenDisplay" style="color: #87CEEB; font-size: 2rem; font-weight: bold;">100%</div>
+                </div>
+
+                <!-- Hydroponics -->
+                <div style="background: rgba(0,255,0,0.1); border: 2px solid #32CD32; border-radius: 10px; padding: 20px; text-align: center;">
+                    <div style="font-size: 2.5rem;">🌱</div>
+                    <div style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin: 5px 0;">Hydroponics</div>
+                    <div id="hydroponicsDisplay" style="color: #32CD32; font-size: 2rem; font-weight: bold;">100%</div>
+                </div>
+
+                <!-- Energy -->
+                <div style="background: rgba(255,215,0,0.1); border: 2px solid #FFD700; border-radius: 10px; padding: 20px; text-align: center;">
+                    <div style="font-size: 2.5rem;">⚡</div>
+                    <div style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin: 5px 0;">Energy</div>
+                    <div id="energyDisplay" style="color: #FFD700; font-size: 2rem; font-weight: bold;">100%</div>
+                </div>
+            </div>
+
+            <!-- Streak Display -->
+            <div style="text-align: center; margin-top: 20px; padding: 15px; background: rgba(255,204,0,0.1); border-radius: 10px;">
+                <span style="color: rgba(255,255,255,0.7);">🔥 Current Streak:</span>
+                <span id="streakDisplay" style="color: #FFCC00; font-size: 1.5rem; font-weight: bold; margin-left: 10px;">0 days</span>
+            </div>
+        </div>
+
+        <!-- ============================================
+             DAILY CHECK-IN SECTION
+             Morning Colony Report
+        ============================================ -->
+        <div id="dailyCheckInSection" style="background: rgba(0,0,0,0.4); border-radius: 15px; padding: 25px; margin-bottom: 30px; border: 2px solid rgba(255,204,0,0.3);">
+            <h2 style="color: #FFCC00; text-align: center; margin-bottom: 20px;">📋 Morning Colony Report</h2>
+
+            <div id="checkInStatus" style="text-align: center;">
+                <button id="dailyCheckInBtn" style="padding: 15px 40px; background-color: #FFCC00; color: #1e5128; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1.2rem; font-family: 'Orbitron', sans-serif;">
+                    🌅 Complete Daily Check-In
+                </button>
+                <p id="checkInMessage" style="color: rgba(255,255,255,0.7); margin-top: 15px;">Start your day and earn bonus tokens!</p>
+            </div>
+
+            <div id="checkInOptions" style="display: none; margin-top: 20px;">
+                <p style="color: #FFCC00; text-align: center; margin-bottom: 15px;">Select your priority task for today:</p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <button class="check-in-option" data-resource="oxygen" style="padding: 15px; background: rgba(135,206,250,0.2); border: 2px solid #87CEEB; border-radius: 8px; color: white; cursor: pointer; font-family: 'Orbitron', sans-serif;">
+                        💨 Check Oxygen Systems
+                    </button>
+                    <button class="check-in-option" data-resource="hydroponics" style="padding: 15px; background: rgba(0,255,0,0.2); border: 2px solid #32CD32; border-radius: 8px; color: white; cursor: pointer; font-family: 'Orbitron', sans-serif;">
+                        🌱 Water Hydroponics
+                    </button>
+                    <button class="check-in-option" data-resource="energy" style="padding: 15px; background: rgba(255,215,0,0.2); border: 2px solid #FFD700; border-radius: 8px; color: white; cursor: pointer; font-family: 'Orbitron', sans-serif;">
+                        ⚡ Inspect Energy Grid
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================
+             TASK MANAGEMENT SECTION
+             Create and complete colony missions
+        ============================================ -->
+        <div id="taskSection" style="background: rgba(0,0,0,0.4); border-radius: 15px; padding: 25px; border: 2px solid rgba(255,204,0,0.3);">
+            <h2 style="color: #FFCC00; text-align: center; margin-bottom: 20px;">🎯 Daily Colony Missions</h2>
+
+            <!-- Task Creation -->
+            <div style="background: rgba(255,204,0,0.1); border-radius: 10px; padding: 20px; margin-bottom: 20px;">
+                <h3 style="color: #FFCC00; margin-bottom: 15px;">Create New Mission</h3>
+                <select id="taskTypeSelect" style="width: 100%; padding: 12px; margin-bottom: 10px; border: 2px solid #FFCC00; border-radius: 5px; background: rgba(255,255,255,0.95); color: #1e5128; font-family: 'Orbitron', sans-serif;">
+                    <option value="">-- Select Mission Type --</option>
+                    <option value="hydration">💧 Water Hydroponics (Drink Water)</option>
+                    <option value="exploration">🚶 Collect Geological Samples (Go for Walk)</option>
+                    <option value="logging">📝 File Colony Log (Journal/Note)</option>
+                    <option value="energy">😴 Restore Energy (Sleep Early)</option>
+                    <option value="maintenance">🔧 Base Maintenance (Clean/Organize)</option>
+                    <option value="research">🔬 Research Project (Study/Learn)</option>
+                    <option value="communication">📡 Communications Check (Social Connection)</option>
+                    <option value="custom">✏️ Custom Mission</option>
+                </select>
+                <input type="text" id="taskDescInput" placeholder="Mission details (optional)" style="width: 100%; padding: 12px; margin-bottom: 10px; border: 2px solid #FFCC00; border-radius: 5px; background: rgba(255,255,255,0.95); color: #1e5128; font-family: 'Orbitron', sans-serif;">
+                <button id="createTaskBtn" style="width: 100%; padding: 15px; background-color: #FFCC00; color: #1e5128; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1.1rem; font-family: 'Orbitron', sans-serif;">
+                    + Create Mission
+                </button>
+            </div>
+
+            <!-- Active Tasks -->
+            <div id="activeTasks">
+                <h3 style="color: #FFCC00; margin-bottom: 15px;">Active Missions</h3>
+                <div id="tasksList" style="display: flex; flex-direction: column; gap: 15px;">
+                    <p style="color: rgba(255,255,255,0.5); text-align: center; padding: 30px;">No active missions. Create your first mission above!</p>
+                </div>
+            </div>
+
+            <!-- Completed Tasks Today -->
+            <div id="completedSection" style="margin-top: 30px; padding-top: 20px; border-top: 2px solid rgba(255,204,0,0.3);">
+                <h3 style="color: #FFCC00; margin-bottom: 15px;">✅ Completed Today</h3>
+                <div id="completedTasksList" style="display: flex; flex-direction: column; gap: 10px;">
+                    <p style="color: rgba(255,255,255,0.5); text-align: center; padding: 20px;">No missions completed yet today.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+         FIREBASE SDK & ROLE MANAGEMENT
+         Handles role selection and storage
+    ============================================ -->
+    <script type="module">
+        /* =============================================
+           📋 CODE SECTIONS QUICK REFERENCE
+           =============================================
+
+           Line 186-235:  FIREBASE CONFIG - Firebase initialization
+           Line 237-312:  ROLE DATA - All 7 roles with perks defined
+           Line 314-382:  USER SESSION - Detects new users & existing roles
+           Line 384-454:  MODAL MANAGEMENT - Role selection & instructions modals
+           Line 456-521:  ROLE SELECTION HANDLER - Saves & locks role permanently
+           Line 523-548:  DISPLAY FUNCTIONS - Shows role info on page
+           Line 550-574:  GLOBAL FUNCTIONS - Access role data from other pages
+
+           🔑 KEY FEATURES:
+           - Roles are PERMANENTLY LOCKED after selection
+           - Progress button opens instructions modal
+           - Instructions explain how the app works
+           - Role perks accessible via window.getUserRole()
+        */
+
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getDatabase, ref, update } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+        // ============================================
+        // FIREBASE CONFIGURATION
+        // Connects to Firebase services
+        // ============================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyClPgII54QDvJB3kiV1dWbqm1et_lHasvs",
+            authDomain: "lunaris-45d84.firebaseapp.com",
+            projectId: "lunaris-45d84",
+            storageBucket: "lunaris-45d84.firebasestorage.app",
+            messagingSenderId: "74359858445",
+            appId: "1:74359858445:web:37772cebcbb0d71d707c44",
+            measurementId: "G-ETRK2NL1N2",
+            databaseURL: "https://lunaris-45d84-default-rtdb.firebaseio.com"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // ============================================
+        // ROLE DATA CONFIGURATION
+        // Defines all available roles and their properties
+        // ============================================
+        const ROLES = {
+            'option1': {
+                name: 'Base Engineer',
+                emoji: '🔧',
+                lore: 'Responsible for keeping habitats safe, air systems running, and power online.',
+                perks: {
+                    efficiency: 1.10,  // +10% efficiency
+                    dailyBonus: 'oxygen',
+                    specialUnlock: 'Habitat Module Skins'
+                }
+            },
+            'option2': {
+                name: 'Exploratory Engineer',
+                emoji: '🛰️',
+                lore: 'Specialists who adapt rovers, drones, and equipment for expeditions.',
+                perks: {
+                    earningBoost: 1.05,  // +5% Lunaris earned
+                    zoneAccess: 'Red Dunes Zone',
+                    specialUnlock: 'Martian Mineral NFTs'
+                }
+            },
+            'option3': {
+                name: 'Food Tech & Survival Expert',
+                emoji: '🌱',
+                lore: 'Masters of hydroponics, rationing, and making Martian soil fertile.',
+                perks: {
+                    taskYield: 1.10,  // +10% yield from tasks
+                    dailyBonus: 'hydroponics',
+                    specialUnlock: 'Rare Crop Recipes'
+                }
+            },
+            'option4': {
+                name: 'Comms Specialist',
+                emoji: '📡',
+                lore: 'Maintains communication networks between colonists and Earth.',
+                perks: {
+                    stakingBonus: 1.05,  // +5% staking rewards
+                    specialAbility: 'Colony Broadcasts',
+                    specialUnlock: 'Holographic Badges'
+                }
+            },
+            'option5': {
+                name: 'Resource Miner',
+                emoji: '⛏️',
+                lore: 'Extracts raw materials from Martian crust for colony use.',
+                perks: {
+                    miningEfficiency: 1.15,  // +15% efficiency
+                    specialUnlock: 'Mining NFT Drops',
+                    tradingBonus: 'Crater Nexus Deals'
+                }
+            },
+            'option6': {
+                name: 'Medical Officer',
+                emoji: '🩺',
+                lore: 'Ensures colonists remain healthy and fit for survival.',
+                perks: {
+                    wellnessBonus: 1.05,  // +5% wellness task bonus
+                    specialAbility: 'Heal Others',
+                    specialUnlock: 'Medical Pods'
+                }
+            },
+            'option7': {
+                name: 'Navigator',
+                emoji: '🌌',
+                lore: 'Charts safe paths across dunes, craters, and ice caps.',
+                perks: {
+                    questSpeed: 0.85,  // 15% faster quests
+                    fastTravel: true,
+                    streakBonus: 1.10  // +10% streak bonus
+                }
+            }
+        };
+
+        // ============================================
+        // USER SESSION MANAGEMENT
+        // Handles user data from sign-up or existing session
+        // ============================================
+        let currentUser = null;
+        let currentRole = null;
+
+        // Check if user just signed up
+        const newUserData = localStorage.getItem('newUserSignup');
+        if (newUserData) {
+            currentUser = JSON.parse(newUserData);
+            document.getElementById('userGreeting').textContent = `Welcome, ${currentUser.name}! 🚀`;
+            document.getElementById('welcomeMessage').textContent = 'Mission Control - Choose Your Role';
+        }
+
+        // Check if user already has a role
+        const existingRole = localStorage.getItem('userRole');
+        if (existingRole) {
+            currentRole = JSON.parse(existingRole);
+            displayCurrentRole();
+        }
+
+        // ============================================
+        // MODAL MANAGEMENT
+        // Controls opening/closing role selection modal
+        // ============================================
+        const openBtn = document.getElementById('openModalBtn');
+        const modal = document.getElementById('myModal');
+        const closeBtn = document.querySelector('.close-btn');
+        const confirmBtn = document.getElementById('confirmChoiceBtn');
+
+        // Instructions modal elements
+        const instructionsModal = document.getElementById('instructionsModal');
+        const closeInstructions = document.querySelector('.close-instructions');
+        const progressBtn = document.getElementById('progressBtn');
+        const startMissionsBtn = document.getElementById('startMissionsBtn');
+
+        // Auto-open modal for new users
+        if (newUserData && !existingRole) {
+            setTimeout(() => {
+                modal.style.display = 'block';
+            }, 500);
+        }
+
+        // Open modal on button click (only if role not locked)
+        openBtn.addEventListener('click', () => {
+            if (currentRole && currentRole.locked) {
+                alert('🔒 Your role is permanently locked! Role changes are not available at this time.');
+                return;
+            }
+            modal.style.display = 'block';
+        });
+
+        // Close modal on X click
+        closeBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+
+        // ============================================
+        // INSTRUCTIONS MODAL MANAGEMENT
+        // Handles instructions/explanation modal
+        // ============================================
+
+        // Open instructions when Progress button is clicked
+        progressBtn.addEventListener('click', () => {
+            instructionsModal.style.display = 'block';
+
+            // Customize instructions with user's role
+            const roleInstructionsText = document.getElementById('roleInstructions');
+            if (currentRole) {
+                roleInstructionsText.innerHTML = `As a <strong>${currentRole.emoji} ${currentRole.name}</strong>, your perks are now <strong>permanently locked</strong>. ${currentRole.lore}<br><br>Each time you complete tasks, your role's perks will automatically apply bonus rewards and efficiency boosts.`;
+            }
+        });
+
+        // Close instructions modal
+        closeInstructions.addEventListener('click', () => {
+            instructionsModal.style.display = 'none';
+        });
+
+        // Start missions button - closes modal and shows colony dashboard
+        startMissionsBtn.addEventListener('click', () => {
+            instructionsModal.style.display = 'none';
+            document.getElementById('colonyDashboard').style.display = 'block';
+
+            // Initialize dashboard
+            initializeColonyDashboard();
+
+            // Scroll to dashboard
+            document.getElementById('colonyDashboard').scrollIntoView({ behavior: 'smooth' });
+        });
+
+        // Close modal on outside click
+        window.addEventListener('click', (event) => {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+            if (event.target === instructionsModal) {
+                instructionsModal.style.display = 'none';
+            }
+        });
+
+        // ============================================
+        // ROLE SELECTION HANDLER
+        // Saves selected role to Firebase and localStorage
+        // ============================================
+        confirmBtn.addEventListener('click', async () => {
+            const selected = document.querySelector('input[name="choice"]:checked');
+
+            if (!selected) {
+                alert('Please select a role!');
+                return;
+            }
+
+            const roleValue = selected.value;
+            const roleData = ROLES[roleValue];
+
+            if (!roleData) {
+                alert('Invalid role selected!');
+                return;
+            }
+
+            try {
+                // ============================================
+                // PERMANENT ROLE LOCK
+                // Role is saved to Firebase and can't be changed
+                // ============================================
+
+                // Save role to Firebase if user signed up
+                if (currentUser && currentUser.signupId) {
+                    const userRef = ref(database, `colony-signups/${currentUser.signupId}`);
+                    await update(userRef, {
+                        role: roleValue,
+                        roleName: roleData.name,
+                        roleSelectedAt: Date.now(),
+                        roleLocked: true  // Permanent lock
+                    });
+                    console.log('Role permanently saved to Firebase!');
+                }
+
+                // Save role to localStorage for quick access
+                const roleInfo = {
+                    value: roleValue,
+                    name: roleData.name,
+                    emoji: roleData.emoji,
+                    lore: roleData.lore,
+                    perks: roleData.perks,
+                    selectedAt: Date.now(),
+                    locked: true  // Permanent lock flag
+                };
+
+                localStorage.setItem('userRole', JSON.stringify(roleInfo));
+                currentRole = roleInfo;
+
+                // Clear new user flag
+                if (newUserData) {
+                    localStorage.removeItem('newUserSignup');
+                    // Keep user data in a permanent location
+                    localStorage.setItem('userData', newUserData);
+                }
+
+                // Success message with role-specific greeting
+                alert(`🎉 Role confirmed! You are now a ${roleData.name} ${roleData.emoji}\n\n${roleData.lore}`);
+
+                // Close modal and display role
+                modal.style.display = 'none';
+                displayCurrentRole();
+
+            } catch (error) {
+                console.error('Error saving role:', error);
+                alert('Error saving role: ' + error.message);
+            }
+        });
+
+        // ============================================
+        // DISPLAY CURRENT ROLE
+        // Shows user's selected role and perks
+        // ============================================
+        function displayCurrentRole() {
+            if (!currentRole) return;
+
+            const roleDisplay = document.getElementById('roleDisplay');
+            const roleName = document.getElementById('currentRoleName');
+            const roleLore = document.getElementById('currentRoleLore');
+
+            roleName.textContent = `${currentRole.emoji} ${currentRole.name}`;
+            roleLore.textContent = currentRole.lore;
+
+            roleDisplay.style.display = 'block';
+            document.getElementById('openModalBtn').style.display = 'none';
+        }
+
+        // ============================================
+        // GLOBAL ROLE ACCESS
+        // Makes role and perks available to other pages
+        // ============================================
+        window.getUserRole = function() {
+            return currentRole;
+        };
+
+        window.applyRolePerks = function(baseValue, perkType) {
+            if (!currentRole || !currentRole.perks) return baseValue;
+
+            const perk = currentRole.perks[perkType];
+            if (typeof perk === 'number') {
+                return baseValue * perk;  // Apply multiplier
+            }
+            return baseValue;
+        };
+
+        // Log role for debugging
+        if (currentRole) {
+            console.log('Current Role:', currentRole);
+            console.log('Available Perks:', currentRole.perks);
+        }
+
+        // ============================================
+        // COLONY DASHBOARD SYSTEM
+        // Manages resources, check-ins, tasks, and tokens
+        // ============================================
+
+        let colonyData = {
+            lunaris: 0,
+            oxygen: 100,
+            hydroponics: 100,
+            energy: 100,
+            streak: 0,
+            lastCheckIn: null,
+            tasks: [],
+            completedToday: []
+        };
+
+        // ============================================
+        // TASK TYPE DEFINITIONS
+        // Maps task types to rewards and resource impacts
+        // ============================================
+        const TASK_TYPES = {
+            hydration: {
+                name: '💧 Water Hydroponics',
+                baseReward: 10,
+                resources: { hydroponics: 5 },
+                perkType: 'taskYield'
+            },
+            exploration: {
+                name: '🚶 Collect Geological Samples',
+                baseReward: 15,
+                resources: { oxygen: 3, energy: -5 },
+                perkType: 'earningBoost'
+            },
+            logging: {
+                name: '📝 File Colony Log',
+                baseReward: 8,
+                resources: { energy: 2 },
+                perkType: 'taskYield'
+            },
+            energy: {
+                name: '😴 Restore Energy',
+                baseReward: 12,
+                resources: { energy: 10 },
+                perkType: 'wellnessBonus'
+            },
+            maintenance: {
+                name: '🔧 Base Maintenance',
+                baseReward: 10,
+                resources: { oxygen: 3, energy: -3 },
+                perkType: 'efficiency'
+            },
+            research: {
+                name: '🔬 Research Project',
+                baseReward: 20,
+                resources: { energy: -8 },
+                perkType: 'earningBoost'
+            },
+            communication: {
+                name: '📡 Communications Check',
+                baseReward: 12,
+                resources: { energy: 2 },
+                perkType: 'stakingBonus'
+            },
+            custom: {
+                name: '✏️ Custom Mission',
+                baseReward: 10,
+                resources: {},
+                perkType: null
+            }
+        };
+
+        // ============================================
+        // INITIALIZE COLONY DASHBOARD
+        // Loads data from Firebase and localStorage
+        // ============================================
+        function initializeColonyDashboard() {
+            // Load colony data from localStorage
+            const savedData = localStorage.getItem('colonyData');
+            if (savedData) {
+                colonyData = JSON.parse(savedData);
+            }
+
+            // Check streak and reset if needed
+            checkAndUpdateStreak();
+
+            // Update all displays
+            updateResourceDisplays();
+            checkDailyCheckInStatus();
+            renderTasks();
+
+            console.log('Colony Dashboard initialized:', colonyData);
+        }
+
+        // ============================================
+        // DAILY CHECK-IN SYSTEM
+        // Morning Colony Report functionality
+        // ============================================
+        const dailyCheckInBtn = document.getElementById('dailyCheckInBtn');
+        const checkInStatus = document.getElementById('checkInStatus');
+        const checkInOptions = document.getElementById('checkInOptions');
+        const checkInMessage = document.getElementById('checkInMessage');
+
+        function checkDailyCheckInStatus() {
+            const today = new Date().toDateString();
+
+            if (colonyData.lastCheckIn === today) {
+                // Already checked in today
+                dailyCheckInBtn.disabled = true;
+                dailyCheckInBtn.style.opacity = '0.5';
+                dailyCheckInBtn.textContent = '✅ Daily Check-In Complete';
+                checkInMessage.textContent = 'Come back tomorrow for your next check-in!';
+            }
+        }
+
+        dailyCheckInBtn.addEventListener('click', () => {
+            checkInStatus.style.display = 'none';
+            checkInOptions.style.display = 'block';
+        });
+
+        // Handle check-in option selection
+        document.querySelectorAll('.check-in-option').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const resource = btn.dataset.resource;
+                performDailyCheckIn(resource);
+            });
+        });
+
+        function performDailyCheckIn(priorityResource) {
+            const today = new Date().toDateString();
+            colonyData.lastCheckIn = today;
+
+            // Base check-in reward
+            let bonus = 50;
+
+            // Apply role perk if applicable
+            if (currentRole && currentRole.perks.dailyBonus) {
+                if (currentRole.perks.dailyBonus === 'oxygen' && priorityResource === 'oxygen') {
+                    bonus += 25;
+                    colonyData.oxygen = Math.min(100, colonyData.oxygen + 10);
+                } else if (currentRole.perks.dailyBonus === 'hydroponics' && priorityResource === 'hydroponics') {
+                    bonus += 25;
+                    colonyData.hydroponics = Math.min(100, colonyData.hydroponics + 10);
+                }
+            }
+
+            // Award tokens
+            colonyData.lunaris += bonus;
+
+            // Boost selected resource
+            if (priorityResource === 'oxygen') {
+                colonyData.oxygen = Math.min(100, colonyData.oxygen + 5);
+            } else if (priorityResource === 'hydroponics') {
+                colonyData.hydroponics = Math.min(100, colonyData.hydroponics + 5);
+            } else if (priorityResource === 'energy') {
+                colonyData.energy = Math.min(100, colonyData.energy + 5);
+            }
+
+            // Save and update
+            saveColonyData();
+            updateResourceDisplays();
+
+            // Show completion message
+            checkInOptions.style.display = 'none';
+            checkInStatus.style.display = 'block';
+            dailyCheckInBtn.disabled = true;
+            dailyCheckInBtn.style.opacity = '0.5';
+            dailyCheckInBtn.textContent = '✅ Daily Check-In Complete';
+            checkInMessage.innerHTML = `<span style="color: #FFCC00; font-weight: bold;">+${bonus} Lunaris earned!</span><br>Priority resource boosted. Great work, colonist!`;
+        }
+
+        // ============================================
+        // STREAK TRACKING
+        // Manages daily streaks for bonus rewards
+        // ============================================
+        function checkAndUpdateStreak() {
+            const today = new Date().toDateString();
+            const yesterday = new Date(Date.now() - 86400000).toDateString();
+
+            if (colonyData.lastCheckIn === today) {
+                // Already checked in today, streak maintained
+                return;
+            } else if (colonyData.lastCheckIn === yesterday) {
+                // Checked in yesterday, increment streak
+                colonyData.streak++;
+            } else if (colonyData.lastCheckIn) {
+                // Missed a day, reset streak
+                colonyData.streak = 0;
+            }
+
+            saveColonyData();
+        }
+
+        // ============================================
+        // TASK MANAGEMENT SYSTEM
+        // Create, complete, and delete missions
+        // ============================================
+        const taskTypeSelect = document.getElementById('taskTypeSelect');
+        const taskDescInput = document.getElementById('taskDescInput');
+        const createTaskBtn = document.getElementById('createTaskBtn');
+        const tasksList = document.getElementById('tasksList');
+        const completedTasksList = document.getElementById('completedTasksList');
+
+        createTaskBtn.addEventListener('click', createTask);
+
+        function createTask() {
+            const taskType = taskTypeSelect.value;
+            const customDesc = taskDescInput.value.trim();
+
+            if (!taskType) {
+                alert('Please select a mission type!');
+                return;
+            }
+
+            const taskTypeData = TASK_TYPES[taskType];
+            const task = {
+                id: Date.now(),
+                type: taskType,
+                name: taskTypeData.name,
+                description: customDesc || 'Complete this mission to earn Lunaris tokens',
+                baseReward: taskTypeData.baseReward,
+                resources: taskTypeData.resources,
+                perkType: taskTypeData.perkType,
+                createdAt: Date.now()
+            };
+
+            colonyData.tasks.push(task);
+            saveColonyData();
+            renderTasks();
+
+            // Reset form
+            taskTypeSelect.value = '';
+            taskDescInput.value = '';
+
+            console.log('Task created:', task);
+        }
+
+        function renderTasks() {
+            // Render active tasks
+            if (colonyData.tasks.length === 0) {
+                tasksList.innerHTML = '<p style="color: rgba(255,255,255,0.5); text-align: center; padding: 30px;">No active missions. Create your first mission above!</p>';
+            } else {
+                tasksList.innerHTML = colonyData.tasks.map(task => `
+                    <div style="background: rgba(255,255,255,0.05); border: 2px solid rgba(255,204,0,0.4); border-radius: 10px; padding: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                            <div>
+                                <h4 style="color: #FFCC00; margin: 0 0 5px 0;">${task.name}</h4>
+                                <p style="color: rgba(255,255,255,0.7); margin: 0; font-size: 0.9rem;">${task.description}</p>
+                            </div>
+                            <span style="background: rgba(255,204,0,0.2); padding: 5px 10px; border-radius: 5px; color: #FFCC00; font-size: 0.9rem; white-space: nowrap;">+${calculateReward(task)} 💰</span>
+                        </div>
+                        <div style="display: flex; gap: 10px; margin-top: 15px;">
+                            <button onclick="completeTask(${task.id})" style="flex: 1; padding: 10px; background-color: #32CD32; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-family: 'Orbitron', sans-serif;">
+                                ✓ Complete
+                            </button>
+                            <button onclick="deleteTask(${task.id})" style="padding: 10px 15px; background-color: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; font-family: 'Orbitron', sans-serif;">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Render completed tasks today
+            const today = new Date().toDateString();
+            const todayCompleted = colonyData.completedToday.filter(t => new Date(t.completedAt).toDateString() === today);
+
+            if (todayCompleted.length === 0) {
+                completedTasksList.innerHTML = '<p style="color: rgba(255,255,255,0.5); text-align: center; padding: 20px;">No missions completed yet today.</p>';
+            } else {
+                completedTasksList.innerHTML = todayCompleted.map(task => `
+                    <div style="background: rgba(50,205,50,0.1); border: 2px solid rgba(50,205,50,0.3); border-radius: 8px; padding: 15px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <span style="color: #32CD32; font-weight: bold;">${task.name}</span>
+                            <span style="color: rgba(255,255,255,0.6); margin-left: 10px; font-size: 0.9rem;">Completed at ${new Date(task.completedAt).toLocaleTimeString()}</span>
+                        </div>
+                        <span style="color: #FFCC00; font-weight: bold;">+${task.reward} 💰</span>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // ============================================
+        // TASK COMPLETION & REWARDS
+        // Applies role perks and updates resources
+        // ============================================
+        window.completeTask = function(taskId) {
+            const taskIndex = colonyData.tasks.findIndex(t => t.id === taskId);
+            if (taskIndex === -1) return;
+
+            const task = colonyData.tasks[taskIndex];
+
+            // Calculate reward with role perks
+            const reward = calculateReward(task);
+
+            // Award Lunaris tokens
+            colonyData.lunaris += reward;
+
+            // Update resources
+            if (task.resources) {
+                Object.entries(task.resources).forEach(([resource, amount]) => {
+                    if (resource === 'oxygen') {
+                        colonyData.oxygen = Math.max(0, Math.min(100, colonyData.oxygen + amount));
+                    } else if (resource === 'hydroponics') {
+                        colonyData.hydroponics = Math.max(0, Math.min(100, colonyData.hydroponics + amount));
+                    } else if (resource === 'energy') {
+                        colonyData.energy = Math.max(0, Math.min(100, colonyData.energy + amount));
+                    }
+                });
+            }
+
+            // Move to completed
+            const completedTask = { ...task, completedAt: Date.now(), reward };
+            colonyData.completedToday.push(completedTask);
+
+            // Remove from active tasks
+            colonyData.tasks.splice(taskIndex, 1);
+
+            // Save and update
+            saveColonyData();
+            updateResourceDisplays();
+            renderTasks();
+
+            console.log('Task completed:', completedTask);
+        };
+
+        window.deleteTask = function(taskId) {
+            if (!confirm('Delete this mission?')) return;
+
+            const taskIndex = colonyData.tasks.findIndex(t => t.id === taskId);
+            if (taskIndex !== -1) {
+                colonyData.tasks.splice(taskIndex, 1);
+                saveColonyData();
+                renderTasks();
+            }
+        };
+
+        // ============================================
+        // REWARD CALCULATION WITH ROLE PERKS
+        // Applies multipliers based on user's role
+        // ============================================
+        function calculateReward(task) {
+            let reward = task.baseReward;
+
+            // Apply role perks if applicable
+            if (currentRole && task.perkType && currentRole.perks[task.perkType]) {
+                const multiplier = currentRole.perks[task.perkType];
+                reward = Math.floor(reward * multiplier);
+            }
+
+            // Apply streak bonus (Navigator role)
+            if (currentRole && currentRole.perks.streakBonus && colonyData.streak > 0) {
+                reward = Math.floor(reward * currentRole.perks.streakBonus);
+            }
+
+            return reward;
+        }
+
+        // ============================================
+        // RESOURCE DISPLAY UPDATE
+        // Updates all resource meters on screen
+        // ============================================
+        function updateResourceDisplays() {
+            document.getElementById('lunarisDisplay').textContent = colonyData.lunaris;
+            document.getElementById('oxygenDisplay').textContent = colonyData.oxygen + '%';
+            document.getElementById('hydroponicsDisplay').textContent = colonyData.hydroponics + '%';
+            document.getElementById('energyDisplay').textContent = colonyData.energy + '%';
+            document.getElementById('streakDisplay').textContent = colonyData.streak + ' days';
+        }
+
+        // ============================================
+        // DATA PERSISTENCE
+        // Save to localStorage and Firebase
+        // ============================================
+        function saveColonyData() {
+            // Save to localStorage for quick access
+            localStorage.setItem('colonyData', JSON.stringify(colonyData));
+
+            // Save to Firebase if user signed up
+            if (currentUser && currentUser.signupId) {
+                const userDataRef = ref(database, `colony-data/${currentUser.signupId}`);
+                update(userDataRef, {
+                    lunaris: colonyData.lunaris,
+                    oxygen: colonyData.oxygen,
+                    hydroponics: colonyData.hydroponics,
+                    energy: colonyData.energy,
+                    streak: colonyData.streak,
+                    lastCheckIn: colonyData.lastCheckIn,
+                    lastUpdated: Date.now()
+                }).catch(err => console.error('Firebase save error:', err));
+            }
+        }
+    </script>
+
+    <!-- Original index.js for any existing functionality -->
     <script src='/Learning JS/index.js'></script>
 </body>
 </html>

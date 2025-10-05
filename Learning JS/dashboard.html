@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Colony Dashboard - Lunaris</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel="stylesheet" type="text/css" href="/Learning JS/index.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- ============================================
+         HEADER NAVIGATION
+         Shows user info and navigation
+    ============================================ -->
+    <div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+            <h1 style="color: #FFCC00; margin: 0;">🚀 Colony Dashboard</h1>
+            <div style="display: flex; gap: 15px;">
+                <button onclick="window.location.href='/Learning JS/notes.html'" style="padding: 10px 20px; background-color: rgba(255,204,0,0.2); color: #FFCC00; border: 2px solid #FFCC00; border-radius: 5px; cursor: pointer; font-family: 'Orbitron', sans-serif;">
+                    📝 Notes
+                </button>
+                <button onclick="window.location.href='/Learning JS/console.html'" style="padding: 10px 20px; background-color: rgba(255,204,0,0.2); color: #FFCC00; border: 2px solid #FFCC00; border-radius: 5px; cursor: pointer; font-family: 'Orbitron', sans-serif;">
+                    ⚙️ Console
+                </button>
+                <button onclick="window.location.href='/index.html'" style="padding: 10px 20px; background-color: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer; font-family: 'Orbitron', sans-serif;">
+                    ← Home
+                </button>
+            </div>
+        </div>
+
+        <!-- User Role Display -->
+        <div id="userRoleHeader" style="background: rgba(0,0,0,0.3); border-radius: 10px; padding: 15px; margin-bottom: 20px; text-align: center; display: none;">
+            <span style="color: rgba(255,255,255,0.7);">Your Role:</span>
+            <span id="headerRoleName" style="color: #FFCC00; font-size: 1.3rem; font-weight: bold; margin-left: 10px;"></span>
+        </div>
+    </div>
+
+    <!-- ============================================
+         COLONY DASHBOARD - MAIN SECTION
+         Daily check-in, resources, tasks, and tokens
+    ============================================ -->
+    <div id="colonyDashboard" style="max-width: 1200px; margin: 0 auto; padding: 20px;">
+
+        <!-- ============================================
+             RESOURCE DASHBOARD
+             Shows Oxygen, Hydroponics, Energy, Lunaris
+        ============================================ -->
+        <div id="resourceDashboard" style="background: rgba(0,0,0,0.4); border-radius: 15px; padding: 25px; margin-bottom: 30px; border: 2px solid rgba(255,204,0,0.3);">
+            <h2 style="color: #FFCC00; text-align: center; margin-bottom: 25px;">🏠 Base Camp Alpha - Resource Status</h2>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                <!-- Lunaris Tokens -->
+                <div style="background: rgba(255,204,0,0.1); border: 2px solid #FFCC00; border-radius: 10px; padding: 20px; text-align: center;">
+                    <div style="font-size: 2.5rem;">💰</div>
+                    <div style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin: 5px 0;">Lunaris Tokens</div>
+                    <div id="lunarisDisplay" style="color: #FFCC00; font-size: 2rem; font-weight: bold;">0</div>
+                </div>
+
+                <!-- Oxygen -->
+                <div style="background: rgba(135,206,250,0.1); border: 2px solid #87CEEB; border-radius: 10px; padding: 20px; text-align: center;">
+                    <div style="font-size: 2.5rem;">💨</div>
+                    <div style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin: 5px 0;">Oxygen</div>
+                    <div id="oxygenDisplay" style="color: #87CEEB; font-size: 2rem; font-weight: bold;">100%</div>
+                </div>
+
+                <!-- Hydroponics -->
+                <div style="background: rgba(0,255,0,0.1); border: 2px solid #32CD32; border-radius: 10px; padding: 20px; text-align: center;">
+                    <div style="font-size: 2.5rem;">🌱</div>
+                    <div style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin: 5px 0;">Hydroponics</div>
+                    <div id="hydroponicsDisplay" style="color: #32CD32; font-size: 2rem; font-weight: bold;">100%</div>
+                </div>
+
+                <!-- Energy -->
+                <div style="background: rgba(255,215,0,0.1); border: 2px solid #FFD700; border-radius: 10px; padding: 20px; text-align: center;">
+                    <div style="font-size: 2.5rem;">⚡</div>
+                    <div style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin: 5px 0;">Energy</div>
+                    <div id="energyDisplay" style="color: #FFD700; font-size: 2rem; font-weight: bold;">100%</div>
+                </div>
+            </div>
+
+            <!-- Streak Display -->
+            <div style="text-align: center; margin-top: 20px; padding: 15px; background: rgba(255,204,0,0.1); border-radius: 10px;">
+                <span style="color: rgba(255,255,255,0.7);">🔥 Current Streak:</span>
+                <span id="streakDisplay" style="color: #FFCC00; font-size: 1.5rem; font-weight: bold; margin-left: 10px;">0 days</span>
+            </div>
+        </div>
+
+        <!-- ============================================
+             DAILY CHECK-IN SECTION
+             Morning Colony Report
+        ============================================ -->
+        <div id="dailyCheckInSection" style="background: rgba(0,0,0,0.4); border-radius: 15px; padding: 25px; margin-bottom: 30px; border: 2px solid rgba(255,204,0,0.3);">
+            <h2 style="color: #FFCC00; text-align: center; margin-bottom: 20px;">📋 Morning Colony Report</h2>
+
+            <div id="checkInStatus" style="text-align: center;">
+                <button id="dailyCheckInBtn" style="padding: 15px 40px; background-color: #FFCC00; color: #1e5128; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1.2rem; font-family: 'Orbitron', sans-serif;">
+                    🌅 Complete Daily Check-In
+                </button>
+                <p id="checkInMessage" style="color: rgba(255,255,255,0.7); margin-top: 15px;">Start your day and earn bonus tokens!</p>
+            </div>
+
+            <div id="checkInOptions" style="display: none; margin-top: 20px;">
+                <p style="color: #FFCC00; text-align: center; margin-bottom: 15px;">Select your priority task for today:</p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <button class="check-in-option" data-resource="oxygen" style="padding: 15px; background: rgba(135,206,250,0.2); border: 2px solid #87CEEB; border-radius: 8px; color: white; cursor: pointer; font-family: 'Orbitron', sans-serif;">
+                        💨 Check Oxygen Systems
+                    </button>
+                    <button class="check-in-option" data-resource="hydroponics" style="padding: 15px; background: rgba(0,255,0,0.2); border: 2px solid #32CD32; border-radius: 8px; color: white; cursor: pointer; font-family: 'Orbitron', sans-serif;">
+                        🌱 Water Hydroponics
+                    </button>
+                    <button class="check-in-option" data-resource="energy" style="padding: 15px; background: rgba(255,215,0,0.2); border: 2px solid #FFD700; border-radius: 8px; color: white; cursor: pointer; font-family: 'Orbitron', sans-serif;">
+                        ⚡ Inspect Energy Grid
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================
+             TASK MANAGEMENT SECTION
+             Create and complete colony missions
+        ============================================ -->
+        <div id="taskSection" style="background: rgba(0,0,0,0.4); border-radius: 15px; padding: 25px; border: 2px solid rgba(255,204,0,0.3);">
+            <h2 style="color: #FFCC00; text-align: center; margin-bottom: 20px;">🎯 Daily Colony Missions</h2>
+
+            <!-- Task Creation -->
+            <div style="background: rgba(255,204,0,0.1); border-radius: 10px; padding: 20px; margin-bottom: 20px;">
+                <h3 style="color: #FFCC00; margin-bottom: 15px;">Create New Mission</h3>
+                <select id="taskTypeSelect" style="width: 100%; padding: 12px; margin-bottom: 10px; border: 2px solid #FFCC00; border-radius: 5px; background: rgba(255,255,255,0.95); color: #1e5128; font-family: 'Orbitron', sans-serif;">
+                    <option value="">-- Select Mission Type --</option>
+                    <option value="hydration">💧 Water Hydroponics (Drink Water)</option>
+                    <option value="exploration">🚶 Collect Geological Samples (Go for Walk)</option>
+                    <option value="logging">📝 File Colony Log (Journal/Note)</option>
+                    <option value="energy">😴 Restore Energy (Sleep Early)</option>
+                    <option value="maintenance">🔧 Base Maintenance (Clean/Organize)</option>
+                    <option value="research">🔬 Research Project (Study/Learn)</option>
+                    <option value="communication">📡 Communications Check (Social Connection)</option>
+                    <option value="custom">✏️ Custom Mission</option>
+                </select>
+                <input type="text" id="taskDescInput" placeholder="Mission details (optional)" style="width: 100%; padding: 12px; margin-bottom: 10px; border: 2px solid #FFCC00; border-radius: 5px; background: rgba(255,255,255,0.95); color: #1e5128; font-family: 'Orbitron', sans-serif;">
+
+                <!-- TIME COMMITMENT -->
+                <div style="margin-bottom: 10px;">
+                    <label style="color: #FFCC00; font-weight: bold; display: block; margin-bottom: 5px;">⏱️ Time Commitment (minutes):</label>
+                    <input type="number" id="timeCommitment" min="1" max="240" value="25" style="width: 100%; padding: 12px; border: 2px solid #FFCC00; border-radius: 5px; background: rgba(255,255,255,0.95); color: #1e5128; font-family: 'Orbitron', sans-serif;">
+                    <p style="color: rgba(255,255,255,0.6); font-size: 0.85rem; margin-top: 5px;">Focus Mode will activate for this duration. Leave early = penalties!</p>
+                </div>
+
+                <button id="createTaskBtn" style="width: 100%; padding: 15px; background-color: #FFCC00; color: #1e5128; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1.1rem; font-family: 'Orbitron', sans-serif;">
+                    + Create Mission
+                </button>
+            </div>
+
+            <!-- Active Tasks -->
+            <div id="activeTasks">
+                <h3 style="color: #FFCC00; margin-bottom: 15px;">Active Missions</h3>
+                <div id="tasksList" style="display: flex; flex-direction: column; gap: 15px;">
+                    <p style="color: rgba(255,255,255,0.5); text-align: center; padding: 30px;">No active missions. Create your first mission above!</p>
+                </div>
+            </div>
+
+            <!-- Completed Tasks Today -->
+            <div id="completedSection" style="margin-top: 30px; padding-top: 20px; border-top: 2px solid rgba(255,204,0,0.3);">
+                <h3 style="color: #FFCC00; margin-bottom: 15px;">✅ Completed Today</h3>
+                <div id="completedTasksList" style="display: flex; flex-direction: column; gap: 10px;">
+                    <p style="color: rgba(255,255,255,0.5); text-align: center; padding: 20px;">No missions completed yet today.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+         FOCUS MODE FULLSCREEN
+         Accountability system with penalties
+    ============================================ -->
+    <div id="focusModeScreen" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(135deg, #1e5128 0%, #0a1f0f 100%); z-index: 10000; overflow: hidden;">
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; padding: 20px; text-align: center;">
+            <h1 style="color: #FFCC00; font-size: 3rem; margin-bottom: 20px; font-family: 'Orbitron', sans-serif;">🔒 FOCUS MODE ACTIVE</h1>
+
+            <div id="focusTaskName" style="color: white; font-size: 1.8rem; margin-bottom: 40px; max-width: 600px;"></div>
+
+            <!-- Timer Display -->
+            <div id="timerDisplay" style="background: rgba(0,0,0,0.5); border: 3px solid #FFCC00; border-radius: 20px; padding: 40px 60px; margin-bottom: 40px;">
+                <div style="color: #FFCC00; font-size: 6rem; font-weight: bold; font-family: 'Orbitron', sans-serif;" id="timeRemaining">00:00</div>
+                <div style="color: rgba(255,255,255,0.7); font-size: 1.2rem; margin-top: 10px;">Time Remaining</div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div style="width: 80%; max-width: 600px; height: 20px; background: rgba(0,0,0,0.5); border-radius: 10px; overflow: hidden; margin-bottom: 40px;">
+                <div id="progressBar" style="height: 100%; background: linear-gradient(90deg, #32CD32, #FFCC00); width: 0%; transition: width 1s linear;"></div>
+            </div>
+
+            <!-- Warnings -->
+            <div id="focusWarning" style="display: none; background: rgba(220,53,69,0.2); border: 2px solid #dc3545; border-radius: 10px; padding: 20px; margin-bottom: 20px; max-width: 600px;">
+                <p style="color: #dc3545; font-size: 1.3rem; font-weight: bold; margin: 0;">⚠️ TAB CHANGE DETECTED!</p>
+                <p style="color: rgba(255,255,255,0.8); margin: 10px 0 0 0;">Return to this tab or face penalties!</p>
+            </div>
+
+            <!-- Motivational Text -->
+            <p style="color: rgba(255,255,255,0.7); font-size: 1.1rem; max-width: 600px; line-height: 1.6;">
+                Stay focused, colonist. Leaving early will result in:<br>
+                <span style="color: #dc3545; font-weight: bold;">-10 Lunaris | Mission Failed | Streak Reset</span>
+            </p>
+
+            <!-- Emergency Exit (with penalty warning) -->
+            <button id="emergencyExit" style="margin-top: 40px; padding: 12px 30px; background-color: rgba(220,53,69,0.3); color: #dc3545; border: 2px solid #dc3545; border-radius: 8px; cursor: pointer; font-family: 'Orbitron', sans-serif; font-weight: bold;">
+                ❌ Emergency Exit (Penalties Apply)
+            </button>
+        </div>
+    </div>
+
+    <!-- ============================================
+         FIREBASE SDK & DASHBOARD LOGIC
+         Handles all dashboard functionality
+    ============================================ -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getDatabase, ref, update } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyClPgII54QDvJB3kiV1dWbqm1et_lHasvs",
+            authDomain: "lunaris-45d84.firebaseapp.com",
+            projectId: "lunaris-45d84",
+            storageBucket: "lunaris-45d84.firebasestorage.app",
+            messagingSenderId: "74359858445",
+            appId: "1:74359858445:web:37772cebcbb0d71d707c44",
+            measurementId: "G-ETRK2NL1N2",
+            databaseURL: "https://lunaris-45d84-default-rtdb.firebaseio.com"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // ============================================
+        // LOAD USER ROLE
+        // Display user's selected role
+        // ============================================
+        let currentRole = null;
+        let currentUser = null;
+
+        const savedRole = localStorage.getItem('userRole');
+        if (savedRole) {
+            currentRole = JSON.parse(savedRole);
+            document.getElementById('userRoleHeader').style.display = 'block';
+            document.getElementById('headerRoleName').textContent = `${currentRole.emoji} ${currentRole.name}`;
+        }
+
+        const savedUser = localStorage.getItem('userData');
+        if (savedUser) {
+            currentUser = JSON.parse(savedUser);
+        }
+
+        // ============================================
+        // COLONY DATA STRUCTURE
+        // Manages all resources and tasks
+        // ============================================
+        let colonyData = {
+            lunaris: 0,
+            oxygen: 100,
+            hydroponics: 100,
+            energy: 100,
+            streak: 0,
+            lastCheckIn: null,
+            tasks: [],
+            completedToday: [],
+            failedTasks: []
+        };
+
+        // ============================================
+        // TASK TYPE DEFINITIONS
+        // Maps task types to rewards and resource impacts
+        // ============================================
+        const TASK_TYPES = {
+            hydration: {
+                name: '💧 Water Hydroponics',
+                baseReward: 10,
+                resources: { hydroponics: 5 },
+                perkType: 'taskYield'
+            },
+            exploration: {
+                name: '🚶 Collect Geological Samples',
+                baseReward: 15,
+                resources: { oxygen: 3, energy: -5 },
+                perkType: 'earningBoost'
+            },
+            logging: {
+                name: '📝 File Colony Log',
+                baseReward: 8,
+                resources: { energy: 2 },
+                perkType: 'taskYield'
+            },
+            energy: {
+                name: '😴 Restore Energy',
+                baseReward: 12,
+                resources: { energy: 10 },
+                perkType: 'wellnessBonus'
+            },
+            maintenance: {
+                name: '🔧 Base Maintenance',
+                baseReward: 10,
+                resources: { oxygen: 3, energy: -3 },
+                perkType: 'efficiency'
+            },
+            research: {
+                name: '🔬 Research Project',
+                baseReward: 20,
+                resources: { energy: -8 },
+                perkType: 'earningBoost'
+            },
+            communication: {
+                name: '📡 Communications Check',
+                baseReward: 12,
+                resources: { energy: 2 },
+                perkType: 'stakingBonus'
+            },
+            custom: {
+                name: '✏️ Custom Mission',
+                baseReward: 10,
+                resources: {},
+                perkType: null
+            }
+        };
+
+        // ============================================
+        // INITIALIZE DASHBOARD
+        // Load data and setup
+        // ============================================
+        function initializeDashboard() {
+            const savedData = localStorage.getItem('colonyData');
+            if (savedData) {
+                colonyData = JSON.parse(savedData);
+            }
+
+            checkAndUpdateStreak();
+            updateResourceDisplays();
+            checkDailyCheckInStatus();
+            renderTasks();
+
+            console.log('Dashboard initialized:', colonyData);
+        }
+
+        // Initialize on page load
+        initializeDashboard();
+
+        // ============================================
+        // DAILY CHECK-IN SYSTEM
+        // (Lines 726-801 from console.html)
+        // ============================================
+        const dailyCheckInBtn = document.getElementById('dailyCheckInBtn');
+        const checkInStatus = document.getElementById('checkInStatus');
+        const checkInOptions = document.getElementById('checkInOptions');
+        const checkInMessage = document.getElementById('checkInMessage');
+
+        function checkDailyCheckInStatus() {
+            const today = new Date().toDateString();
+
+            if (colonyData.lastCheckIn === today) {
+                dailyCheckInBtn.disabled = true;
+                dailyCheckInBtn.style.opacity = '0.5';
+                dailyCheckInBtn.textContent = '✅ Daily Check-In Complete';
+                checkInMessage.textContent = 'Come back tomorrow for your next check-in!';
+            }
+        }
+
+        dailyCheckInBtn.addEventListener('click', () => {
+            checkInStatus.style.display = 'none';
+            checkInOptions.style.display = 'block';
+        });
+
+        document.querySelectorAll('.check-in-option').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const resource = btn.dataset.resource;
+                performDailyCheckIn(resource);
+            });
+        });
+
+        function performDailyCheckIn(priorityResource) {
+            const today = new Date().toDateString();
+            colonyData.lastCheckIn = today;
+
+            let bonus = 50;
+
+            if (currentRole && currentRole.perks.dailyBonus) {
+                if (currentRole.perks.dailyBonus === 'oxygen' && priorityResource === 'oxygen') {
+                    bonus += 25;
+                    colonyData.oxygen = Math.min(100, colonyData.oxygen + 10);
+                } else if (currentRole.perks.dailyBonus === 'hydroponics' && priorityResource === 'hydroponics') {
+                    bonus += 25;
+                    colonyData.hydroponics = Math.min(100, colonyData.hydroponics + 10);
+                }
+            }
+
+            colonyData.lunaris += bonus;
+
+            if (priorityResource === 'oxygen') {
+                colonyData.oxygen = Math.min(100, colonyData.oxygen + 5);
+            } else if (priorityResource === 'hydroponics') {
+                colonyData.hydroponics = Math.min(100, colonyData.hydroponics + 5);
+            } else if (priorityResource === 'energy') {
+                colonyData.energy = Math.min(100, colonyData.energy + 5);
+            }
+
+            saveColonyData();
+            updateResourceDisplays();
+
+            checkInOptions.style.display = 'none';
+            checkInStatus.style.display = 'block';
+            dailyCheckInBtn.disabled = true;
+            dailyCheckInBtn.style.opacity = '0.5';
+            dailyCheckInBtn.textContent = '✅ Daily Check-In Complete';
+            checkInMessage.innerHTML = `<span style="color: #FFCC00; font-weight: bold;">+${bonus} Lunaris earned!</span><br>Priority resource boosted. Great work, colonist!`;
+        }
+
+        // ============================================
+        // STREAK TRACKING
+        // ============================================
+        function checkAndUpdateStreak() {
+            const today = new Date().toDateString();
+            const yesterday = new Date(Date.now() - 86400000).toDateString();
+
+            if (colonyData.lastCheckIn === today) {
+                return;
+            } else if (colonyData.lastCheckIn === yesterday) {
+                colonyData.streak++;
+            } else if (colonyData.lastCheckIn) {
+                colonyData.streak = 0;
+            }
+
+            saveColonyData();
+        }
+
+        // ============================================
+        // TASK MANAGEMENT
+        // ============================================
+        const taskTypeSelect = document.getElementById('taskTypeSelect');
+        const taskDescInput = document.getElementById('taskDescInput');
+        const timeCommitment = document.getElementById('timeCommitment');
+        const createTaskBtn = document.getElementById('createTaskBtn');
+        const tasksList = document.getElementById('tasksList');
+        const completedTasksList = document.getElementById('completedTasksList');
+
+        createTaskBtn.addEventListener('click', createTask);
+
+        function createTask() {
+            const taskType = taskTypeSelect.value;
+            const customDesc = taskDescInput.value.trim();
+            const minutes = parseInt(timeCommitment.value);
+
+            if (!taskType) {
+                alert('Please select a mission type!');
+                return;
+            }
+
+            if (!minutes || minutes < 1) {
+                alert('Please set a valid time commitment!');
+                return;
+            }
+
+            const taskTypeData = TASK_TYPES[taskType];
+            const task = {
+                id: Date.now(),
+                type: taskType,
+                name: taskTypeData.name,
+                description: customDesc || 'Complete this mission to earn Lunaris tokens',
+                baseReward: taskTypeData.baseReward,
+                resources: taskTypeData.resources,
+                perkType: taskTypeData.perkType,
+                timeCommitment: minutes,
+                createdAt: Date.now()
+            };
+
+            colonyData.tasks.push(task);
+            saveColonyData();
+            renderTasks();
+
+            taskTypeSelect.value = '';
+            taskDescInput.value = '';
+            timeCommitment.value = '25';
+
+            console.log('Task created:', task);
+        }
+
+        function renderTasks() {
+            if (colonyData.tasks.length === 0) {
+                tasksList.innerHTML = '<p style="color: rgba(255,255,255,0.5); text-align: center; padding: 30px;">No active missions. Create your first mission above!</p>';
+            } else {
+                tasksList.innerHTML = colonyData.tasks.map(task => `
+                    <div style="background: rgba(255,255,255,0.05); border: 2px solid rgba(255,204,0,0.4); border-radius: 10px; padding: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                            <div>
+                                <h4 style="color: #FFCC00; margin: 0 0 5px 0;">${task.name}</h4>
+                                <p style="color: rgba(255,255,255,0.7); margin: 0; font-size: 0.9rem;">${task.description}</p>
+                                <p style="color: rgba(255,255,255,0.5); margin: 5px 0 0 0; font-size: 0.85rem;">⏱️ ${task.timeCommitment} minutes</p>
+                            </div>
+                            <span style="background: rgba(255,204,0,0.2); padding: 5px 10px; border-radius: 5px; color: #FFCC00; font-size: 0.9rem; white-space: nowrap;">+${calculateReward(task)} 💰</span>
+                        </div>
+                        <div style="display: flex; gap: 10px; margin-top: 15px;">
+                            <button onclick="startFocusMode(${task.id})" style="flex: 1; padding: 10px; background-color: #FFCC00; color: #1e5128; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-family: 'Orbitron', sans-serif;">
+                                🔒 Start Focus Mode
+                            </button>
+                            <button onclick="deleteTask(${task.id})" style="padding: 10px 15px; background-color: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; font-family: 'Orbitron', sans-serif;">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            const today = new Date().toDateString();
+            const todayCompleted = colonyData.completedToday.filter(t => new Date(t.completedAt).toDateString() === today);
+
+            if (todayCompleted.length === 0) {
+                completedTasksList.innerHTML = '<p style="color: rgba(255,255,255,0.5); text-align: center; padding: 20px;">No missions completed yet today.</p>';
+            } else {
+                completedTasksList.innerHTML = todayCompleted.map(task => `
+                    <div style="background: rgba(50,205,50,0.1); border: 2px solid rgba(50,205,50,0.3); border-radius: 8px; padding: 15px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <span style="color: #32CD32; font-weight: bold;">${task.name}</span>
+                            <span style="color: rgba(255,255,255,0.6); margin-left: 10px; font-size: 0.9rem;">Completed • ${task.timeCommitment} min</span>
+                        </div>
+                        <span style="color: #FFCC00; font-weight: bold;">+${task.reward} 💰</span>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // ============================================
+        // FOCUS MODE SYSTEM
+        // Fullscreen accountability with penalties
+        // ============================================
+        let focusModeTimer = null;
+        let focusStartTime = null;
+        let focusDuration = 0;
+        let currentFocusTask = null;
+        let tabChangeDetected = false;
+
+        window.startFocusMode = function(taskId) {
+            const task = colonyData.tasks.find(t => t.id === taskId);
+            if (!task) return;
+
+            if (!confirm(`Start Focus Mode for ${task.timeCommitment} minutes?\n\nLeaving early will result in penalties:\n• -10 Lunaris\n• Mission failed\n• Streak reset`)) {
+                return;
+            }
+
+            currentFocusTask = task;
+            focusDuration = task.timeCommitment * 60; // Convert to seconds
+            focusStartTime = Date.now();
+            tabChangeDetected = false;
+
+            // Show focus screen
+            document.getElementById('focusModeScreen').style.display = 'block';
+            document.getElementById('focusTaskName').textContent = task.name;
+
+            // Try to go fullscreen
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log('Fullscreen not available:', err);
+                });
+            }
+
+            // Try to keep screen awake
+            if ('wakeLock' in navigator) {
+                navigator.wakeLock.request('screen').catch(err => {
+                    console.log('Wake lock not available:', err);
+                });
+            }
+
+            // Start timer
+            startFocusTimer();
+
+            // Tab visibility detection
+            document.addEventListener('visibilitychange', handleVisibilityChange);
+        };
+
+        function startFocusTimer() {
+            updateTimerDisplay();
+
+            focusModeTimer = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - focusStartTime) / 1000);
+                const remaining = focusDuration - elapsed;
+
+                if (remaining <= 0) {
+                    completeFocusMode(true); // Success
+                } else {
+                    updateTimerDisplay();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const elapsed = Math.floor((Date.now() - focusStartTime) / 1000);
+            const remaining = Math.max(0, focusDuration - elapsed);
+
+            const minutes = Math.floor(remaining / 60);
+            const seconds = remaining % 60;
+
+            document.getElementById('timeRemaining').textContent =
+                `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+            const progress = ((focusDuration - remaining) / focusDuration) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        function handleVisibilityChange() {
+            if (document.hidden && currentFocusTask) {
+                tabChangeDetected = true;
+                document.getElementById('focusWarning').style.display = 'block';
+            }
+        }
+
+        function completeFocusMode(success) {
+            clearInterval(focusModeTimer);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+
+            // Exit fullscreen
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            }
+
+            document.getElementById('focusModeScreen').style.display = 'none';
+
+            if (success && !tabChangeDetected) {
+                // SUCCESS - Award full reward
+                completeTask(currentFocusTask.id);
+                alert(`🎉 Mission Complete!\n\n+${calculateReward(currentFocusTask)} Lunaris earned!\n\nExcellent focus, colonist!`);
+            } else {
+                // FAILURE - Apply penalties
+                applyFocusPenalties();
+            }
+
+            currentFocusTask = null;
+            tabChangeDetected = false;
+        }
+
+        function applyFocusPenalties() {
+            // Penalty: Lose Lunaris
+            colonyData.lunaris = Math.max(0, colonyData.lunaris - 10);
+
+            // Penalty: Reset streak
+            colonyData.streak = 0;
+
+            // Penalty: Lose energy
+            colonyData.energy = Math.max(0, colonyData.energy - 10);
+
+            // Mark task as failed
+            const failedTask = { ...currentFocusTask, failedAt: Date.now(), reason: 'Left Focus Mode early' };
+            colonyData.failedTasks.push(failedTask);
+
+            // Remove from active tasks
+            const taskIndex = colonyData.tasks.findIndex(t => t.id === currentFocusTask.id);
+            if (taskIndex !== -1) {
+                colonyData.tasks.splice(taskIndex, 1);
+            }
+
+            saveColonyData();
+            updateResourceDisplays();
+            renderTasks();
+
+            alert('❌ Mission Failed\n\nPenalties applied:\n• -10 Lunaris\n• Streak reset\n• -10% Energy\n\nStay focused next time, colonist.');
+        }
+
+        // Emergency exit button
+        document.getElementById('emergencyExit').addEventListener('click', () => {
+            if (confirm('Are you sure? This will apply all penalties!')) {
+                completeFocusMode(false);
+            }
+        });
+
+        window.completeTask = function(taskId) {
+            const taskIndex = colonyData.tasks.findIndex(t => t.id === taskId);
+            if (taskIndex === -1) return;
+
+            const task = colonyData.tasks[taskIndex];
+            const reward = calculateReward(task);
+
+            colonyData.lunaris += reward;
+
+            if (task.resources) {
+                Object.entries(task.resources).forEach(([resource, amount]) => {
+                    if (resource === 'oxygen') {
+                        colonyData.oxygen = Math.max(0, Math.min(100, colonyData.oxygen + amount));
+                    } else if (resource === 'hydroponics') {
+                        colonyData.hydroponics = Math.max(0, Math.min(100, colonyData.hydroponics + amount));
+                    } else if (resource === 'energy') {
+                        colonyData.energy = Math.max(0, Math.min(100, colonyData.energy + amount));
+                    }
+                });
+            }
+
+            const completedTask = { ...task, completedAt: Date.now(), reward };
+            colonyData.completedToday.push(completedTask);
+            colonyData.tasks.splice(taskIndex, 1);
+
+            saveColonyData();
+            updateResourceDisplays();
+            renderTasks();
+        };
+
+        window.deleteTask = function(taskId) {
+            if (!confirm('Delete this mission?')) return;
+
+            const taskIndex = colonyData.tasks.findIndex(t => t.id === taskId);
+            if (taskIndex !== -1) {
+                colonyData.tasks.splice(taskIndex, 1);
+                saveColonyData();
+                renderTasks();
+            }
+        };
+
+        function calculateReward(task) {
+            let reward = task.baseReward;
+
+            if (currentRole && task.perkType && currentRole.perks[task.perkType]) {
+                const multiplier = currentRole.perks[task.perkType];
+                reward = Math.floor(reward * multiplier);
+            }
+
+            if (currentRole && currentRole.perks.streakBonus && colonyData.streak > 0) {
+                reward = Math.floor(reward * currentRole.perks.streakBonus);
+            }
+
+            return reward;
+        }
+
+        function updateResourceDisplays() {
+            document.getElementById('lunarisDisplay').textContent = colonyData.lunaris;
+            document.getElementById('oxygenDisplay').textContent = colonyData.oxygen + '%';
+            document.getElementById('hydroponicsDisplay').textContent = colonyData.hydroponics + '%';
+            document.getElementById('energyDisplay').textContent = colonyData.energy + '%';
+            document.getElementById('streakDisplay').textContent = colonyData.streak + ' days';
+        }
+
+        function saveColonyData() {
+            localStorage.setItem('colonyData', JSON.stringify(colonyData));
+
+            if (currentUser && currentUser.signupId) {
+                const userDataRef = ref(database, `colony-data/${currentUser.signupId}`);
+                update(userDataRef, {
+                    lunaris: colonyData.lunaris,
+                    oxygen: colonyData.oxygen,
+                    hydroponics: colonyData.hydroponics,
+                    energy: colonyData.energy,
+                    streak: colonyData.streak,
+                    lastCheckIn: colonyData.lastCheckIn,
+                    lastUpdated: Date.now()
+                }).catch(err => console.error('Firebase save error:', err));
+            }
+        }
+    </script>
+</body>
+</html>

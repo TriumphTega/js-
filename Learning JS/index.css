@@ -5,13 +5,67 @@ body {
     border-radius: 50%;
     border-color: green;
     font-family: "Orbitron", sans-serjpgif;
-    background-image: url("/Learning JS/images/Lunaris\ 03.jpeg");
-    background-size: ;
+    background-image: url("/Learning JS/images/Lunaris\ 03.jpe");
+    background-size: cover;
     background-repeat: no-repeat;
+    background-position: center;
     font-optical-sizing: auto;
     font-weight: <weight>;
     font-style: normal;
-   
+}
+
+/* FLOWING TEXT ANIMATIONS */
+
+/* Typing animation cursor effect */
+.typing-animation {
+    border-right: 3px solid aliceblue;
+    animation: blink-cursor 0.7s infinite;
+}
+
+@keyframes blink-cursor {
+    0%, 49% { border-color: aliceblue; }
+    50%, 100% { border-color: transparent; }
+}
+
+/* Fade in and slide up animation */
+.fade-in-up {
+    opacity: 0;
+    animation: fadeInUp 0.8s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Wave animation for individual letters */
+@keyframes wave {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* User info styling */
+#userInfo {
+    background: rgba(0, 0, 0, 0.5);
+    padding: 20px;
+    border-radius: 10px;
+    margin: 20px auto;
+    max-width: 400px;
+}
+
+#userName {
+    color: #FFCC00;
+    font-weight: bold;
 }
 
 #main {
@@ -81,6 +135,43 @@ font-family: "Orbitron", sans-serif;
 font-optical-sizing: auto;
 font-weight: <weight>;
 font-style: normal;
+}
+
+/* Google Sign-In Button - Standard Google Design */
+.google-signin-btn {
+    background-color: white !important;
+    color: #3c4043 !important;
+    border: 1px solid #dadce0 !important;
+    border-radius: 4px !important;
+    padding: 10px 12px !important;
+    font-family: 'Roboto', 'Arial', sans-serif !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    transition: all 0.2s ease !important;
+    box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15) !important;
+}
+
+.google-signin-btn:hover {
+    background-color: #f8f9fa !important;
+    border-color: #d2e3fc !important;
+    box-shadow: 0 1px 3px 0 rgba(60,64,67,0.3), 0 4px 8px 3px rgba(60,64,67,0.15) !important;
+    transform: translateY(0) !important;
+}
+
+.google-signin-btn:active {
+    background-color: #f1f3f4 !important;
+    box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3) !important;
+}
+
+.google-signin-btn svg {
+    flex-shrink: 0;
+}
+
+.google-signin-btn span {
+    white-space: nowrap;
 }
 
 

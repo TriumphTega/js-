@@ -5,336 +5,7 @@
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
     <title>Welcome to Lunaris</title>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            min-height: 100vh;
-            background: linear-gradient(135deg, #1e5128 0%, #2d6a4f 50%, #1e5128 100%);
-            color: white;
-            font-family: 'Courier New', Courier, monospace;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        #app-container {
-            max-width: 800px;
-            width: 100%;
-            margin: 0 auto;
-        }
-
-        #main-title {
-            font-size: clamp(3rem, 8vw, 5rem);
-            color: #FFCC00;
-            text-align: center;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-            min-height: 80px;
-        }
-
-        #beta-badge {
-            text-align: center;
-            color: rgba(255, 204, 0, 0.7);
-            font-size: 1.2rem;
-            margin-bottom: 40px;
-            font-style: italic;
-        }
-
-        .content-section {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 15px;
-            padding: 30px;
-            margin-bottom: 25px;
-            border: 2px solid rgba(255, 204, 0, 0.3);
-            opacity: 0;
-            animation: fadeInUp 0.8s ease-out forwards;
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .section-title {
-            color: #FFCC00;
-            font-size: 1.8rem;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .story-text {
-            color: rgba(255, 255, 255, 0.9);
-            line-height: 1.8;
-            text-align: center;
-            margin-bottom: 15px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #FFCC00;
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.95);
-            color: #1e5128;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 1rem;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .btn {
-            width: 100%;
-            padding: 15px 30px;
-            background-color: #FFCC00;
-            color: #1e5128;
-            border: none;
-            border-radius: 8px;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 1.1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .btn:hover {
-            background-color: #e6b800;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(255, 204, 0, 0.4);
-        }
-
-        .google-signin-btn {
-            width: 100%;
-            background-color: white !important;
-            color: #3c4043 !important;
-            border: 1px solid #dadce0 !important;
-            border-radius: 8px !important;
-            padding: 12px 20px !important;
-            font-family: 'Courier New', Courier, monospace !important;
-            font-size: 1rem !important;
-            font-weight: 500 !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            gap: 12px !important;
-            transition: all 0.3s ease !important;
-            box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15) !important;
-            cursor: pointer;
-        }
-
-        .google-signin-btn:hover {
-            background-color: #f8f9fa !important;
-            border-color: #d2e3fc !important;
-            box-shadow: 0 1px 3px 0 rgba(60,64,67,0.3), 0 4px 8px 3px rgba(60,64,67,0.15) !important;
-            transform: translateY(-2px) !important;
-        }
-
-        .wallet-signin-btn {
-            width: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-            color: white !important;
-            border: none !important;
-            border-radius: 8px !important;
-            padding: 12px 20px !important;
-            font-family: 'Courier New', Courier, monospace !important;
-            font-size: 1rem !important;
-            font-weight: 600 !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            gap: 12px !important;
-            transition: all 0.3s ease !important;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4) !important;
-            cursor: pointer;
-        }
-
-        .wallet-signin-btn:hover {
-            background: linear-gradient(135deg, #5568d3 0%, #6a3f8f 100%) !important;
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6) !important;
-            transform: translateY(-2px) !important;
-        }
-
-        .divider {
-            text-align: center;
-            margin: 20px 0;
-            color: rgba(255, 204, 0, 0.7);
-            font-size: 1.1rem;
-        }
-
-        #user-info {
-            display: none;
-            text-align: center;
-        }
-
-        #user-avatar {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            border: 3px solid #FFCC00;
-            margin: 0 auto 15px;
-            display: block;
-        }
-
-        .user-name {
-            color: #FFCC00;
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-        }
-
-        .btn-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .btn-secondary {
-            background-color: #6c757d;
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            background-color: #5a6268;
-        }
-
-        @media (max-width: 768px) {
-            .form-grid, .btn-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Animation delays */
-        .content-section:nth-child(1) { animation-delay: 0.2s; }
-        .content-section:nth-child(2) { animation-delay: 0.4s; }
-        .content-section:nth-child(3) { animation-delay: 0.6s; }
-        .content-section:nth-child(4) { animation-delay: 0.8s; }
-
-        /* Wallet Modal Styling */
-        .wallet-modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.85);
-            animation: fadeIn 0.3s ease;
-        }
-
-        .wallet-modal-content {
-            background: linear-gradient(135deg, #1e5128 0%, #2d6a4f 100%);
-            margin: 5% auto;
-            padding: 0;
-            border: 3px solid #FFCC00;
-            border-radius: 15px;
-            width: 90%;
-            max-width: 500px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-        }
-
-        .wallet-modal-header {
-            background: rgba(0, 0, 0, 0.4);
-            padding: 25px;
-            border-bottom: 2px solid rgba(255, 204, 0, 0.3);
-            border-radius: 15px 15px 0 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .wallet-modal-header h2 {
-            color: #FFCC00;
-            margin: 0;
-        }
-
-        .wallet-close {
-            color: #FFCC00;
-            font-size: 32px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .wallet-close:hover {
-            color: white;
-            transform: scale(1.2);
-        }
-
-        .wallet-modal-body {
-            padding: 30px;
-        }
-
-        .wallet-options {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .wallet-option-btn {
-            width: 100%;
-            padding: 15px 20px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid rgba(255, 204, 0, 0.3);
-            border-radius: 10px;
-            color: white;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .wallet-option-btn:hover {
-            background: rgba(255, 204, 0, 0.1);
-            border-color: #FFCC00;
-            transform: translateX(5px);
-        }
-
-        .wallet-icon {
-            font-size: 1.8rem;
-        }
-
-        .wallet-info {
-            flex: 1;
-            text-align: left;
-        }
-
-        .wallet-name {
-            color: #FFCC00;
-            font-size: 1.1rem;
-        }
-
-        .wallet-description {
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 0.85rem;
-            margin-top: 5px;
-        }
-    </style>
+    <link rel="stylesheet" href="/Learning JS/index.css">
 </head>
 <body>
     <div id="app-container">
@@ -399,35 +70,73 @@
                     Choose your preferred wallet to sign in
                 </p>
                 <div class="wallet-options">
-                    <button class="wallet-option-btn" id="metamaskBtn">
-                        <div class="wallet-icon">🦊</div>
+                    <button class="wallet-option-btn" id="phantomBtn">
+                        <div class="wallet-icon">
+                            <svg width="40" height="40" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M64 0C28.6538 0 0 28.6538 0 64C0 99.3462 28.6538 128 64 128C99.3462 128 128 99.3462 128 64C128 28.6538 99.3462 0 64 0Z" fill="url(#phantom-gradient)"/>
+                                <path d="M95.9998 56.7273C95.9998 80.5455 77.4544 100 53.818 100C47.6362 100 41.8907 98.5455 36.8725 95.9091C35.2362 95.0909 33.8544 94.0909 32.7271 92.7273C31.8544 91.6364 32.2362 90 33.5453 89.4545C38.0544 87.4545 48.3635 82.7273 50.3635 81.4545C51.6725 80.6364 53.2362 80.1818 54.8725 80.1818H73.818C82.8725 80.1818 90.1816 72.8727 90.1816 63.8182V60.9091C90.1816 52.7273 83.3635 46.1818 75.2726 46.1818H70.1816C68.8725 46.1818 68 45.0909 68.5453 43.8182C69.9998 40.3636 70.8725 36.5455 70.8725 32.5455C70.8725 21.2727 61.6362 12 50.3635 12C38.9998 12 29.818 21.2727 29.818 32.5455V72.7273C29.818 74.1818 28.5453 75.4545 27.0907 75.4545H23.4544C22 75.4545 20.7271 74.1818 20.7271 72.7273V32.5455C20.7271 16.3636 33.818 3.27273 50 3.27273C66.1816 3.27273 79.2726 16.3636 79.2726 32.5455C79.2726 34.5455 79.0907 36.5455 78.7271 38.5455H75.2726C78.3635 38.5455 81.2726 39.6364 83.6362 41.4545C88.5453 45.2727 91.4544 51.0909 91.4544 57.4545V63.8182C91.4544 77.7273 80.1816 88.9091 66.1816 88.9091H54.8725C54.1816 88.9091 53.4907 89.0909 52.8725 89.4545L42.5453 95.0909C48.1816 97.2727 54.2726 98.5455 60.5453 98.5455C82.5453 98.5455 100.545 80.5455 100.545 58.5455V56.7273H95.9998Z" fill="white"/>
+                                <defs>
+                                    <linearGradient id="phantom-gradient" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+                                        <stop stop-color="#534BB1"/>
+                                        <stop offset="1" stop-color="#551BF9"/>
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                        </div>
                         <div class="wallet-info">
-                            <div class="wallet-name">MetaMask</div>
-                            <div class="wallet-description">Connect with MetaMask browser extension</div>
+                            <div class="wallet-name">Phantom</div>
+                            <div class="wallet-description">Connect with Phantom wallet</div>
+                        </div>
+                    </button>
+
+                    <button class="wallet-option-btn" id="solflareBtn">
+                        <div class="wallet-icon">
+                            <svg width="40" height="40" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="512" height="512" rx="256" fill="url(#solflare-gradient)"/>
+                                <path d="M169.5 278.5C171.333 276.667 173.7 275.75 176.6 275.75H335.4C339.667 275.75 341.8 280.583 338.833 283.55L342.5 279.883L338.833 283.55L286.833 335.55C285 337.383 282.633 338.3 279.733 338.3H120.933C116.667 338.3 114.533 333.467 117.5 330.5L169.5 278.5Z" fill="white"/>
+                                <path d="M169.5 233.5C171.4 231.6 173.767 230.65 176.6 230.65H335.4C339.667 230.65 341.8 235.483 338.833 238.45L286.833 290.45C285 292.283 282.633 293.2 279.733 293.2H120.933C116.667 293.2 114.533 288.367 117.5 285.4L169.5 233.5Z" fill="white"/>
+                                <path d="M286.833 176.45C285 178.283 282.633 179.2 279.733 179.2H120.933C116.667 179.2 114.533 174.367 117.5 171.4L169.5 119.4C171.333 117.567 173.7 116.65 176.6 116.65H335.4C339.667 116.65 341.8 121.483 338.833 124.45L286.833 176.45Z" fill="white"/>
+                                <defs>
+                                    <linearGradient id="solflare-gradient" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+                                        <stop stop-color="#FC8F38"/>
+                                        <stop offset="1" stop-color="#FEDB37"/>
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                        </div>
+                        <div class="wallet-info">
+                            <div class="wallet-name">Solflare</div>
+                            <div class="wallet-description">Connect with Solflare wallet</div>
+                        </div>
+                    </button>
+
+                    <button class="wallet-option-btn" id="jupiterBtn">
+                        <div class="wallet-icon">
+                            <svg width="40" height="40" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="100" cy="100" r="100" fill="#FCC82B"/>
+                                <path d="M100 40C66.8629 40 40 66.8629 40 100C40 133.137 66.8629 160 100 160C133.137 160 160 133.137 160 100C160 66.8629 133.137 40 100 40ZM100 150C72.3858 150 50 127.614 50 100C50 72.3858 72.3858 50 100 50C127.614 50 150 72.3858 150 100C150 127.614 127.614 150 100 150Z" fill="#0E0E0E"/>
+                                <circle cx="100" cy="100" r="45" fill="#FCC82B"/>
+                                <ellipse cx="100" cy="100" rx="80" ry="20" fill="#0E0E0E" opacity="0.3"/>
+                                <ellipse cx="100" cy="100" rx="20" ry="80" fill="#0E0E0E" opacity="0.3"/>
+                                <path d="M78 92C81.866 92 85 88.866 85 85C85 81.134 81.866 78 78 78C74.134 78 71 81.134 71 85C71 88.866 74.134 92 78 92Z" fill="#0E0E0E"/>
+                                <path d="M122 92C125.866 92 129 88.866 129 85C129 81.134 125.866 78 122 78C118.134 78 115 81.134 115 85C115 88.866 118.134 92 122 92Z" fill="#0E0E0E"/>
+                            </svg>
+                        </div>
+                        <div class="wallet-info">
+                            <div class="wallet-name">Jupiter</div>
+                            <div class="wallet-description">Connect with Jupiter wallet</div>
                         </div>
                     </button>
 
                     <button class="wallet-option-btn" id="walletConnectBtn">
-                        <div class="wallet-icon">📱</div>
+                        <div class="wallet-icon">
+                            <svg width="40" height="40" viewBox="0 0 300 185" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M61.439 36.256c48.91-47.888 128.212-47.888 177.123 0l5.886 5.764a6.041 6.041 0 0 1 0 8.67l-20.136 19.716a3.179 3.179 0 0 1-4.428 0l-8.101-7.931c-34.122-33.408-89.444-33.408-123.566 0l-8.675 8.494a3.179 3.179 0 0 1-4.428 0L54.978 51.253a6.041 6.041 0 0 1 0-8.67l6.46-6.327ZM280.206 77.03l17.922 17.547a6.041 6.041 0 0 1 0 8.67l-80.81 79.122c-2.446 2.394-6.41 2.394-8.856 0l-57.354-56.155a1.59 1.59 0 0 0-2.214 0L91.54 182.37c-2.446 2.394-6.411 2.394-8.857 0L1.872 103.247a6.041 6.041 0 0 1 0-8.671l17.922-17.547c2.445-2.394 6.41-2.394 8.856 0l57.355 56.155a1.59 1.59 0 0 0 2.214 0L145.57 77.03c2.446-2.394 6.41-2.394 8.856 0l57.355 56.155a1.59 1.59 0 0 0 2.214 0L271.35 77.03c2.446-2.394 6.41-2.394 8.856 0Z" fill="#3B99FC"/>
+                            </svg>
+                        </div>
                         <div class="wallet-info">
                             <div class="wallet-name">WalletConnect</div>
                             <div class="wallet-description">Scan QR with mobile wallet app</div>
-                        </div>
-                    </button>
-
-                    <button class="wallet-option-btn" id="coinbaseWalletBtn">
-                        <div class="wallet-icon">💼</div>
-                        <div class="wallet-info">
-                            <div class="wallet-name">Coinbase Wallet</div>
-                            <div class="wallet-description">Connect with Coinbase Wallet</div>
-                        </div>
-                    </button>
-
-                    <button class="wallet-option-btn" id="phantomBtn">
-                        <div class="wallet-icon">👻</div>
-                        <div class="wallet-info">
-                            <div class="wallet-name">Phantom</div>
-                            <div class="wallet-description">Connect with Phantom wallet</div>
                         </div>
                     </button>
                 </div>
@@ -435,11 +144,14 @@
         </div>
     </div>
 
+    <!-- Solana Web3.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+
     <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-        import { getDatabase, ref, push, set, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+        import { getDatabase, ref, push, set, serverTimestamp, get } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
         // Firebase configuration
         const firebaseConfig = {
@@ -459,12 +171,54 @@
         const database = getDatabase(app);
         const provider = new GoogleAuthProvider();
 
+        // ============================================
+        // SOLANA WALLET CREATION FOR GOOGLE USERS
+        // ============================================
+
+        async function createOrGetSolanaWallet(userId) {
+            try {
+                // Check if wallet already exists in Firebase
+                const walletRef = ref(database, `user-wallets/${userId}`);
+                const snapshot = await get(walletRef);
+
+                if (snapshot.exists()) {
+                    // Wallet exists, return it
+                    return snapshot.val();
+                } else {
+                    // Create new Solana wallet
+                    const keypair = solanaWeb3.Keypair.generate();
+                    const walletAddress = keypair.publicKey.toString();
+                    const privateKey = Buffer.from(keypair.secretKey).toString('base64');
+
+                    // Store wallet in Firebase
+                    const walletData = {
+                        address: walletAddress,
+                        privateKey: privateKey, // IMPORTANT: In production, encrypt this!
+                        createdAt: serverTimestamp(),
+                        type: 'generated'
+                    };
+
+                    await set(walletRef, walletData);
+
+                    return walletData;
+                }
+            } catch (error) {
+                console.error('Error creating/getting Solana wallet:', error);
+                throw error;
+            }
+        }
+
         // Google Sign In
         document.getElementById('googleSignIn').addEventListener('click', async () => {
             try {
                 const result = await signInWithPopup(auth, provider);
                 const user = result.user;
                 console.log('User signed in:', user);
+
+                // Create or get Solana wallet for this user
+                const solanaWallet = await createOrGetSolanaWallet(user.uid);
+                console.log('Solana wallet:', solanaWallet.address);
+
                 // Set flag to allow auto-redirect to dashboard
                 sessionStorage.setItem('justSignedIn', 'true');
             } catch (error) {
@@ -484,7 +238,7 @@
         });
 
         // Monitor auth state and handle redirects
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
                 // User is signed in
                 document.getElementById('userName').textContent = user.displayName || user.email;
@@ -498,12 +252,16 @@
                     userPhoto.style.display = 'block';
                 }
 
-                // Store user in localStorage
+                // Get or create Solana wallet for Google users
+                const solanaWallet = await createOrGetSolanaWallet(user.uid);
+
+                // Store user in localStorage with Solana wallet
                 localStorage.setItem('currentUser', JSON.stringify({
                     uid: user.uid,
                     email: user.email,
                     displayName: user.displayName,
-                    photoURL: user.photoURL
+                    photoURL: user.photoURL,
+                    solanaWallet: solanaWallet.address
                 }));
 
                 // Only auto-redirect if this is a fresh sign-in (not navigating back to home)
@@ -567,50 +325,55 @@
         });
 
         // Wallet connection handlers
-        document.getElementById('metamaskBtn').addEventListener('click', async () => {
-            await connectWallet('MetaMask');
+        document.getElementById('phantomBtn').addEventListener('click', async () => {
+            await connectWallet('Phantom');
+        });
+
+        document.getElementById('solflareBtn').addEventListener('click', async () => {
+            await connectWallet('Solflare');
+        });
+
+        document.getElementById('jupiterBtn').addEventListener('click', async () => {
+            await connectWallet('Jupiter');
         });
 
         document.getElementById('walletConnectBtn').addEventListener('click', async () => {
             await connectWallet('WalletConnect');
         });
 
-        document.getElementById('coinbaseWalletBtn').addEventListener('click', async () => {
-            await connectWallet('Coinbase Wallet');
-        });
-
-        document.getElementById('phantomBtn').addEventListener('click', async () => {
-            await connectWallet('Phantom');
-        });
-
         async function connectWallet(walletType) {
             try {
                 // Check if wallet is available
-                if (walletType === 'MetaMask') {
-                    if (typeof window.ethereum !== 'undefined') {
-                        // Request account access
-                        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                        const walletAddress = accounts[0];
-
-                        // Create user session with wallet
-                        await handleWalletSignIn(walletAddress, walletType);
-                    } else {
-                        alert('MetaMask is not installed. Please install MetaMask browser extension.');
-                        window.open('https://metamask.io/download/', '_blank');
-                    }
-                } else if (walletType === 'Phantom') {
+                if (walletType === 'Phantom') {
                     if (typeof window.solana !== 'undefined' && window.solana.isPhantom) {
                         const resp = await window.solana.connect();
                         const walletAddress = resp.publicKey.toString();
-
                         await handleWalletSignIn(walletAddress, walletType);
                     } else {
                         alert('Phantom wallet is not installed. Please install Phantom extension.');
                         window.open('https://phantom.app/', '_blank');
                     }
-                } else {
-                    // For WalletConnect and Coinbase Wallet, show coming soon message
-                    alert(`${walletType} integration coming soon! Please use MetaMask or Phantom for now.`);
+                } else if (walletType === 'Solflare') {
+                    if (typeof window.solflare !== 'undefined') {
+                        await window.solflare.connect();
+                        const walletAddress = window.solflare.publicKey.toString();
+                        await handleWalletSignIn(walletAddress, walletType);
+                    } else {
+                        alert('Solflare wallet is not installed. Please install Solflare extension.');
+                        window.open('https://solflare.com/', '_blank');
+                    }
+                } else if (walletType === 'Jupiter') {
+                    // Jupiter uses the standard Solana wallet adapter
+                    if (typeof window.jupiter !== 'undefined') {
+                        await window.jupiter.connect();
+                        const walletAddress = window.jupiter.publicKey.toString();
+                        await handleWalletSignIn(walletAddress, walletType);
+                    } else {
+                        alert('Jupiter wallet is not installed. Please visit Jupiter website.');
+                        window.open('https://jup.ag/', '_blank');
+                    }
+                } else if (walletType === 'WalletConnect') {
+                    alert('WalletConnect integration coming soon! Please use Phantom, Solflare, or Jupiter for now.');
                 }
             } catch (error) {
                 console.error('Wallet connection error:', error);

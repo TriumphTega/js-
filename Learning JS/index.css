@@ -1,34 +1,50 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
 body {
-    background-color: black;
-    color: aliceblue;
-    border: 10px;
-    border-radius: 50%;
-    border-color: green;
-    font-family: "Orbitron", sans-serjpgif;
-    background-image: url("/Learning JS/images/Lunaris\ 03.jpe");
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: center;
-    font-optical-sizing: auto;
-    font-weight: <weight>;
-    font-style: normal;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1e5128 0%, #2d6a4f 50%, #1e5128 100%);
+    color: white;
+    font-family: 'Courier New', Courier, monospace;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
-/* FLOWING TEXT ANIMATIONS */
-
-/* Typing animation cursor effect */
-.typing-animation {
-    border-right: 3px solid aliceblue;
-    animation: blink-cursor 0.7s infinite;
+#app-container {
+    max-width: 800px;
+    width: 100%;
+    margin: 0 auto;
 }
 
-@keyframes blink-cursor {
-    0%, 49% { border-color: aliceblue; }
-    50%, 100% { border-color: transparent; }
+#main-title {
+    font-size: clamp(3rem, 8vw, 5rem);
+    color: #FFCC00;
+    text-align: center;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    min-height: 80px;
 }
 
-/* Fade in and slide up animation */
-.fade-in-up {
+#beta-badge {
+    text-align: center;
+    color: rgba(255, 204, 0, 0.7);
+    font-size: 1.2rem;
+    margin-bottom: 40px;
+    font-style: italic;
+}
+
+.content-section {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 15px;
+    padding: 30px;
+    margin-bottom: 25px;
+    border: 2px solid rgba(255, 204, 0, 0.3);
     opacity: 0;
     animation: fadeInUp 0.8s ease-out forwards;
 }
@@ -44,198 +60,274 @@ body {
     }
 }
 
-/* Wave animation for individual letters */
-@keyframes wave {
-    0%, 100% {
-        transform: translateY(0);
-    }
-    50% {
-        transform: translateY(-10px);
-    }
-}
-
-/* User info styling */
-#userInfo {
-    background: rgba(0, 0, 0, 0.5);
-    padding: 20px;
-    border-radius: 10px;
-    margin: 20px auto;
-    max-width: 400px;
-}
-
-#userName {
+.section-title {
     color: #FFCC00;
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.story-text {
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.8;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #FFCC00;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.95);
+    color: #1e5128;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1rem;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.btn {
+    width: 100%;
+    padding: 15px 30px;
+    background-color: #FFCC00;
+    color: #1e5128;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1.1rem;
     font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
-#main {
-    text-align: center;
-    font-style: normal;
-    
+.btn:hover {
+    background-color: #e6b800;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(255, 204, 0, 0.4);
 }
 
-#counter {
-    text-align: center;
-    font-style: normal;
-    padding-top: 10px;
-    padding-bottom: 10px;
-}
-
-#counter-human {
-    text-align: center;
-    font-style: normal;
-    padding-top: 10px;
-}
-
-
-#counter-card {
-    text-align: center;
-    font-style: normal;
-    width: 300px;
-    margin-right: auto;
-    margin-left: auto;
-    padding-bottom: 10px;
-    padding-top: 10px;
-    font-family: "Orbitron", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: <weight>;
-    font-style: normal;
-}
-
-
-#centerpiece {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: auto;
-    padding-top: 10px;
-    margin-left: 10px;
-    margin-right: 10px;
-    font-family: "Orbitron", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: <weight>;
-    font-style: normal;
-
-}
-
-button {
-background-color: green;
--moz-border-radius: 5px;
--webkit-border-radius: 5px;
-border-radius:6px;
-font-size: 20px;
-text-decoration: none;
-cursor: pointer;
-border:none;
-padding-left: 10px;
-padding-right: 10px;
-padding-top: 5px;
-padding-bottom: 5px;
-font-family: "Orbitron", sans-serif;
-font-optical-sizing: auto;
-font-weight: <weight>;
-font-style: normal;
-}
-
-/* Google Sign-In Button - Standard Google Design */
 .google-signin-btn {
+    width: 100%;
     background-color: white !important;
     color: #3c4043 !important;
     border: 1px solid #dadce0 !important;
-    border-radius: 4px !important;
-    padding: 10px 12px !important;
-    font-family: 'Roboto', 'Arial', sans-serif !important;
-    font-size: 14px !important;
+    border-radius: 8px !important;
+    padding: 12px 20px !important;
+    font-family: 'Courier New', Courier, monospace !important;
+    font-size: 1rem !important;
     font-weight: 500 !important;
-    display: inline-flex !important;
+    display: flex !important;
     align-items: center !important;
-    gap: 10px !important;
-    transition: all 0.2s ease !important;
+    justify-content: center !important;
+    gap: 12px !important;
+    transition: all 0.3s ease !important;
     box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15) !important;
+    cursor: pointer;
 }
 
 .google-signin-btn:hover {
     background-color: #f8f9fa !important;
     border-color: #d2e3fc !important;
     box-shadow: 0 1px 3px 0 rgba(60,64,67,0.3), 0 4px 8px 3px rgba(60,64,67,0.15) !important;
-    transform: translateY(0) !important;
+    transform: translateY(-2px) !important;
 }
 
-.google-signin-btn:active {
-    background-color: #f1f3f4 !important;
-    box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3) !important;
+.wallet-signin-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 12px 20px !important;
+    font-family: 'Courier New', Courier, monospace !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 12px !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4) !important;
+    cursor: pointer;
 }
 
-.google-signin-btn svg {
-    flex-shrink: 0;
+.wallet-signin-btn:hover {
+    background: linear-gradient(135deg, #5568d3 0%, #6a3f8f 100%) !important;
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6) !important;
+    transform: translateY(-2px) !important;
 }
 
-.google-signin-btn span {
-    white-space: nowrap;
-}
-
-
-
-#mainsflex {
+.divider {
     text-align: center;
-    padding-block: 10px;
-    scroll-padding: ;
-    font-family: 'Courier New', Courier, monospace;
-    animation: pageMarquee 12s linear infinite;
-    will-change: transform;
+    margin: 20px 0;
+    color: rgba(255, 204, 0, 0.7);
+    font-size: 1.1rem;
 }
 
-
-.modal {
-  display: none; /* Hidden by default */
-  position: fixed; /* Stay in place */
-  z-index: 1; /* Sit on top */
-  left: 0;
-  top: 0;
-  width: 100%; /* Full width */
-  height: 100%; /* Full height */
-  overflow: auto; /* Enable scroll if needed */
-  background-color: black;/* Black w/ opacity */
+#user-info {
+    display: none;
+    text-align: center;
 }
 
-.modal-content {
-  background-color: green;
-  margin: 15% auto; /* 15% from the top and centered */
-  padding: 20px;
-  border: 1px solid #888;
-  width: 80%; /* Could be more or less, depending on screen size */
-  max-width: 500px;
-  position: relative;
+#user-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 3px solid #FFCC00;
+    margin: 0 auto 15px;
+    display: block;
 }
 
-.close-btn {
-  color: #aaa;
-  float: right;
-  font-size: 28px;
-  font-weight: bold;
-  cursor: pointer;
+.user-name {
+    color: #FFCC00;
+    font-size: 1.5rem;
+    margin-bottom: 20px;
 }
 
-.close-btn:hover,
-.close-btn:focus {
-  color: black;
-  text-decoration: none;
-  cursor: pointer;
+.btn-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 20px;
 }
 
-.options-container label {
-  display: block;
-  margin-bottom: 10px;
-}
-
-#confirmChoiceBtn {
-    background-color: black; /* Your color win—keeping it */
+.btn-secondary {
+    background-color: #6c757d;
     color: white;
-    border: 2px solid white; /* Width + solid style + dark red color for contrast */
-    padding: 12px 24px; /* Inner space: more vertical for button feel */
-    margin-top: 20px; /* Top gap to separate from options text */
-    border-radius: 5px; /* Soft corners, optional but clean */
-    cursor: pointer; /* Hand icon on hover, UX bonus */
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+@media (max-width: 768px) {
+    .form-grid, .btn-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Animation delays */
+.content-section:nth-child(1) { animation-delay: 0.2s; }
+.content-section:nth-child(2) { animation-delay: 0.4s; }
+.content-section:nth-child(3) { animation-delay: 0.6s; }
+.content-section:nth-child(4) { animation-delay: 0.8s; }
+
+/* Wallet Modal Styling */
+.wallet-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.85);
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.wallet-modal-content {
+    background: linear-gradient(135deg, #1e5128 0%, #2d6a4f 100%);
+    margin: 5% auto;
+    padding: 0;
+    border: 3px solid #FFCC00;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.wallet-modal-header {
+    background: rgba(0, 0, 0, 0.4);
+    padding: 25px;
+    border-bottom: 2px solid rgba(255, 204, 0, 0.3);
+    border-radius: 15px 15px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.wallet-modal-header h2 {
+    color: #FFCC00;
+    margin: 0;
+}
+
+.wallet-close {
+    color: #FFCC00;
+    font-size: 32px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.wallet-close:hover {
+    color: white;
+    transform: scale(1.2);
+}
+
+.wallet-modal-body {
+    padding: 30px;
+}
+
+.wallet-options {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.wallet-option-btn {
+    width: 100%;
+    padding: 15px 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 204, 0, 0.3);
+    border-radius: 10px;
+    color: white;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
     display: flex;
     align-items: center;
+    gap: 15px;
+}
+
+.wallet-option-btn:hover {
+    background: rgba(255, 204, 0, 0.1);
+    border-color: #FFCC00;
+    transform: translateX(5px);
+}
+
+.wallet-icon {
+    font-size: 1.8rem;
+}
+
+.wallet-info {
+    flex: 1;
+    text-align: left;
+}
+
+.wallet-name {
+    color: #FFCC00;
+    font-size: 1.1rem;
+}
+
+.wallet-description {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.85rem;
+    margin-top: 5px;
 }

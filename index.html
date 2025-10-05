@@ -296,6 +296,8 @@
                 const result = await signInWithPopup(auth, provider);
                 const user = result.user;
                 console.log('User signed in:', user);
+                // Set flag to allow auto-redirect to dashboard
+                sessionStorage.setItem('justSignedIn', 'true');
             } catch (error) {
                 console.error('Error signing in:', error);
                 alert('Sign in failed: ' + error.message);
@@ -336,11 +338,14 @@
                     photoURL: user.photoURL
                 }));
 
-                // Check if user has a role
+                // Only auto-redirect if this is a fresh sign-in (not navigating back to home)
+                const justSignedIn = sessionStorage.getItem('justSignedIn');
                 const userRole = localStorage.getItem('userRole');
-                if (userRole) {
-                    // Returning user with role - redirect to dashboard
+
+                if (userRole && justSignedIn === 'true') {
+                    // Returning user with role - redirect to dashboard only on fresh sign-in
                     console.log('Returning user detected, redirecting to dashboard...');
+                    sessionStorage.removeItem('justSignedIn');
                     setTimeout(() => {
                         window.location.href = '/Learning JS/dashboard.html';
                     }, 1500);

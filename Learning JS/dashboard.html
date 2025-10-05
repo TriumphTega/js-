@@ -655,6 +655,7 @@
                         <option value="maintenance">🔧 Base Maintenance (Clean/Organize)</option>
                         <option value="research">🔬 Research Project (Study/Learn)</option>
                         <option value="communication">📡 Communications Check (Social Connection)</option>
+                        <option value="fitness">💪 Gravity Adaptation Training (Gym/Exercise)</option>
                         <option value="custom">✏️ Custom Mission</option>
                     </select>
                 </div>
@@ -812,6 +813,12 @@
                 baseReward: 12,
                 resources: { energy: 2 },
                 perkType: 'stakingBonus'
+            },
+            fitness: {
+                name: '💪 Gravity Adaptation Training',
+                baseReward: 15,
+                resources: { energy: -10, oxygen: -3 },
+                perkType: 'wellnessBonus'
             },
             custom: {
                 name: '✏️ Custom Mission',

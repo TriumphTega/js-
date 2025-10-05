@@ -1,206 +1,518 @@
 <!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset='utf-8'>
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
     <title>Console - Role Selection</title>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
-    <link rel="stylesheet" type="text/css" href="/Learning JS/index.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1e5128 0%, #2d6a4f 50%, #1e5128 100%);
+            color: white;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 20px;
+        }
+
+        #app-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header-section {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 2px solid rgba(255, 204, 0, 0.3);
+            text-align: center;
+        }
+
+        .page-title {
+            font-size: clamp(2rem, 5vw, 3rem);
+            color: #FFCC00;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            margin-bottom: 15px;
+        }
+
+        .user-greeting {
+            color: rgba(255, 204, 0, 0.8);
+            font-size: 1.2rem;
+            margin-top: 10px;
+        }
+
+        .nav-btn {
+            padding: 12px 25px;
+            background-color: rgba(255, 204, 0, 0.2);
+            color: #FFCC00;
+            border: 2px solid #FFCC00;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 15px;
+        }
+
+        .nav-btn:hover {
+            background-color: rgba(255, 204, 0, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(255, 204, 0, 0.3);
+        }
+
+        .role-display {
+            display: none;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 2px solid rgba(255, 204, 0, 0.3);
+            text-align: center;
+        }
+
+        .role-display h2 {
+            color: #FFCC00;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+
+        .role-name {
+            color: white;
+            font-size: 2rem;
+            margin: 15px 0;
+        }
+
+        .role-lore {
+            color: rgba(255, 255, 255, 0.8);
+            font-style: italic;
+            line-height: 1.6;
+            margin: 15px 0;
+        }
+
+        .role-lock-message {
+            color: #FFCC00;
+            margin: 20px 0;
+            font-size: 1.1rem;
+        }
+
+        .btn {
+            padding: 15px 40px;
+            background-color: #FFCC00;
+            color: #1e5128;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+
+        .btn:hover {
+            background-color: #e6b800;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(255, 204, 0, 0.4);
+        }
+
+        .btn-secondary {
+            background-color: #32CD32;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #28a428;
+        }
+
+        /* Modal Styling */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.85);
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1e5128 0%, #2d6a4f 100%);
+            margin: 30px auto;
+            padding: 0;
+            border: 3px solid #FFCC00;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-header {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 25px;
+            border-bottom: 2px solid rgba(255, 204, 0, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .modal-header h2 {
+            color: #FFCC00;
+            text-align: center;
+            margin: 0;
+            font-size: 1.8rem;
+        }
+
+        .close-btn {
+            color: #FFCC00;
+            float: right;
+            font-size: 32px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            color: white;
+            transform: scale(1.2);
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .role-option {
+            display: block;
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(255, 204, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .role-option:hover {
+            border-color: #FFCC00;
+            background: rgba(255, 204, 0, 0.1);
+            transform: translateX(5px);
+        }
+
+        .role-option input[type="radio"] {
+            margin-right: 10px;
+            cursor: pointer;
+            transform: scale(1.3);
+        }
+
+        .role-option input[type="radio"]:checked {
+            accent-color: #FFCC00;
+        }
+
+        .role-content {
+            color: white;
+        }
+
+        .role-title {
+            color: #FFCC00;
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .role-content ul {
+            list-style: none;
+            margin: 8px 0;
+            padding-left: 0;
+        }
+
+        .role-content li {
+            margin: 5px 0;
+            padding-left: 20px;
+            position: relative;
+            line-height: 1.5;
+        }
+
+        .role-content li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #FFCC00;
+        }
+
+        .role-content strong {
+            color: #FFCC00;
+        }
+
+        .confirm-btn {
+            width: 100%;
+            padding: 15px;
+            background-color: #FFCC00;
+            color: #1e5128;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .confirm-btn:hover {
+            background-color: #e6b800;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(255, 204, 0, 0.4);
+        }
+
+        /* Instructions Modal Styling */
+        .instructions-section {
+            text-align: left;
+            line-height: 1.8;
+        }
+
+        .instructions-section h3 {
+            color: #FFCC00;
+            margin-top: 25px;
+            margin-bottom: 10px;
+            font-size: 1.4rem;
+        }
+
+        .instructions-section p {
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 15px;
+        }
+
+        .instructions-section ul, .instructions-section ol {
+            margin-left: 25px;
+            margin-bottom: 15px;
+        }
+
+        .instructions-section li {
+            margin: 8px 0;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .instructions-section strong {
+            color: #FFCC00;
+        }
+
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 95%;
+                margin: 15px auto;
+            }
+
+            .modal-header h2 {
+                font-size: 1.4rem;
+            }
+
+            .role-title {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
 </head>
 <body>
-    <!-- ============================================
-         HEADER SECTION
-         Shows user info and navigation
-    ============================================ -->
-    <div id="my-button">
-        <button id="backButton">
-            <a href="/index.html">Back</a>
-        </button>
-    </div>
+    <div id="app-container">
+        <!-- Header Section -->
+        <div class="header-section">
+            <h1 class="page-title">🎯 Mission Control</h1>
+            <p class="user-greeting" id="userGreeting"></p>
+            <a href="/index.html" class="nav-btn">← Back to Home</a>
+        </div>
 
-    <!-- Welcome message for new users -->
-    <div id="counter">
-        <h1 id="welcomeMessage">Welcome to Mission Control</h1>
-        <p id="userGreeting" style="color: #FFCC00; font-size: 1.2rem;"></p>
-    </div>
+        <!-- Role Display (shown after role selection) -->
+        <div class="role-display" id="roleDisplay">
+            <h2>Your Role</h2>
+            <div class="role-name" id="currentRoleName"></div>
+            <p class="role-lore" id="currentRoleLore"></p>
+            <p class="role-lock-message">🔒 Role permanently locked</p>
+            <button id="progressBtn" class="btn">Continue to Instructions →</button>
+        </div>
 
-    <!-- Current role display (hidden until role is selected) -->
-    <div id="roleDisplay" style="display: none; text-align: center; margin: 30px auto; padding: 20px; background: rgba(0,0,0,0.3); border-radius: 10px; max-width: 600px;">
-        <h2 style="color: #FFCC00;">Your Role</h2>
-        <h3 id="currentRoleName" style="color: white; margin: 10px 0;"></h3>
-        <p id="currentRoleLore" style="color: rgba(255,255,255,0.8); font-style: italic;"></p>
-        <p id="roleLockMessage" style="color: #FFCC00; margin-top: 10px; font-size: 0.9rem;">🔒 Role permanently locked</p>
-        <button id="progressBtn" style="margin-top: 20px; padding: 15px 40px; background-color: #FFCC00; color: #1e5128; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1.1rem; font-family: 'Orbitron', sans-serif;">Continue to Instructions →</button>
-    </div>
-
-    <button id="openModalBtn" style="display: block; margin: 20px auto; background-color: green; color: white; padding: 15px 30px; border: none; border-radius: 8px; font-size: 1.1rem; cursor: pointer; font-family: 'Orbitron', sans-serif;">Select Your Role</button>
-
-    <!-- ============================================
-         ROLE SELECTION MODAL
-         Modal for choosing colony role
-    ============================================ -->
-    <div id="myModal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn">&times;</span>
-            <h2>Choose Your Colony Role:</h2>
-            <div class="options-container">
-                <label>
-                    <input type="radio" name="choice" value="option1">
-                    <div class="mainsflex">1. Base Engineer 🔧
-                        <ul><li><strong>Lore:</strong> Responsible for keeping habitats safe, air systems running, and power online.</li></ul>
-                        <ul><li><strong>Perks:</strong> +10% efficiency when upgrading base structures (spends fewer tokens).</li></ul>
-                        <ul><li>Daily check-ins give an extra oxygen resource.</li></ul>
-                        <ul><li>Unlocks exclusive "Habitat Module" skins.</li></ul>
-                    </div>
-                </label>
-
-                <label>
-                    <input type="radio" name="choice" value="option2">
-                    <div class="mainsflex">2. Exploratory Engineer 🛰️
-                        <ul><li><strong>Lore:</strong> Specialists who adapt rovers, drones, and equipment for expeditions.</li></ul>
-                        <ul><li><strong>Perks:</strong> +5% Lunaris earned from exploration tasks (walking, outdoor activities).</li></ul>
-                        <ul><li>Unlocks early access to the Red Dunes Zone.</li></ul>
-                        <ul><li>Rare chance of finding bonus "Martian Mineral NFTs" on quests.</li></ul>
-                    </div>
-                </label>
-
-                <label>
-                    <input type="radio" name="choice" value="option3">
-                    <div class="mainsflex">3. Food Tech & Survival Skills Expert 🌱
-                        <ul><li><strong>Lore:</strong> Masters of hydroponics, rationing, and making Martian soil fertile.</li></ul>
-                        <ul><li><strong>Perks:</strong> +10% yield from food/habit tasks (hydration, journaling, sleep).</li></ul>
-                        <ul><li>Daily bonus: Hydroponics Tokens (used to trade at Crater Nexus).</li></ul>
-                        <ul><li>Special recipes (NFTs) to grow rare crops with token benefits.</li></ul>
-                    </div>
-                </label>
-
-                <label>
-                    <input type="radio" name="choice" value="option4">
-                    <div class="mainsflex">4. Comms Specialist 📡
-                        <ul><li><strong>Lore:</strong> Maintains communication networks between colonists and Earth.</li></ul>
-                        <ul><li><strong>Perks:</strong> +5% staking rewards (better efficiency in DAO/community missions)</li></ul>
-                        <ul><li>Ability to broadcast colony-wide boosts (mini-events).</li></ul>
-                        <ul><li>Exclusive cosmetic perks: animated holographic badges.</li></ul>
-                    </div>
-                </label>
-
-                <label>
-                    <input type="radio" name="choice" value="option5">
-                    <div class="mainsflex">5. Resource Miner ⛏️
-                        <ul><li><strong>Lore:</strong> Extracts raw materials from Martian crust for colony use.</li></ul>
-                        <ul><li><strong>Perks:</strong> +15% efficiency when gathering rare resources.</li></ul>
-                        <ul><li>Bonus NFT drops when participating in mining missions.</li></ul>
-                        <ul><li>Unlocks special trade deals at Crater Nexus.</li></ul>
-                    </div>
-                </label>
-
-                <label>
-                    <input type="radio" name="choice" value="option6">
-                    <div class="mainsflex">6. Medical Officer 🩺
-                        <ul><li><strong>Lore:</strong> Ensures colonists remain healthy and fit for survival.</li></ul>
-                        <ul><li><strong>Perks:</strong> +5% daily token boost when logging wellness tasks (sleep, hydration).</li></ul>
-                        <ul><li>Ability to "heal" other colonists in co-op missions (share buffs).</li></ul>
-                        <ul><li>Special gear: medical pods that double as collectibles.</li></ul>
-                    </div>
-                </label>
-
-                <label>
-                    <input type="radio" name="choice" value="option7">
-                    <div class="mainsflex">7. Navigator 🌌
-                        <ul><li><strong>Lore:</strong> Charts safe paths across dunes, craters, and ice caps.</li></ul>
-                        <ul><li><strong>Perks:</strong> Shortens time/requirements for exploration quests.</li></ul>
-                        <ul><li>Unlocks fast travel between colony zones.</li></ul>
-                        <ul><li>Extra bonus tokens for completing streaks.</li></ul>
-                    </div>
-                </label>
-            </div>
-            <button id="confirmChoiceBtn">Confirm Selection</button>
+        <!-- Select Role Button (hidden after role is selected) -->
+        <div style="text-align: center;">
+            <button id="openModalBtn" class="btn btn-secondary">🚀 Select Your Role</button>
         </div>
     </div>
 
-    <!-- ============================================
-         INSTRUCTIONS MODAL
-         Explains how the app works
-    ============================================ -->
+    <!-- Role Selection Modal -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close-btn" id="closeModal">&times;</span>
+                <h2>Choose Your Colony Role</h2>
+            </div>
+            <div class="modal-body">
+                <div class="options-container">
+                    <label class="role-option">
+                        <input type="radio" name="choice" value="option1">
+                        <div class="role-content">
+                            <div class="role-title">🔧 Base Engineer</div>
+                            <ul>
+                                <li><strong>Lore:</strong> Responsible for keeping habitats safe, air systems running, and power online.</li>
+                                <li><strong>Perks:</strong> +10% efficiency when upgrading base structures.</li>
+                                <li>Daily check-ins give extra oxygen resource.</li>
+                                <li>Unlocks exclusive "Habitat Module" skins.</li>
+                            </ul>
+                        </div>
+                    </label>
+
+                    <label class="role-option">
+                        <input type="radio" name="choice" value="option2">
+                        <div class="role-content">
+                            <div class="role-title">🛰️ Exploratory Engineer</div>
+                            <ul>
+                                <li><strong>Lore:</strong> Specialists who adapt rovers, drones, and equipment for expeditions.</li>
+                                <li><strong>Perks:</strong> +5% Lunaris earned from exploration tasks.</li>
+                                <li>Unlocks early access to the Red Dunes Zone.</li>
+                                <li>Rare chance of finding bonus "Martian Mineral NFTs".</li>
+                            </ul>
+                        </div>
+                    </label>
+
+                    <label class="role-option">
+                        <input type="radio" name="choice" value="option3">
+                        <div class="role-content">
+                            <div class="role-title">🌱 Food Tech & Survival Expert</div>
+                            <ul>
+                                <li><strong>Lore:</strong> Masters of hydroponics, rationing, and making Martian soil fertile.</li>
+                                <li><strong>Perks:</strong> +10% yield from food/habit tasks.</li>
+                                <li>Daily bonus: Hydroponics Tokens.</li>
+                                <li>Special recipes (NFTs) to grow rare crops.</li>
+                            </ul>
+                        </div>
+                    </label>
+
+                    <label class="role-option">
+                        <input type="radio" name="choice" value="option4">
+                        <div class="role-content">
+                            <div class="role-title">📡 Comms Specialist</div>
+                            <ul>
+                                <li><strong>Lore:</strong> Maintains communication networks between colonists and Earth.</li>
+                                <li><strong>Perks:</strong> +5% staking rewards.</li>
+                                <li>Ability to broadcast colony-wide boosts.</li>
+                                <li>Exclusive holographic badges.</li>
+                            </ul>
+                        </div>
+                    </label>
+
+                    <label class="role-option">
+                        <input type="radio" name="choice" value="option5">
+                        <div class="role-content">
+                            <div class="role-title">⛏️ Resource Miner</div>
+                            <ul>
+                                <li><strong>Lore:</strong> Extracts raw materials from Martian crust for colony use.</li>
+                                <li><strong>Perks:</strong> +15% efficiency gathering rare resources.</li>
+                                <li>Bonus NFT drops on mining missions.</li>
+                                <li>Unlocks special trade deals at Crater Nexus.</li>
+                            </ul>
+                        </div>
+                    </label>
+
+                    <label class="role-option">
+                        <input type="radio" name="choice" value="option6">
+                        <div class="role-content">
+                            <div class="role-title">🩺 Medical Officer</div>
+                            <ul>
+                                <li><strong>Lore:</strong> Ensures colonists remain healthy and fit for survival.</li>
+                                <li><strong>Perks:</strong> +5% daily boost logging wellness tasks.</li>
+                                <li>Ability to "heal" other colonists in co-op missions.</li>
+                                <li>Special gear: medical pods as collectibles.</li>
+                            </ul>
+                        </div>
+                    </label>
+
+                    <label class="role-option">
+                        <input type="radio" name="choice" value="option7">
+                        <div class="role-content">
+                            <div class="role-title">🌌 Navigator</div>
+                            <ul>
+                                <li><strong>Lore:</strong> Charts safe paths across dunes, craters, and ice caps.</li>
+                                <li><strong>Perks:</strong> Shortens time for exploration quests.</li>
+                                <li>Unlocks fast travel between colony zones.</li>
+                                <li>Extra bonus tokens for completing streaks.</li>
+                            </ul>
+                        </div>
+                    </label>
+                </div>
+
+                <button id="confirmChoiceBtn" class="confirm-btn">✓ Confirm Selection</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Instructions Modal -->
     <div id="instructionsModal" class="modal">
-        <div class="modal-content" style="max-width: 700px;">
-            <span class="close-instructions">&times;</span>
-            <h2 style="color: #FFCC00; text-align: center;">🚀 How Lunaris Works</h2>
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close-btn" id="closeInstructions">&times;</span>
+                <h2>🚀 How Lunaris Works</h2>
+            </div>
+            <div class="modal-body">
+                <div class="instructions-section">
+                    <h3>📋 Your Mission</h3>
+                    <p>Lunaris is a productivity and to-do app with a Mars colony theme. Your role determines the bonuses and perks you receive as you complete tasks and build your colony.</p>
 
-            <div style="text-align: left; padding: 20px; line-height: 1.8;">
-                <h3 style="color: #FFCC00; margin-top: 20px;">📋 Your Mission</h3>
-                <p>Lunaris is a productivity and to-do app with a Mars colony theme. Your role determines the bonuses and perks you receive as you complete tasks and build your colony.</p>
+                    <h3>🎯 Core Features</h3>
+                    <ul>
+                        <li><strong>Task Management:</strong> Create and complete daily missions (to-dos)</li>
+                        <li><strong>Role-Based Perks:</strong> Your selected role gives you unique bonuses</li>
+                        <li><strong>Progress Tracking:</strong> Track streaks, earn rewards, and level up</li>
+                        <li><strong>Colony Building:</strong> Unlock new zones and upgrades as you progress</li>
+                    </ul>
 
-                <h3 style="color: #FFCC00; margin-top: 20px;">🎯 Core Features</h3>
-                <ul style="margin-left: 20px;">
-                    <li><strong>Task Management:</strong> Create and complete daily missions (to-dos)</li>
-                    <li><strong>Role-Based Perks:</strong> Your selected role gives you unique bonuses</li>
-                    <li><strong>Progress Tracking:</strong> Track streaks, earn rewards, and level up</li>
-                    <li><strong>Colony Building:</strong> Unlock new zones and upgrades as you progress</li>
-                </ul>
+                    <h3>⚡ How Your Role Works</h3>
+                    <p id="roleInstructions">Your role is now <strong>permanently locked</strong>. Each time you complete tasks, your role's perks will automatically apply bonus rewards and efficiency boosts.</p>
 
-                <h3 style="color: #FFCC00; margin-top: 20px;">⚡ How Your Role Works</h3>
-                <p id="roleInstructions">Your role is now <strong>permanently locked</strong>. Each time you complete tasks, your role's perks will automatically apply bonus rewards and efficiency boosts.</p>
+                    <h3>🎮 Getting Started</h3>
+                    <ol>
+                        <li>Create your first mission task</li>
+                        <li>Complete tasks to earn Lunaris tokens</li>
+                        <li>Track your daily streaks for bonus multipliers</li>
+                        <li>Unlock new colony zones and features</li>
+                    </ol>
 
-                <h3 style="color: #FFCC00; margin-top: 20px;">🎮 Getting Started</h3>
-                <ol style="margin-left: 20px;">
-                    <li>Create your first mission task below</li>
-                    <li>Complete tasks to earn Lunaris tokens</li>
-                    <li>Track your daily streaks for bonus multipliers</li>
-                    <li>Unlock new colony zones and features</li>
-                </ol>
+                    <h3>💡 Pro Tips</h3>
+                    <ul>
+                        <li>Daily check-ins maximize your role's bonus rewards</li>
+                        <li>Completing task streaks unlocks special perks</li>
+                        <li>Your role's lore adds flavor to your experience</li>
+                        <li>Notes page available for journaling and planning</li>
+                    </ul>
 
-                <h3 style="color: #FFCC00; margin-top: 20px;">💡 Pro Tips</h3>
-                <ul style="margin-left: 20px;">
-                    <li>Daily check-ins maximize your role's bonus rewards</li>
-                    <li>Completing task streaks unlocks special perks</li>
-                    <li>Your role's lore adds flavor to your experience</li>
-                    <li>Notes page available for journaling and planning</li>
-                </ul>
-
-                <div style="text-align: center; margin-top: 30px;">
-                    <button id="startMissionsBtn" style="padding: 15px 40px; background-color: #FFCC00; color: #1e5128; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1.2rem; font-family: 'Orbitron', sans-serif;">🚀 Start Your Missions!</button>
+                    <div style="text-align: center; margin-top: 30px;">
+                        <button id="startMissionsBtn" class="btn">🚀 Start Your Missions!</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-
-    <!-- ============================================
-         FIREBASE SDK & ROLE MANAGEMENT
-         Handles role selection and storage
-    ============================================ -->
+    <!-- Firebase & JavaScript -->
     <script type="module">
-        /* =============================================
-           📋 CODE SECTIONS QUICK REFERENCE
-           =============================================
-
-           Line 186-235:  FIREBASE CONFIG - Firebase initialization
-           Line 237-312:  ROLE DATA - All 7 roles with perks defined
-           Line 314-382:  USER SESSION - Detects new users & existing roles
-           Line 384-454:  MODAL MANAGEMENT - Role selection & instructions modals
-           Line 456-521:  ROLE SELECTION HANDLER - Saves & locks role permanently
-           Line 523-548:  DISPLAY FUNCTIONS - Shows role info on page
-           Line 550-574:  GLOBAL FUNCTIONS - Access role data from other pages
-
-           🔑 KEY FEATURES:
-           - Roles are PERMANENTLY LOCKED after selection
-           - Progress button opens instructions modal
-           - Instructions explain how the app works
-           - "Start Your Missions!" button redirects to dashboard.html
-           - Role perks accessible via window.getUserRole()
-           - Colony dashboard moved to separate dashboard.html page
-        */
-
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getDatabase, ref, update } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
-        // ============================================
-        // FIREBASE CONFIGURATION
-        // Connects to Firebase services
-        // ============================================
         const firebaseConfig = {
             apiKey: "AIzaSyClPgII54QDvJB3kiV1dWbqm1et_lHasvs",
             authDomain: "lunaris-45d84.firebaseapp.com",
@@ -212,21 +524,17 @@
             databaseURL: "https://lunaris-45d84-default-rtdb.firebaseio.com"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
 
-        // ============================================
-        // ROLE DATA CONFIGURATION
-        // Defines all available roles and their properties
-        // ============================================
+        // Role data
         const ROLES = {
             'option1': {
                 name: 'Base Engineer',
                 emoji: '🔧',
                 lore: 'Responsible for keeping habitats safe, air systems running, and power online.',
                 perks: {
-                    efficiency: 1.10,  // +10% efficiency
+                    efficiency: 1.10,
                     dailyBonus: 'oxygen',
                     specialUnlock: 'Habitat Module Skins'
                 }
@@ -236,7 +544,7 @@
                 emoji: '🛰️',
                 lore: 'Specialists who adapt rovers, drones, and equipment for expeditions.',
                 perks: {
-                    earningBoost: 1.05,  // +5% Lunaris earned
+                    earningBoost: 1.05,
                     zoneAccess: 'Red Dunes Zone',
                     specialUnlock: 'Martian Mineral NFTs'
                 }
@@ -246,7 +554,7 @@
                 emoji: '🌱',
                 lore: 'Masters of hydroponics, rationing, and making Martian soil fertile.',
                 perks: {
-                    taskYield: 1.10,  // +10% yield from tasks
+                    taskYield: 1.10,
                     dailyBonus: 'hydroponics',
                     specialUnlock: 'Rare Crop Recipes'
                 }
@@ -256,8 +564,8 @@
                 emoji: '📡',
                 lore: 'Maintains communication networks between colonists and Earth.',
                 perks: {
-                    stakingBonus: 1.05,  // +5% staking rewards
-                    specialAbility: 'Colony Broadcasts',
+                    stakingBonus: 1.05,
+                    colonyBoosts: true,
                     specialUnlock: 'Holographic Badges'
                 }
             },
@@ -266,9 +574,9 @@
                 emoji: '⛏️',
                 lore: 'Extracts raw materials from Martian crust for colony use.',
                 perks: {
-                    miningEfficiency: 1.15,  // +15% efficiency
-                    specialUnlock: 'Mining NFT Drops',
-                    tradingBonus: 'Crater Nexus Deals'
+                    miningEfficiency: 1.15,
+                    nftDrops: true,
+                    specialUnlock: 'Crater Nexus Deals'
                 }
             },
             'option6': {
@@ -276,8 +584,8 @@
                 emoji: '🩺',
                 lore: 'Ensures colonists remain healthy and fit for survival.',
                 perks: {
-                    wellnessBonus: 1.05,  // +5% wellness task bonus
-                    specialAbility: 'Heal Others',
+                    wellnessBonus: 1.05,
+                    healAbility: true,
                     specialUnlock: 'Medical Pods'
                 }
             },
@@ -286,226 +594,127 @@
                 emoji: '🌌',
                 lore: 'Charts safe paths across dunes, craters, and ice caps.',
                 perks: {
-                    questSpeed: 0.85,  // 15% faster quests
+                    questSpeed: 0.85,
                     fastTravel: true,
-                    streakBonus: 1.10  // +10% streak bonus
+                    streakBonus: 1.10
                 }
             }
         };
 
-        // ============================================
-        // USER SESSION MANAGEMENT
-        // Handles user data from sign-up or existing session
-        // ============================================
+        // Check for existing role or new user
         let currentUser = null;
         let currentRole = null;
 
-        // Check if user just signed up
-        const newUserData = localStorage.getItem('newUserSignup');
-        if (newUserData) {
-            currentUser = JSON.parse(newUserData);
-            document.getElementById('userGreeting').textContent = `Welcome, ${currentUser.name}! 🚀`;
-            document.getElementById('welcomeMessage').textContent = 'Mission Control - Choose Your Role';
+        const savedRole = localStorage.getItem('userRole');
+        const newUserSignup = localStorage.getItem('newUserSignup');
+
+        if (savedRole) {
+            currentRole = JSON.parse(savedRole);
+            displayExistingRole();
+        } else if (newUserSignup) {
+            currentUser = JSON.parse(newUserSignup);
+            document.getElementById('userGreeting').textContent = `Welcome, ${currentUser.name}! Select your role to begin.`;
         }
 
-        // Check if user already has a role
-        const existingRole = localStorage.getItem('userRole');
-        if (existingRole) {
-            currentRole = JSON.parse(existingRole);
-            displayCurrentRole();
-        }
-
-        // ============================================
-        // MODAL MANAGEMENT
-        // Controls opening/closing role selection modal
-        // ============================================
-        const openBtn = document.getElementById('openModalBtn');
+        // Modal management
         const modal = document.getElementById('myModal');
-        const closeBtn = document.querySelector('.close-btn');
-        const confirmBtn = document.getElementById('confirmChoiceBtn');
-
-        // Instructions modal elements
         const instructionsModal = document.getElementById('instructionsModal');
-        const closeInstructions = document.querySelector('.close-instructions');
+        const openModalBtn = document.getElementById('openModalBtn');
+        const closeModal = document.getElementById('closeModal');
+        const closeInstructions = document.getElementById('closeInstructions');
+        const confirmBtn = document.getElementById('confirmChoiceBtn');
         const progressBtn = document.getElementById('progressBtn');
         const startMissionsBtn = document.getElementById('startMissionsBtn');
 
-        // Auto-open modal for new users
-        if (newUserData && !existingRole) {
-            setTimeout(() => {
-                modal.style.display = 'block';
-            }, 500);
-        }
-
-        // Open modal on button click (only if role not locked)
-        openBtn.addEventListener('click', () => {
-            if (currentRole && currentRole.locked) {
-                alert('🔒 Your role is permanently locked! Role changes are not available at this time.');
-                return;
-            }
+        openModalBtn.addEventListener('click', () => {
             modal.style.display = 'block';
         });
 
-        // Close modal on X click
-        closeBtn.addEventListener('click', () => {
+        closeModal.addEventListener('click', () => {
             modal.style.display = 'none';
         });
 
-        // ============================================
-        // INSTRUCTIONS MODAL MANAGEMENT
-        // Handles instructions/explanation modal
-        // ============================================
-
-        // Open instructions when Progress button is clicked
-        progressBtn.addEventListener('click', () => {
-            instructionsModal.style.display = 'block';
-
-            // Customize instructions with user's role
-            const roleInstructionsText = document.getElementById('roleInstructions');
-            if (currentRole) {
-                roleInstructionsText.innerHTML = `As a <strong>${currentRole.emoji} ${currentRole.name}</strong>, your perks are now <strong>permanently locked</strong>. ${currentRole.lore}<br><br>Each time you complete tasks, your role's perks will automatically apply bonus rewards and efficiency boosts.`;
-            }
-        });
-
-        // Close instructions modal
         closeInstructions.addEventListener('click', () => {
             instructionsModal.style.display = 'none';
         });
 
-        // Start missions button - redirects to dashboard page
-        startMissionsBtn.addEventListener('click', () => {
-            instructionsModal.style.display = 'none';
-            // Redirect to the new dashboard page
-            window.location.href = '/Learning JS/dashboard.html';
+        window.addEventListener('click', (e) => {
+            if (e.target === modal) modal.style.display = 'none';
+            if (e.target === instructionsModal) instructionsModal.style.display = 'none';
         });
 
-        // Close modal on outside click
-        window.addEventListener('click', (event) => {
-            if (event.target === modal) {
-                modal.style.display = 'none';
-            }
-            if (event.target === instructionsModal) {
-                instructionsModal.style.display = 'none';
-            }
-        });
-
-        // ============================================
-        // ROLE SELECTION HANDLER
-        // Saves selected role to Firebase and localStorage
-        // ============================================
-        confirmBtn.addEventListener('click', async () => {
+        // Role selection
+        confirmBtn.addEventListener('click', () => {
             const selected = document.querySelector('input[name="choice"]:checked');
-
             if (!selected) {
-                alert('Please select a role!');
+                alert('Please select a role first!');
                 return;
             }
 
             const roleValue = selected.value;
             const roleData = ROLES[roleValue];
 
-            if (!roleData) {
-                alert('Invalid role selected!');
-                return;
-            }
-
-            try {
-                // ============================================
-                // PERMANENT ROLE LOCK
-                // Role is saved to Firebase and can't be changed
-                // ============================================
-
-                // Save role to Firebase if user signed up
-                if (currentUser && currentUser.signupId) {
-                    const userRef = ref(database, `colony-signups/${currentUser.signupId}`);
-                    await update(userRef, {
-                        role: roleValue,
-                        roleName: roleData.name,
-                        roleSelectedAt: Date.now(),
-                        roleLocked: true  // Permanent lock
-                    });
-                    console.log('Role permanently saved to Firebase!');
-                }
-
-                // Save role to localStorage for quick access
-                const roleInfo = {
-                    value: roleValue,
-                    name: roleData.name,
-                    emoji: roleData.emoji,
-                    lore: roleData.lore,
-                    perks: roleData.perks,
-                    selectedAt: Date.now(),
-                    locked: true  // Permanent lock flag
-                };
-
-                localStorage.setItem('userRole', JSON.stringify(roleInfo));
-                currentRole = roleInfo;
-
-                // Clear new user flag
-                if (newUserData) {
-                    localStorage.removeItem('newUserSignup');
-                    // Keep user data in a permanent location
-                    localStorage.setItem('userData', newUserData);
-                }
-
-                // Success message with role-specific greeting
-                alert(`🎉 Role confirmed! You are now a ${roleData.name} ${roleData.emoji}\n\n${roleData.lore}`);
-
-                // Close modal and display role
-                modal.style.display = 'none';
-                displayCurrentRole();
-
-            } catch (error) {
-                console.error('Error saving role:', error);
-                alert('Error saving role: ' + error.message);
-            }
+            saveRole(roleValue, roleData);
         });
 
-        // ============================================
-        // DISPLAY CURRENT ROLE
-        // Shows user's selected role and perks
-        // ============================================
-        function displayCurrentRole() {
-            if (!currentRole) return;
+        async function saveRole(roleValue, roleData) {
+            const roleInfo = {
+                value: roleValue,
+                name: roleData.name,
+                emoji: roleData.emoji,
+                lore: roleData.lore,
+                perks: roleData.perks,
+                selectedAt: Date.now(),
+                locked: true
+            };
 
-            const roleDisplay = document.getElementById('roleDisplay');
-            const roleName = document.getElementById('currentRoleName');
-            const roleLore = document.getElementById('currentRoleLore');
+            localStorage.setItem('userRole', JSON.stringify(roleInfo));
 
-            roleName.textContent = `${currentRole.emoji} ${currentRole.name}`;
-            roleLore.textContent = currentRole.lore;
+            if (currentUser && currentUser.signupId) {
+                const userRef = ref(database, `colony-signups/${currentUser.signupId}`);
+                await update(userRef, {
+                    role: roleValue,
+                    roleName: roleData.name,
+                    roleSelectedAt: Date.now(),
+                    roleLocked: true
+                });
+            }
 
-            roleDisplay.style.display = 'block';
-            document.getElementById('openModalBtn').style.display = 'none';
+            localStorage.removeItem('newUserSignup');
+            currentRole = roleInfo;
+            modal.style.display = 'none';
+            displayExistingRole();
         }
 
-        // ============================================
-        // GLOBAL ROLE ACCESS
-        // Makes role and perks available to other pages
-        // ============================================
+        function displayExistingRole() {
+            document.getElementById('openModalBtn').style.display = 'none';
+            document.getElementById('roleDisplay').style.display = 'block';
+            document.getElementById('currentRoleName').textContent = `${currentRole.emoji} ${currentRole.name}`;
+            document.getElementById('currentRoleLore').textContent = currentRole.lore;
+        }
+
+        progressBtn.addEventListener('click', () => {
+            instructionsModal.style.display = 'block';
+        });
+
+        startMissionsBtn.addEventListener('click', () => {
+            instructionsModal.style.display = 'none';
+            window.location.href = '/Learning JS/dashboard.html';
+        });
+
+        // Global functions for other pages
         window.getUserRole = function() {
-            return currentRole;
+            const role = localStorage.getItem('userRole');
+            return role ? JSON.parse(role) : null;
         };
 
         window.applyRolePerks = function(baseValue, perkType) {
-            if (!currentRole || !currentRole.perks) return baseValue;
-
-            const perk = currentRole.perks[perkType];
-            if (typeof perk === 'number') {
-                return baseValue * perk;  // Apply multiplier
+            const role = window.getUserRole();
+            if (role && role.perks[perkType]) {
+                return baseValue * role.perks[perkType];
             }
             return baseValue;
         };
-
-        // Log role for debugging
-        if (currentRole) {
-            console.log('Current Role:', currentRole);
-            console.log('Available Perks:', currentRole.perks);
-        }
-
     </script>
-
-    <!-- Original index.js for any existing functionality -->
-    <script src='/Learning JS/index.js'></script>
 </body>
 </html>

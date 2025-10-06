@@ -13,6 +13,7 @@
         <div id="page-header">
             <h1 id="page-title">🚀 Colony Dashboard</h1>
             <div id="nav-buttons">
+                <button id="walletBtn" class="nav-btn wallet-btn">👛 Wallet</button>
                 <a href="/Learning JS/notes.html" class="nav-btn">📝 Notes</a>
                 <a href="/Learning JS/console.html" class="nav-btn">⚙️ Console</a>
                 <a href="/index.html" class="nav-btn secondary">← Home</a>
@@ -180,10 +181,77 @@
         </div>
     </div>
 
+    <!-- Wallet Modal -->
+    <div id="walletModal" class="modal">
+        <div class="modal-content wallet-modal-content">
+            <div class="modal-header">
+                <span class="close-btn" id="closeWallet">&times;</span>
+                <h2>👛 Your Wallet</h2>
+            </div>
+            <div class="modal-body">
+                <!-- Wallet Address Section -->
+                <div class="wallet-section">
+                    <div class="wallet-address-container">
+                        <label class="form-label">Wallet Address:</label>
+                        <div class="address-display">
+                            <span id="walletAddressDisplay">Loading...</span>
+                            <button id="copyAddressBtn" class="icon-btn" title="Copy Address">📋</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Balance Section -->
+                <div class="wallet-section">
+                    <div class="balance-display">
+                        <div class="balance-label">SOL Balance</div>
+                        <div class="balance-value" id="solBalanceDisplay">0.00</div>
+                        <button id="refreshBalanceBtn" class="refresh-btn">🔄 Refresh</button>
+                    </div>
+                </div>
+
+                <!-- Tabs for Send/Receive -->
+                <div class="wallet-tabs">
+                    <button class="wallet-tab active" data-tab="send">📤 Send</button>
+                    <button class="wallet-tab" data-tab="receive">📥 Receive</button>
+                </div>
+
+                <!-- Send Tab Content -->
+                <div id="sendTab" class="tab-content active">
+                    <div class="form-group">
+                        <label class="form-label">Recipient Address:</label>
+                        <input type="text" id="recipientAddress" placeholder="Enter Solana address" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Amount (SOL):</label>
+                        <input type="number" id="sendAmount" placeholder="0.00" step="0.01" min="0" class="form-input">
+                    </div>
+                    <button id="sendTokenBtn" class="confirm-btn">📤 Send SOL</button>
+                </div>
+
+                <!-- Receive Tab Content -->
+                <div id="receiveTab" class="tab-content">
+                    <div class="receive-section">
+                        <p class="modal-description">Share this address to receive SOL and tokens</p>
+                        <div class="qr-code-container" id="qrCodeContainer">
+                            <!-- QR code will be generated here -->
+                        </div>
+                        <div class="address-display large">
+                            <span id="receiveAddressDisplay">Loading...</span>
+                            <button id="copyReceiveAddressBtn" class="icon-btn" title="Copy Address">📋</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Admin Floating Button -->
     <a href="/Learning JS/admin.html" class="admin-float-btn" id="admin-btn" title="Admin Dashboard">
         ⚙️
     </a>
+
+    <!-- Solana Web3.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@latest/lib/index.iife.min.js"></script>
 
     <!-- Firebase & Dashboard Logic -->
     <script type="module">
@@ -876,6 +944,182 @@
                 } catch (error) {
                     console.error('Firebase save error:', error);
                 }
+            }
+        }
+
+        // ============================================
+        // WALLET FUNCTIONALITY
+        // ============================================
+
+        const walletModal = document.getElementById('walletModal');
+        const walletBtn = document.getElementById('walletBtn');
+        const closeWallet = document.getElementById('closeWallet');
+        let userWalletAddress = null;
+
+        // Open wallet modal
+        walletBtn.addEventListener('click', () => {
+            loadWalletData();
+            walletModal.style.display = 'block';
+        });
+
+        // Close wallet modal
+        closeWallet.addEventListener('click', () => {
+            walletModal.style.display = 'none';
+        });
+
+        window.addEventListener('click', (e) => {
+            if (e.target === walletModal) {
+                walletModal.style.display = 'none';
+            }
+        });
+
+        // Tab switching
+        const walletTabs = document.querySelectorAll('.wallet-tab');
+        walletTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabName = tab.getAttribute('data-tab');
+
+                // Update active tab
+                walletTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                // Show corresponding content
+                document.getElementById('sendTab').classList.remove('active');
+                document.getElementById('receiveTab').classList.remove('active');
+                document.getElementById(tabName + 'Tab').classList.add('active');
+            });
+        });
+
+        // Load wallet data
+        async function loadWalletData() {
+            try {
+                const userData = JSON.parse(localStorage.getItem('currentUser'));
+
+                if (userData) {
+                    // Get wallet address - prioritize connected wallet, fallback to app-created
+                    userWalletAddress = userData.walletAddress || userData.solanaWallet;
+
+                    if (userWalletAddress) {
+                        // Display wallet address
+                        const shortAddress = userWalletAddress.substring(0, 6) + '...' + userWalletAddress.substring(38);
+                        document.getElementById('walletAddressDisplay').textContent = shortAddress;
+                        document.getElementById('receiveAddressDisplay').textContent = userWalletAddress;
+
+                        // Fetch balance
+                        await fetchBalance();
+
+                        // Generate QR code
+                        generateQRCode(userWalletAddress);
+                    } else {
+                        document.getElementById('walletAddressDisplay').textContent = 'No wallet found';
+                        document.getElementById('receiveAddressDisplay').textContent = 'No wallet found';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading wallet data:', error);
+            }
+        }
+
+        // Fetch SOL balance
+        async function fetchBalance() {
+            try {
+                const connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl('devnet'));
+                const publicKey = new solanaWeb3.PublicKey(userWalletAddress);
+                const balance = await connection.getBalance(publicKey);
+                const solBalance = (balance / solanaWeb3.LAMPORTS_PER_SOL).toFixed(4);
+
+                document.getElementById('solBalanceDisplay').textContent = solBalance;
+            } catch (error) {
+                console.error('Error fetching balance:', error);
+                document.getElementById('solBalanceDisplay').textContent = '0.00';
+            }
+        }
+
+        // Refresh balance button
+        document.getElementById('refreshBalanceBtn').addEventListener('click', async () => {
+            await fetchBalance();
+        });
+
+        // Copy address buttons
+        document.getElementById('copyAddressBtn').addEventListener('click', () => {
+            copyToClipboard(userWalletAddress, 'Wallet address copied!');
+        });
+
+        document.getElementById('copyReceiveAddressBtn').addEventListener('click', () => {
+            copyToClipboard(userWalletAddress, 'Receive address copied!');
+        });
+
+        function copyToClipboard(text, message) {
+            navigator.clipboard.writeText(text).then(() => {
+                showModal('success', '✅ Copied!', message);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+            });
+        }
+
+        // Generate QR Code
+        function generateQRCode(address) {
+            const qrContainer = document.getElementById('qrCodeContainer');
+            qrContainer.innerHTML = `
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${address}"
+                     alt="QR Code"
+                     style="display: block; margin: 0 auto;">
+            `;
+        }
+
+        // Send SOL functionality
+        document.getElementById('sendTokenBtn').addEventListener('click', async () => {
+            const recipientAddress = document.getElementById('recipientAddress').value.trim();
+            const amount = parseFloat(document.getElementById('sendAmount').value);
+
+            if (!recipientAddress) {
+                showModal('error', '❌ Error', 'Please enter a recipient address');
+                return;
+            }
+
+            if (!amount || amount <= 0) {
+                showModal('error', '❌ Error', 'Please enter a valid amount');
+                return;
+            }
+
+            try {
+                // Check if user has a connected wallet
+                if (typeof window.solana !== 'undefined' && window.solana.isPhantom) {
+                    await sendWithPhantom(recipientAddress, amount);
+                } else {
+                    showModal('info', 'ℹ️ Wallet Not Connected', 'Please connect a Phantom wallet to send transactions. App-created wallets can only receive funds.');
+                }
+            } catch (error) {
+                console.error('Send error:', error);
+                showModal('error', '❌ Transaction Failed', error.message);
+            }
+        });
+
+        // Send with Phantom wallet
+        async function sendWithPhantom(recipientAddress, amount) {
+            try {
+                const connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl('devnet'));
+                const transaction = new solanaWeb3.Transaction().add(
+                    solanaWeb3.SystemProgram.transfer({
+                        fromPubkey: window.solana.publicKey,
+                        toPubkey: new solanaWeb3.PublicKey(recipientAddress),
+                        lamports: amount * solanaWeb3.LAMPORTS_PER_SOL
+                    })
+                );
+
+                const { signature } = await window.solana.signAndSendTransaction(transaction);
+                await connection.confirmTransaction(signature);
+
+                showModal('success', '✅ Success!', `Transaction completed!<br><small>Signature: ${signature.substring(0, 8)}...</small>`);
+
+                // Refresh balance
+                await fetchBalance();
+
+                // Clear form
+                document.getElementById('recipientAddress').value = '';
+                document.getElementById('sendAmount').value = '';
+            } catch (error) {
+                throw error;
             }
         }
     </script>

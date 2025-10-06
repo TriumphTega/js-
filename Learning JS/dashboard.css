@@ -751,6 +751,206 @@ body {
     box-shadow: 0 6px 20px rgba(255, 204, 0, 0.6);
 }
 
+/* Wallet Modal Styles */
+.wallet-modal-content {
+    max-width: 600px;
+}
+
+.wallet-section {
+    margin-bottom: 25px;
+}
+
+.wallet-address-container {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 20px;
+    border-radius: 10px;
+    border: 2px solid rgba(255, 204, 0, 0.3);
+}
+
+.address-display {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    word-break: break-all;
+}
+
+.address-display.large {
+    font-size: 0.9rem;
+    padding: 15px;
+}
+
+.address-display span {
+    flex: 1;
+    color: white;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.icon-btn {
+    background: rgba(255, 204, 0, 0.2);
+    border: 2px solid #FFCC00;
+    border-radius: 6px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+}
+
+.icon-btn:hover {
+    background: rgba(255, 204, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.balance-display {
+    text-align: center;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 30px;
+    border-radius: 15px;
+    border: 2px solid rgba(255, 204, 0, 0.3);
+}
+
+.balance-label {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1rem;
+    margin-bottom: 10px;
+}
+
+.balance-value {
+    color: #FFCC00;
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin: 15px 0;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.refresh-btn {
+    background: rgba(255, 204, 0, 0.2);
+    border: 2px solid #FFCC00;
+    color: #FFCC00;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
+
+.refresh-btn:hover {
+    background: rgba(255, 204, 0, 0.4);
+    transform: translateY(-2px);
+}
+
+.wallet-tabs {
+    display: flex;
+    gap: 10px;
+    margin: 25px 0 20px 0;
+    border-bottom: 2px solid rgba(255, 204, 0, 0.3);
+}
+
+.wallet-tab {
+    flex: 1;
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: rgba(255, 255, 255, 0.6);
+    padding: 12px;
+    cursor: pointer;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.wallet-tab.active {
+    color: #FFCC00;
+    border-bottom-color: #FFCC00;
+}
+
+.wallet-tab:hover {
+    color: white;
+}
+
+.tab-content {
+    display: none;
+    padding: 20px 0;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.receive-section {
+    text-align: center;
+}
+
+.qr-code-container {
+    margin: 20px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    display: inline-block;
+    min-height: 150px;
+    min-width: 150px;
+}
+
+.wallet-btn {
+    background: linear-gradient(135deg, #FFCC00 0%, #FFD700 100%);
+    color: #1e5128 !important;
+    font-weight: bold;
+}
+
+.wallet-btn:hover {
+    background: linear-gradient(135deg, #FFD700 0%, #FFCC00 100%);
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-label {
+    color: #FFCC00;
+    font-weight: bold;
+    display: block;
+    margin-bottom: 10px;
+    font-size: 1rem;
+}
+
+.form-input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #FFCC00;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.95);
+    color: #1e5128;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #FFD700;
+    background: white;
+    box-shadow: 0 0 10px rgba(255, 204, 0, 0.3);
+}
+
+.form-input::placeholder {
+    color: rgba(30, 81, 40, 0.5);
+}
+
+.modal-description {
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 25px;
+    text-align: center;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
 @media (max-width: 768px) {
     .admin-float-btn {
         bottom: 20px;
@@ -758,5 +958,18 @@ body {
         width: 50px;
         height: 50px;
         font-size: 1.5rem;
+    }
+
+    .wallet-modal-content {
+        width: 95%;
+    }
+
+    .balance-value {
+        font-size: 2rem;
+    }
+
+    .wallet-tabs {
+        flex-direction: column;
+        gap: 5px;
     }
 }

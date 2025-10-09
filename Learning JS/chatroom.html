@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Colony Chat - Lunaris</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel="stylesheet" href="/Learning JS/chatroom.css">
+</head>
+<body>
+    <div id="app-container">
+        <!-- Header -->
+        <div id="page-header">
+            <h1 id="page-title">💬 Colony Chat</h1>
+            <div id="nav-buttons">
+                <a href="/Learning JS/dashboard.html" class="nav-btn">🚀 Dashboard</a>
+                <a href="/Learning JS/console.html" class="nav-btn">⚙️ Console</a>
+                <a href="/index.html" class="nav-btn secondary">← Home</a>
+            </div>
+        </div>
+
+        <!-- User Info Bar -->
+        <div id="user-info-bar">
+            <span>Signed in as: <strong id="current-user-name">Loading...</strong></span>
+            <span id="online-count">🟢 <span id="online-users">0</span> colonists online</span>
+        </div>
+
+        <!-- Chat Container -->
+        <div id="chat-container">
+            <div class="chat-section">
+                <h2 class="section-title">📡 Colony Communications</h2>
+                <p class="chat-description">Communicate with fellow colonists in real-time. Messages are broadcasted across the colony network.</p>
+
+                <!-- Messages Display -->
+                <div id="messages-container">
+                    <div class="loading-message">Loading messages...</div>
+                </div>
+
+                <!-- Message Input -->
+                <div id="message-input-container">
+                    <input
+                        type="text"
+                        id="message-input"
+                        placeholder="Type your message to the colony..."
+                        maxlength="500"
+                        class="message-input"
+                    >
+                    <button id="send-btn" class="send-btn">📤 Send</button>
+                </div>
+                <div id="char-counter">
+                    <span id="char-count">0</span>/500
+                </div>
+            </div>
+        </div>
+
+        <!-- Rules Section -->
+        <div class="rules-section">
+            <h3>📋 Communication Guidelines</h3>
+            <ul>
+                <li>Be respectful to all colonists</li>
+                <li>Keep conversations productive and positive</li>
+                <li>No spam or excessive messages</li>
+                <li>Help and support fellow colonists</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Admin Floating Button -->
+    <a href="/Learning JS/admin.html" class="admin-float-btn" id="admin-btn" title="Admin Dashboard" style="display: none;">
+        ⚙️
+    </a>
+
+    <!-- Firebase -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getDatabase, ref, push, onValue, serverTimestamp, set, onDisconnect, get } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyClPgII54QDvJB3kiV1dWbqm1et_lHasvs",
+            authDomain: "lunaris-45d84.firebaseapp.com",
+            projectId: "lunaris-45d84",
+            storageBucket: "lunaris-45d84.firebasestorage.app",
+            messagingSenderId: "74359858445",
+            appId: "1:74359858445:web:37772cebcbb0d71d707c44",
+            measurementId: "G-ETRK2NL1N2",
+            databaseURL: "https://lunaris-45d84-default-rtdb.firebaseio.com"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+
+        let currentUser = null;
+        let currentUserName = 'Anonymous';
+        let messageListener = null;
+
+        // ============================================
+        // AUTH & USER SETUP
+        // ============================================
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                currentUserName = user.displayName || user.email.split('@')[0];
+
+                // Check for custom display name
+                const savedUser = localStorage.getItem('currentUser');
+                if (savedUser) {
+                    const userData = JSON.parse(savedUser);
+                    if (userData.displayName) {
+                        currentUserName = userData.displayName;
+                    }
+                }
+
+                document.getElementById('current-user-name').textContent = currentUserName;
+
+                // Set user as online
+                setUserOnline(user.uid);
+
+                // Check admin status
+                checkAdminAccess(user);
+
+                // Load messages
+                loadMessages();
+            } else {
+                // Check for wallet users
+                const savedUser = localStorage.getItem('currentUser');
+                if (savedUser) {
+                    const userData = JSON.parse(savedUser);
+                    currentUser = userData;
+                    currentUserName = userData.displayName || 'Colonist';
+                    document.getElementById('current-user-name').textContent = currentUserName;
+
+                    // Set user as online
+                    if (userData.uid || userData.walletAddress) {
+                        setUserOnline(userData.uid || userData.walletAddress);
+                    }
+
+                    // Load messages
+                    loadMessages();
+                } else {
+                    // Redirect to login
+                    window.location.href = '/index.html';
+                }
+            }
+        });
+
+        // ============================================
+        // ONLINE PRESENCE TRACKING
+        // ============================================
+
+        async function setUserOnline(userId) {
+            const userStatusRef = ref(database, `online-users/${userId}`);
+
+            // Set user online
+            await set(userStatusRef, {
+                name: currentUserName,
+                online: true,
+                lastSeen: serverTimestamp()
+            });
+
+            // Set user offline when they disconnect
+            onDisconnect(userStatusRef).set({
+                name: currentUserName,
+                online: false,
+                lastSeen: serverTimestamp()
+            });
+
+            // Track online users count
+            trackOnlineUsers();
+        }
+
+        function trackOnlineUsers() {
+            const onlineUsersRef = ref(database, 'online-users');
+            onValue(onlineUsersRef, (snapshot) => {
+                let count = 0;
+                if (snapshot.exists()) {
+                    snapshot.forEach((child) => {
+                        if (child.val().online) {
+                            count++;
+                        }
+                    });
+                }
+                document.getElementById('online-users').textContent = count;
+            });
+        }
+
+        // ============================================
+        // ADMIN CHECK
+        // ============================================
+
+        async function checkAdminAccess(user) {
+            if (!user) return;
+            try {
+                const adminRef = ref(database, `admins/${user.uid}`);
+                const snapshot = await get(adminRef);
+                if (snapshot.exists()) {
+                    document.getElementById('admin-btn').style.display = 'flex';
+                }
+            } catch (error) {
+                console.error('Error checking admin access:', error);
+            }
+        }
+
+        // ============================================
+        // CHAT FUNCTIONALITY
+        // ============================================
+
+        const messageInput = document.getElementById('message-input');
+        const sendBtn = document.getElementById('send-btn');
+        const messagesContainer = document.getElementById('messages-container');
+        const charCount = document.getElementById('char-count');
+
+        // Character counter
+        messageInput.addEventListener('input', () => {
+            charCount.textContent = messageInput.value.length;
+        });
+
+        // Send message on button click
+        sendBtn.addEventListener('click', sendMessage);
+
+        // Send message on Enter key
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        async function sendMessage() {
+            const message = messageInput.value.trim();
+
+            if (!message) {
+                return;
+            }
+
+            if (!currentUser) {
+                alert('You must be signed in to send messages!');
+                return;
+            }
+
+            try {
+                const messagesRef = ref(database, 'chat-messages');
+                await push(messagesRef, {
+                    text: message,
+                    sender: currentUserName,
+                    senderId: currentUser.uid || currentUser.walletAddress,
+                    timestamp: serverTimestamp(),
+                    createdAt: Date.now()
+                });
+
+                // Clear input
+                messageInput.value = '';
+                charCount.textContent = '0';
+
+                // Focus back on input
+                messageInput.focus();
+            } catch (error) {
+                console.error('Error sending message:', error);
+                alert('Failed to send message. Please try again.');
+            }
+        }
+
+        // ============================================
+        // LOAD & DISPLAY MESSAGES
+        // ============================================
+
+        function loadMessages() {
+            const messagesRef = ref(database, 'chat-messages');
+
+            // Listen for new messages
+            onValue(messagesRef, (snapshot) => {
+                messagesContainer.innerHTML = '';
+
+                if (!snapshot.exists()) {
+                    messagesContainer.innerHTML = '<div class="empty-message">No messages yet. Be the first to say something!</div>';
+                    return;
+                }
+
+                const messages = [];
+                snapshot.forEach((child) => {
+                    messages.push({
+                        id: child.key,
+                        ...child.val()
+                    });
+                });
+
+                // Sort by timestamp (oldest first)
+                messages.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+
+                // Display messages
+                messages.forEach((msg) => {
+                    displayMessage(msg);
+                });
+
+                // Scroll to bottom
+                scrollToBottom();
+            });
+        }
+
+        function displayMessage(msg) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+
+            // Check if message is from current user
+            const isOwnMessage = msg.senderId === (currentUser?.uid || currentUser?.walletAddress);
+            if (isOwnMessage) {
+                messageDiv.classList.add('own-message');
+            }
+
+            // Format timestamp
+            const timestamp = msg.createdAt ? new Date(msg.createdAt) : new Date();
+            const timeString = timestamp.toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+            });
+
+            messageDiv.innerHTML = `
+                <div class="message-header">
+                    <span class="message-sender">${msg.sender}</span>
+                    <span class="message-time">${timeString}</span>
+                </div>
+                <div class="message-text">${escapeHtml(msg.text)}</div>
+            `;
+
+            messagesContainer.appendChild(messageDiv);
+        }
+
+        function scrollToBottom() {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Focus on input when page loads
+        window.addEventListener('load', () => {
+            messageInput.focus();
+        });
+    </script>
+</body>
+</html>

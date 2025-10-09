@@ -14,6 +14,7 @@
             <h1 id="page-title">🚀 Colony Dashboard</h1>
             <div id="nav-buttons">
                 <button id="walletBtn" class="nav-btn wallet-btn">👛 Wallet</button>
+                <a href="/Learning JS/chatroom.html" class="nav-btn">💬 Chat</a>
                 <a href="/Learning JS/notes.html" class="nav-btn">📝 Notes</a>
                 <a href="/Learning JS/console.html" class="nav-btn">⚙️ Console</a>
                 <a href="/index.html" class="nav-btn secondary">← Home</a>
@@ -959,17 +960,17 @@
         // Open wallet modal
         walletBtn.addEventListener('click', () => {
             loadWalletData();
-            walletModal.style.display = 'block';
+            walletModal.classList.add('show');
         });
 
         // Close wallet modal
         closeWallet.addEventListener('click', () => {
-            walletModal.style.display = 'none';
+            walletModal.classList.remove('show');
         });
 
         window.addEventListener('click', (e) => {
             if (e.target === walletModal) {
-                walletModal.style.display = 'none';
+                walletModal.classList.remove('show');
             }
         });
 

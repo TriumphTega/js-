@@ -25,7 +25,11 @@
                 </div>
             </div>
 
-            <a href="/index.html" class="nav-btn">← Back to Home</a>
+            <div style="display: flex; gap: 10px;">
+                <a href="/Learning JS/chatroom.html" class="nav-btn">💬 Chat</a>
+                <a href="/Learning JS/dashboard.html" class="nav-btn">🚀 Dashboard</a>
+                <a href="/index.html" class="nav-btn">← Back to Home</a>
+            </div>
         </div>
 
         <!-- Role Display (shown after role selection) -->
@@ -216,6 +220,23 @@
         </div>
     </div>
 
+    <!-- Custom Modal for Alerts -->
+    <div id="custom-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close-btn" id="closeCustomModal">&times;</span>
+                <h2 id="modal-title"></h2>
+            </div>
+            <div class="modal-body">
+                <div id="modal-icon" style="font-size: 48px; text-align: center; margin-bottom: 20px;"></div>
+                <div id="modal-message" style="text-align: center; margin-bottom: 20px;"></div>
+                <div style="text-align: center;">
+                    <button id="modal-ok-btn" class="confirm-btn">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Admin Floating Button -->
     <a href="/Learning JS/admin.html" class="admin-float-btn" id="admin-btn" title="Admin Dashboard">
         ⚙️
@@ -225,7 +246,7 @@
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-        import { getDatabase, ref, update, get } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+        import { getDatabase, ref, update, get, set } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
         const firebaseConfig = {
             apiKey: "AIzaSyClPgII54QDvJB3kiV1dWbqm1et_lHasvs",
@@ -385,14 +406,43 @@
 
             localStorage.setItem('userRole', JSON.stringify(roleInfo));
 
-            if (currentUser && currentUser.signupId) {
-                const userRef = ref(database, `colony-signups/${currentUser.signupId}`);
-                await update(userRef, {
-                    role: roleValue,
-                    roleName: roleData.name,
-                    roleSelectedAt: Date.now(),
-                    roleLocked: true
-                });
+            // Save to Firebase - handle both old signups and authenticated users
+            try {
+                // Get userId from authenticated user or saved user data
+                const userId = authenticatedUser?.uid || currentUser?.uid || currentUser?.signupId;
+
+                if (userId) {
+                    // Save to user-profiles (new location)
+                    const profileRef = ref(database, `user-profiles/${userId}`);
+                    const existingProfile = await get(profileRef);
+
+                    const profileData = existingProfile.exists() ? existingProfile.val() : {};
+                    await set(profileRef, {
+                        ...profileData,
+                        role: roleValue,
+                        roleName: roleData.name,
+                        roleEmoji: roleData.emoji,
+                        roleSelectedAt: Date.now(),
+                        roleLocked: true,
+                        uid: userId
+                    });
+
+                    console.log('✅ Role saved to Firebase user-profiles');
+
+                    // Also save to colony-signups if it exists (for backward compatibility)
+                    if (currentUser && currentUser.signupId) {
+                        const userRef = ref(database, `colony-signups/${currentUser.signupId}`);
+                        await update(userRef, {
+                            role: roleValue,
+                            roleName: roleData.name,
+                            roleSelectedAt: Date.now(),
+                            roleLocked: true
+                        });
+                        console.log('✅ Role saved to Firebase colony-signups');
+                    }
+                }
+            } catch (error) {
+                console.error('Error saving role to Firebase:', error);
             }
 
             localStorage.removeItem('newUserSignup');
@@ -431,8 +481,91 @@
 
                 // Check if user is admin and show admin button
                 await checkAdminStatus(user);
+
+                // Check if user has a role saved in Firebase
+                await loadUserRoleFromFirebase(user.uid);
+            } else {
+                // Check for wallet users (not Google auth)
+                const savedUser = localStorage.getItem('currentUser');
+                if (savedUser) {
+                    const userData = JSON.parse(savedUser);
+                    if (userData.walletAddress) {
+                        loadUserProfile(null);
+                        // Check admin status for wallet users
+                        await checkAdminStatusByUserId(userData.uid || userData.walletAddress);
+                        // Check for saved role
+                        await loadUserRoleFromFirebase(userData.uid || userData.walletAddress);
+                    }
+                }
             }
         });
+
+        // Load user role from Firebase
+        async function loadUserRoleFromFirebase(userId) {
+            try {
+                console.log('Checking for saved role in Firebase for user:', userId);
+
+                // First check colony-signups (old location)
+                const signupRef = ref(database, `colony-signups/${userId}`);
+                const signupSnapshot = await get(signupRef);
+
+                if (signupSnapshot.exists() && signupSnapshot.val().role) {
+                    const userData = signupSnapshot.val();
+                    const roleValue = userData.role;
+                    const roleData = ROLES[roleValue];
+
+                    if (roleData) {
+                        const roleInfo = {
+                            value: roleValue,
+                            name: roleData.name,
+                            emoji: roleData.emoji,
+                            lore: roleData.lore,
+                            perks: roleData.perks,
+                            selectedAt: userData.roleSelectedAt || Date.now(),
+                            locked: true
+                        };
+
+                        localStorage.setItem('userRole', JSON.stringify(roleInfo));
+                        currentRole = roleInfo;
+                        displayExistingRole();
+                        console.log('✅ Loaded role from Firebase (colony-signups):', roleData.name);
+                        return;
+                    }
+                }
+
+                // Also check user-profiles (new location)
+                const profileRef = ref(database, `user-profiles/${userId}`);
+                const profileSnapshot = await get(profileRef);
+
+                if (profileSnapshot.exists() && profileSnapshot.val().role) {
+                    const userData = profileSnapshot.val();
+                    const roleValue = userData.role;
+                    const roleData = ROLES[roleValue];
+
+                    if (roleData) {
+                        const roleInfo = {
+                            value: roleValue,
+                            name: roleData.name,
+                            emoji: roleData.emoji,
+                            lore: roleData.lore,
+                            perks: roleData.perks,
+                            selectedAt: userData.roleSelectedAt || Date.now(),
+                            locked: true
+                        };
+
+                        localStorage.setItem('userRole', JSON.stringify(roleInfo));
+                        currentRole = roleInfo;
+                        displayExistingRole();
+                        console.log('✅ Loaded role from Firebase (user-profiles):', roleData.name);
+                        return;
+                    }
+                }
+
+                console.log('No saved role found in Firebase for this user');
+            } catch (error) {
+                console.error('Error loading role from Firebase:', error);
+            }
+        }
 
         // Load user profile from localStorage/Firebase
         function loadUserProfile(user) {
@@ -442,21 +575,28 @@
 
                 // Display profile section
                 document.getElementById('userProfileSection').style.display = 'block';
-                document.getElementById('profileDisplayName').textContent = userData.displayName || user.displayName || user.email;
-                document.getElementById('profileEmail').textContent = user.email;
+                document.getElementById('profileDisplayName').textContent = userData.displayName || user?.displayName || user?.email || 'User';
+                document.getElementById('profileEmail').textContent = user?.email || userData.walletAddress || 'Wallet User';
             }
         }
 
         // Check admin status and show button if admin
         async function checkAdminStatus(user) {
+            await checkAdminStatusByUserId(user.uid);
+        }
+
+        async function checkAdminStatusByUserId(userId) {
             try {
-                const adminRef = ref(database, `admins/${user.uid}`);
+                console.log('Checking admin status for user:', userId);
+                const adminRef = ref(database, `admins/${userId}`);
                 const snapshot = await get(adminRef);
 
                 if (snapshot.exists() && snapshot.val() === true) {
                     // User is admin - show admin button
                     document.getElementById('admin-btn').style.display = 'flex';
-                    console.log('Admin access granted');
+                    console.log('✅ Admin access granted for user:', userId);
+                } else {
+                    console.log('❌ User is not an admin. Add this UID to Firebase admins node:', userId);
                 }
             } catch (error) {
                 console.error('Error checking admin status:', error);
@@ -494,7 +634,7 @@
             const newName = newDisplayNameInput.value.trim();
 
             if (!newName) {
-                alert('Please enter a valid name!');
+                showModal('warning', '⚠️ Invalid Name', 'Please enter a valid name!');
                 return;
             }
 
@@ -502,25 +642,39 @@
                 // Update localStorage
                 const savedUser = localStorage.getItem('currentUser');
                 if (!savedUser) {
-                    alert('You must be signed in to change your name.');
+                    showModal('error', '❌ Not Signed In', 'You must be signed in to change your name.');
                     return;
                 }
 
                 const userData = JSON.parse(savedUser);
+                console.log('Current user data:', userData);
+
                 userData.displayName = newName;
                 localStorage.setItem('currentUser', JSON.stringify(userData));
+                console.log('✅ localStorage updated with new name');
 
                 // Update Firebase - handle both Google and wallet users
                 const userId = authenticatedUser?.uid || userData.uid || userData.walletAddress;
+                console.log('Attempting to save to Firebase with userId:', userId);
+
+                if (!userId) {
+                    console.error('❌ No userId found!');
+                    showModal('error', '❌ Error', 'Could not find user ID. Please sign out and sign in again.');
+                    return;
+                }
 
                 if (userId) {
                     const userProfileRef = ref(database, `user-profiles/${userId}`);
-                    await update(userProfileRef, {
+                    console.log('Firebase ref path:', `user-profiles/${userId}`);
+
+                    await set(userProfileRef, {
                         displayName: newName,
                         email: userData.email || null,
                         walletAddress: userData.walletAddress || null,
+                        uid: userId,
                         updatedAt: Date.now()
                     });
+                    console.log('✅ Name updated successfully in Firebase');
                 }
 
                 // Update display
@@ -529,12 +683,54 @@
                 // Close modal
                 editNameModal.style.display = 'none';
 
-                alert(`✅ Name updated to "${newName}"!`);
+                showModal('success', '✅ Success!', `Name updated to "${newName}"!`);
             } catch (error) {
-                console.error('Error updating name:', error);
-                alert('Failed to update name. Please try again.');
+                console.error('❌ Error updating name:', error);
+                console.error('Error details:', error.message, error.code);
+                showModal('error', '❌ Failed to Update', `Error: ${error.message || 'Unknown error'}<br><br>Check the browser console for details.`);
             }
         });
+
+        // ============================================
+        // CUSTOM MODAL SYSTEM
+        // ============================================
+
+        function showModal(type, title, message) {
+            const modal = document.getElementById('custom-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalIcon = document.getElementById('modal-icon');
+            const modalMessage = document.getElementById('modal-message');
+            const okBtn = document.getElementById('modal-ok-btn');
+            const closeBtn = document.getElementById('closeCustomModal');
+
+            modalTitle.textContent = title;
+            modalMessage.innerHTML = message;
+
+            // Set icon based on type
+            const icons = {
+                success: '✅',
+                error: '❌',
+                warning: '⚠️',
+                info: 'ℹ️'
+            };
+            modalIcon.textContent = icons[type] || '💬';
+
+            modal.style.display = 'block';
+
+            okBtn.onclick = () => {
+                modal.style.display = 'none';
+            };
+
+            closeBtn.onclick = () => {
+                modal.style.display = 'none';
+            };
+
+            window.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
 
         // Global functions for other pages
         window.getUserRole = function() {

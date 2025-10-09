@@ -241,6 +241,30 @@ body {
     background-color: #28a428;
 }
 
+.confirm-btn {
+    padding: 12px 30px;
+    background: rgba(255, 204, 0, 0.3);
+    color: #FFCC00;
+    border: 2px solid #FFCC00;
+    border-radius: 8px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.confirm-btn:hover {
+    background: rgba(255, 204, 0, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(255, 204, 0, 0.3);
+}
+
+.confirm-btn:active {
+    transform: translateY(0);
+}
+
 /* Check-in Section */
 #check-in-options {
     display: none;
@@ -752,8 +776,76 @@ body {
 }
 
 /* Wallet Modal Styles */
+#walletModal {
+    display: none;
+    position: fixed;
+    z-index: 10001;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.85);
+    overflow: auto;
+    padding: 20px;
+}
+
+#walletModal.show {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
 .wallet-modal-content {
+    position: relative;
+    margin: 5% auto;
     max-width: 600px;
+    animation: slideDown 0.4s ease;
+}
+
+/* General Modal Styles for Wallet */
+.modal-content {
+    background: linear-gradient(135deg, #1e5128 0%, #2d6a4f 100%);
+    border: 3px solid #FFCC00;
+    border-radius: 15px;
+    padding: 0;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.modal-header {
+    background: rgba(0, 0, 0, 0.4);
+    padding: 25px;
+    border-bottom: 2px solid rgba(255, 204, 0, 0.3);
+    border-radius: 15px 15px 0 0;
+    position: relative;
+}
+
+.modal-header h2 {
+    color: #FFCC00;
+    font-size: 1.8rem;
+    text-align: center;
+    margin: 0;
+}
+
+.close-btn {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    color: #FFCC00;
+    font-size: 32px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: none;
+    border: none;
+    line-height: 1;
+}
+
+.close-btn:hover {
+    color: #FFE066;
+    transform: scale(1.2);
+}
+
+.modal-body {
+    padding: 30px;
 }
 
 .wallet-section {

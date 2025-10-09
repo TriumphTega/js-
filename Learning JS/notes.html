@@ -402,6 +402,83 @@
             transform: translateY(-3px);
         }
 
+        /* Focus Mode Banner */
+        #focus-mode-banner {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #1e5128 0%, #0a1f0f 100%);
+            border-bottom: 3px solid #FFCC00;
+            padding: 15px 20px;
+            z-index: 9999;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        #focus-mode-banner.active {
+            display: block;
+        }
+
+        .focus-banner-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .focus-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .focus-label {
+            color: #FFCC00;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .focus-timer {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .focus-progress {
+            flex: 1;
+            min-width: 200px;
+            max-width: 400px;
+        }
+
+        .focus-progress-bar {
+            width: 100%;
+            height: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .focus-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #32CD32, #FFCC00);
+            width: 0%;
+            transition: width 1s linear;
+        }
+
+        .focus-warning-text {
+            color: #dc3545;
+            font-size: 0.9rem;
+        }
+
+        body.focus-mode-active {
+            padding-top: 100px;
+        }
+
         @media (max-width: 768px) {
             #editor-container {
                 grid-template-columns: 1fr;
@@ -410,10 +487,40 @@
             #notes-list-panel {
                 max-height: 300px;
             }
+
+            body.focus-mode-active {
+                padding-top: 120px;
+            }
+
+            .focus-banner-content {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .focus-info {
+                justify-content: space-between;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Focus Mode Banner -->
+    <div id="focus-mode-banner">
+        <div class="focus-banner-content">
+            <div class="focus-info">
+                <span class="focus-label">🔒 FOCUS MODE</span>
+                <span class="focus-timer" id="focus-timer-display">00:00</span>
+            </div>
+            <div class="focus-progress">
+                <div class="focus-progress-bar">
+                    <div class="focus-progress-fill" id="focus-progress-fill"></div>
+                </div>
+            </div>
+            <div class="focus-warning-text" id="focus-warning" style="display: none;">
+                ⚠️ Don't leave this page or penalties apply!
+            </div>
+        </div>
+    </div>
     <div id="app-container">
         <div id="page-header">
             <h1 id="page-title">📝 My Notes</h1>
@@ -836,6 +943,132 @@
                 item.classList.remove('active');
             });
         });
+
+        // ============================================
+        // FOCUS MODE INTEGRATION
+        // ============================================
+
+        let focusModeActive = false;
+        let focusStartTime = null;
+        let focusDuration = 0;
+        let focusTaskId = null;
+        let focusTimer = null;
+        let tabChangeDetected = false;
+
+        // Check URL parameters for focus mode
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('focus') === 'true') {
+            const duration = parseInt(urlParams.get('duration') || '25');
+            focusTaskId = urlParams.get('taskId');
+
+            initializeFocusMode(duration);
+        }
+
+        function initializeFocusMode(durationMinutes) {
+            focusModeActive = true;
+            focusDuration = durationMinutes * 60; // Convert to seconds
+            focusStartTime = Date.now();
+
+            // Show focus banner
+            document.getElementById('focus-mode-banner').classList.add('active');
+            document.body.classList.add('focus-mode-active');
+
+            // Auto-switch to editor view for writing
+            if (isPublicView) {
+                publicView.style.display = 'none';
+                editorView.style.display = 'block';
+                viewToggle.textContent = '👁️ Public View';
+                renderEditorList();
+                isPublicView = false;
+            }
+
+            // Start timer
+            startFocusTimer();
+
+            // Listen for tab changes
+            document.addEventListener('visibilitychange', handleFocusVisibilityChange);
+
+            // Prevent page unload
+            window.addEventListener('beforeunload', handleFocusBeforeUnload);
+
+            console.log(`Focus mode started: ${durationMinutes} minutes`);
+        }
+
+        function startFocusTimer() {
+            updateFocusDisplay();
+
+            focusTimer = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - focusStartTime) / 1000);
+                const remaining = focusDuration - elapsed;
+
+                if (remaining <= 0) {
+                    completeFocusMode(true);
+                } else {
+                    updateFocusDisplay();
+                }
+            }, 1000);
+        }
+
+        function updateFocusDisplay() {
+            const elapsed = Math.floor((Date.now() - focusStartTime) / 1000);
+            const remaining = Math.max(0, focusDuration - elapsed);
+
+            const minutes = Math.floor(remaining / 60);
+            const seconds = remaining % 60;
+
+            document.getElementById('focus-timer-display').textContent =
+                `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+            const progress = ((focusDuration - remaining) / focusDuration) * 100;
+            document.getElementById('focus-progress-fill').style.width = progress + '%';
+        }
+
+        function handleFocusVisibilityChange() {
+            if (document.hidden && focusModeActive) {
+                tabChangeDetected = true;
+                document.getElementById('focus-warning').style.display = 'block';
+            } else if (!document.hidden) {
+                document.getElementById('focus-warning').style.display = 'none';
+            }
+        }
+
+        function handleFocusBeforeUnload(e) {
+            if (focusModeActive) {
+                e.preventDefault();
+                e.returnValue = '⚠️ Focus mode is active! Leaving will apply penalties.';
+                return e.returnValue;
+            }
+        }
+
+        function completeFocusMode(success) {
+            clearInterval(focusTimer);
+            document.removeEventListener('visibilitychange', handleFocusVisibilityChange);
+            window.removeEventListener('beforeunload', handleFocusBeforeUnload);
+
+            focusModeActive = false;
+
+            // Communicate completion to dashboard
+            const result = {
+                success: success && !tabChangeDetected,
+                taskId: focusTaskId,
+                tabChangeDetected: tabChangeDetected
+            };
+
+            // Store result in localStorage for dashboard to read
+            localStorage.setItem('focusModeResult', JSON.stringify(result));
+
+            if (success && !tabChangeDetected) {
+                alert('🎉 Focus session complete! Great work on your journaling. Returning to dashboard...');
+            } else {
+                alert('❌ Focus mode ended early. Penalties will be applied.');
+            }
+
+            // Return to dashboard
+            window.location.href = '/Learning JS/dashboard.html';
+        }
+
+        // Make function available globally for testing
+        window.completeFocusMode = completeFocusMode;
     </script>
 </body>
 </html>

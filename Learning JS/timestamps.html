@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>My Journey</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1e5128 0%, #2d6a4f 50%, #1e5128 100%);
+            color: white;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 40px 20px;
+            overflow-x: hidden;
+        }
+
+        #journey-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        #journey-title {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            text-align: center;
+            color: #FFCC00;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.6);
+            margin-bottom: 60px;
+            font-weight: bold;
+        }
+
+        #journey-start {
+            text-align: center;
+            margin-bottom: 80px;
+            animation: fadeIn 1s ease-in;
+        }
+
+        #start-marker {
+            display: inline-block;
+            padding: 20px 40px;
+            background: linear-gradient(135deg, #FFCC00 0%, #FFD700 100%);
+            color: #1e5128;
+            border-radius: 50px;
+            font-size: clamp(1.2rem, 3vw, 1.8rem);
+            font-weight: bold;
+            box-shadow: 0 8px 25px rgba(255, 204, 0, 0.5);
+            border: 4px solid #1e5128;
+            position: relative;
+        }
+
+        #start-marker::before {
+            content: '📍';
+            font-size: 2rem;
+            margin-right: 10px;
+        }
+
+        #timeline-path {
+            position: absolute;
+            top: 200px;
+            left: 50%;
+            width: 4px;
+            height: calc(100% - 200px);
+            transform: translateX(-50%);
+            z-index: 0;
+        }
+
+        #path-line {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                to bottom,
+                transparent 0%,
+                #FFD700 10%,
+                #FFCC00 50%,
+                #FFD700 90%,
+                transparent 100%
+            );
+            box-shadow: 0 0 20px rgba(255, 204, 0, 0.6);
+            animation: pathGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes pathGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(255, 204, 0, 0.6); }
+            50% { box-shadow: 0 0 30px rgba(255, 204, 0, 0.9); }
+        }
+
+        #timeline-container {
+            position: relative;
+            z-index: 1;
+            padding: 40px 0;
+        }
+
+        #moment1, #moment2, #moment3, #moment4, #moment5, #moment6 {
+            position: relative;
+            margin: 100px 0;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+
+        #moment1[data-visible="true"], #moment2[data-visible="true"], 
+        #moment3[data-visible="true"], #moment4[data-visible="true"],
+        #moment5[data-visible="true"], #moment6[data-visible="true"] {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Alternating positions */
+        #moment1, #moment3, #moment5 {
+            margin-left: 0;
+            margin-right: auto;
+            width: calc(50% - 60px);
+        }
+
+        #moment2, #moment4, #moment6 {
+            margin-left: auto;
+            margin-right: 0;
+            width: calc(50% - 60px);
+        }
+
+        #card1, #card2, #card3, #card4, #card5, #card6 {
+            background: #f5f5dc;
+            padding: 15px;
+            border-radius: 3px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
+            position: relative;
+        }
+
+        #card1:hover, #card2:hover, #card3:hover, 
+        #card4:hover, #card5:hover, #card6:hover {
+            transform: translateY(-15px) scale(1.05);
+            box-shadow: 0 20px 60px rgba(255, 204, 0, 0.4),
+                        0 0 40px rgba(255, 215, 0, 0.3);
+        }
+
+        /* Left cards tilt right, right cards tilt left on hover */
+        #card1:hover, #card3:hover, #card5:hover {
+            transform: translateY(-15px) scale(1.05) rotate(2deg);
+        }
+
+        #card2:hover, #card4:hover, #card6:hover {
+            transform: translateY(-15px) scale(1.05) rotate(-2deg);
+        }
+
+        #img1, #img2, #img3, #img4, #img5, #img6 {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            border-radius: 2px;
+            position: relative;
+        }
+
+        #stamp1, #stamp2, #stamp3, #stamp4, #stamp5, #stamp6 {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(255, 204, 0, 0.95);
+            color: #1e5128;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-size: clamp(0.7rem, 1.5vw, 0.9rem);
+            font-weight: bold;
+            border: 2px solid #1e5128;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            transform: rotate(-5deg);
+        }
+
+        #date1, #date2, #date3, #date4, #date5, #date6 {
+            display: block;
+            font-size: clamp(0.65rem, 1.3vw, 0.8rem);
+        }
+
+        #location1, #location2, #location3, #location4, #location5, #location6 {
+            display: block;
+            margin-top: 3px;
+            font-size: clamp(0.6rem, 1.2vw, 0.75rem);
+        }
+
+        #caption1, #caption2, #caption3, #caption4, #caption5, #caption6 {
+            margin-top: 12px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            font-size: clamp(0.85rem, 1.8vw, 1rem);
+            border-radius: 2px;
+            font-style: italic;
+            text-align: center;
+        }
+
+        #timeline-dot1, #timeline-dot2, #timeline-dot3, 
+        #timeline-dot4, #timeline-dot5, #timeline-dot6 {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #FFCC00;
+            border: 4px solid #1e5128;
+            border-radius: 50%;
+            top: 150px;
+            z-index: 2;
+            box-shadow: 0 0 15px rgba(255, 204, 0, 0.8);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        /* Dots on the right for left cards */
+        #timeline-dot1, #timeline-dot3, #timeline-dot5 {
+            right: -60px;
+        }
+
+        /* Dots on the left for right cards */
+        #timeline-dot2, #timeline-dot4, #timeline-dot6 {
+            left: -60px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        /* Modal */
+        #modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        #modal-content {
+            position: relative;
+            max-width: 90%;
+            max-height: 90%;
+            background: #f5f5dc;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 0 50px rgba(255, 204, 0, 0.5);
+        }
+
+        #modal-close {
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            font-size: 2.5rem;
+            color: #FFCC00;
+            background: #1e5128;
+            cursor: pointer;
+            border: 3px solid #FFCC00;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1001;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        #modal-close:hover {
+            background: #FFCC00;
+            color: #1e5128;
+        }
+
+        #modal-img {
+            max-width: 100%;
+            max-height: 70vh;
+            border-radius: 5px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        #modal-video {
+            max-width: 100%;
+            max-height: 70vh;
+            border-radius: 5px;
+        }
+
+        #modal-info {
+            margin-top: 20px;
+            text-align: center;
+            color: #333;
+        }
+
+        #modal-caption {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        #modal-stamp {
+            display: inline-block;
+            background: #FFCC00;
+            color: #1e5128;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            border: 2px solid #1e5128;
+            margin-top: 10px;
+        }
+
+        #back-button-container {
+            text-align: center;
+            margin-top: 80px;
+        }
+
+        #back-button {
+            padding: 15px 40px;
+            background-color: #FFCC00;
+            color: #1e5128;
+            border: 3px solid #1e5128;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        #back-button:hover {
+            background-color: #e6b800;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(255, 204, 0, 0.4);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            #moment1, #moment2, #moment3, #moment4, #moment5, #moment6 {
+                width: 100% !important;
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+                margin-bottom: 80px;
+            }
+
+            #timeline-path {
+                left: 30px;
+                transform: none;
+            }
+
+            #timeline-dot1, #timeline-dot2, #timeline-dot3,
+            #timeline-dot4, #timeline-dot5, #timeline-dot6 {
+                left: 20px !important;
+                right: auto !important;
+            }
+
+            #card1, #card2, #card3, #card4, #card5, #card6 {
+                margin-left: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="journey-container">
+        <h1 id="journey-title">🗺️ My Journey 🗺️</h1>
+
+        <div id="journey-start">
+            <div id="start-marker">The Journey Begins</div>
+        </div>
+
+        <!-- Golden Path -->
+        <div id="timeline-path">
+            <div id="path-line"></div>
+        </div>
+
+        <!-- Timeline -->
+        <div id="timeline-container">
+            <!-- Moment 1 (Left) -->
+            <div id="moment1" data-visible="false">
+                <div id="card1">
+                    <div id="img1">🏔️</div>
+                    <div id="stamp1">
+                        <span id="date1">📅 Jan 15, 2023</span>
+                        <span id="location1">📍 Mountain Peak, Nepal</span>
+                    </div>
+                    <div id="caption1">The first step of a thousand miles...</div>
+                </div>
+                <div id="timeline-dot1"></div>
+            </div>
+
+            <!-- Moment 2 (Right) -->
+            <div id="moment2" data-visible="false">
+                <div id="card2">
+                    <div id="img2">🌊</div>
+                    <div id="stamp2">
+                        <span id="date2">📅 Mar 22, 2023</span>
+                        <span id="location2">📍 Beach Town, Bali</span>
+                    </div>
+                    <div id="caption2">Where the ocean meets the soul</div>
+                </div>
+                <div id="timeline-dot2"></div>
+            </div>
+
+            <!-- Moment 3 (Left) -->
+            <div id="moment3" data-visible="false">
+                <div id="card3">
+                    <div id="img3">🏙️</div>
+                    <div id="stamp3">
+                        <span id="date3">📅 Jun 10, 2023</span>
+                        <span id="location3">📍 City Lights, Tokyo</span>
+                    </div>
+                    <div id="caption3">Lost in the neon dreams</div>
+                </div>
+                <div id="timeline-dot3"></div>
+            </div>
+
+            <!-- Moment 4 (Right) -->
+            <div id="moment4" data-visible="false">
+                <div id="card4">
+                    <div id="img4">🌅</div>
+                    <div id="stamp4">
+                        <span id="date4">📅 Aug 5, 2023</span>
+                        <span id="location4">📍 Desert Sunset, Morocco</span>
+                    </div>
+                    <div id="caption4">Golden hour in the dunes</div>
+                </div>
+                <div id="timeline-dot4"></div>
+            </div>
+
+            <!-- Moment 5 (Left) -->
+            <div id="moment5" data-visible="false">
+                <div id="card5">
+                    <div id="img5">🌲</div>
+                    <div id="stamp5">
+                        <span id="date5">📅 Oct 18, 2023</span>
+                        <span id="location5">📍 Forest Trail, Norway</span>
+                    </div>
+                    <div id="caption5">Among the ancient trees</div>
+                </div>
+                <div id="timeline-dot5"></div>
+            </div>
+
+            <!-- Moment 6 (Right) -->
+            <div id="moment6" data-visible="false">
+                <div id="card6">
+                    <div id="img6">⛰️</div>
+                    <div id="stamp6">
+                        <span id="date6">📅 Dec 25, 2023</span>
+                        <span id="location6">📍 Mountain Village, Switzerland</span>
+                    </div>
+                    <div id="caption6">Home for the holidays</div>
+                </div>
+                <div id="timeline-dot6"></div>
+            </div>
+        </div>
+
+        <div id="back-button-container">
+            <a href="gallery.html" id="back-button">← Back to Portfolio</a>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal">
+        <div id="modal-content">
+            <button id="modal-close">×</button>
+            <img id="modal-img" style="display:none;">
+            <video id="modal-video" controls style="display:none;"></video>
+            <div id="modal-info">
+                <div id="modal-caption"></div>
+                <div id="modal-stamp"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Scroll animation
+        const moments = [
+            document.getElementById('moment1'),
+            document.getElementById('moment2'),
+            document.getElementById('moment3'),
+            document.getElementById('moment4'),
+            document.getElementById('moment5'),
+            document.getElementById('moment6')
+        ];
+
+        const observerOptions = {
+            threshold: 0.2,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.setAttribute('data-visible', 'true');
+                }
+            });
+        }, observerOptions);
+
+        moments.forEach(moment => observer.observe(moment));
+
+        // Modal functionality
+        const modal = document.getElementById('modal');
+        const modalClose = document.getElementById('modal-close');
+        const modalImg = document.getElementById('modal-img');
+        const modalVideo = document.getElementById('modal-video');
+        const modalCaption = document.getElementById('modal-caption');
+        const modalStamp = document.getElementById('modal-stamp');
+
+        const cards = [
+            { 
+                card: document.getElementById('card1'), 
+                caption: 'The first step of a thousand miles...',
+                date: 'Jan 15, 2023',
+                location: 'Mountain Peak, Nepal',
+                media: 'image',
+                src: 'your-image-url.jpg'
+            },
+            { 
+                card: document.getElementById('card2'), 
+                caption: 'Where the ocean meets the soul',
+                date: 'Mar 22, 2023',
+                location: 'Beach Town, Bali',
+                media: 'image',
+                src: 'your-image-url.jpg'
+            },
+            { 
+                card: document.getElementById('card3'), 
+                caption: 'Lost in the neon dreams',
+                date: 'Jun 10, 2023',
+                location: 'City Lights, Tokyo',
+                media: 'image',
+                src: 'your-image-url.jpg'
+            },
+            { 
+                card: document.getElementById('card4'), 
+                caption: 'Golden hour in the dunes',
+                date: 'Aug 5, 2023',
+                location: 'Desert Sunset, Morocco',
+                media: 'video',
+                src: 'your-video-url.mp4'
+            },
+            { 
+                card: document.getElementById('card5'), 
+                caption: 'Among the ancient trees',
+                date: 'Oct 18, 2023',
+                location: 'Forest Trail, Norway',
+                media: 'image',
+                src: 'your-image-url.jpg'
+            },
+            { 
+                card: document.getElementById('card6'), 
+                caption: 'Home for the holidays',
+                date: 'Dec 25, 2023',
+                location: 'Mountain Village, Switzerland',
+                media: 'image',
+                src: 'your-image-url.jpg'
+            }
+        ];
+
+        cards.forEach(item => {
+            item.card.addEventListener('click', () => {
+                modalCaption.textContent = item.caption;
+                modalStamp.textContent = `${item.date} • ${item.location}`;
+                
+                if (item.media === 'image') {
+                    modalImg.src = item.src;
+                    modalImg.style.display = 'block';
+                    modalVideo.style.display = 'none';
+                } else {
+                    modalVideo.src = item.src;
+                    modalVideo.style.display = 'block';
+                    modalImg.style.display = 'none';
+                }
+                
+                modal.style.display = 'flex';
+            });
+        });
+
+        modalClose.addEventListener('click', () => {
+            modal.style.display = 'none';
+            modalVideo.pause();
+        });
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+                modalVideo.pause();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -38,6 +38,60 @@
             <div class="role-name" id="currentRoleName"></div>
             <p class="role-lore" id="currentRoleLore"></p>
             <p class="role-lock-message">🔒 Role permanently locked</p>
+
+            <!-- XP & Progress Section -->
+            <div class="xp-section">
+                <div class="xp-header">
+                    <div class="level-badge">
+                        <span class="level-label">LEVEL</span>
+                        <span class="level-number" id="currentLevel">1</span>
+                    </div>
+                    <div class="xp-info">
+                        <span id="xpText">0 / 100 XP</span>
+                    </div>
+                </div>
+
+                <div class="xp-bar-container">
+                    <div class="xp-bar-fill" id="xpBarFill" style="width: 0%"></div>
+                    <div class="xp-bar-glow" id="xpBarGlow" style="width: 0%"></div>
+                </div>
+
+                <div class="progress-milestones">
+                    <div class="milestone-item">
+                        <div class="milestone-icon">📅</div>
+                        <div class="milestone-details">
+                            <div class="milestone-label">Login Days</div>
+                            <div class="milestone-value" id="loginDaysText">0 / 30 days</div>
+                        </div>
+                    </div>
+                    <div class="milestone-item">
+                        <div class="milestone-icon">🏗️</div>
+                        <div class="milestone-details">
+                            <div class="milestone-label">Next Base</div>
+                            <div class="milestone-value" id="nextBaseText">Crater Nexus (Lvl 10)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="unlock-progress" id="unlockProgress">
+                    <div class="unlock-message">
+                        <span id="unlockStatusText">🔒 Complete requirements to unlock Crater Nexus</span>
+                    </div>
+                    <div class="requirements-checklist">
+                        <div class="requirement-item" id="req-level">
+                            <span class="req-icon">⭐</span>
+                            <span class="req-text">Reach Level 10</span>
+                            <span class="req-status" id="req-level-status">0/10</span>
+                        </div>
+                        <div class="requirement-item" id="req-days">
+                            <span class="req-icon">📅</span>
+                            <span class="req-text">Login for 30 total days</span>
+                            <span class="req-status" id="req-days-status">0/30</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <button id="progressBtn" class="btn">Continue to Instructions →</button>
         </div>
 
@@ -456,7 +510,157 @@
             document.getElementById('roleDisplay').style.display = 'block';
             document.getElementById('currentRoleName').textContent = `${currentRole.emoji} ${currentRole.name}`;
             document.getElementById('currentRoleLore').textContent = currentRole.lore;
+
+            // Load and display XP progress
+            loadXPProgress();
         }
+
+        // ============================================
+        // XP & PROGRESSION SYSTEM
+        // ============================================
+
+        const XP_LEVELS = [
+            { level: 1, xpRequired: 0 },
+            { level: 2, xpRequired: 100 },
+            { level: 3, xpRequired: 250 },
+            { level: 4, xpRequired: 450 },
+            { level: 5, xpRequired: 700 },
+            { level: 6, xpRequired: 1000 },
+            { level: 7, xpRequired: 1350 },
+            { level: 8, xpRequired: 1750 },
+            { level: 9, xpRequired: 2200 },
+            { level: 10, xpRequired: 2700 }, // Crater Nexus unlock
+            { level: 15, xpRequired: 4500 },
+            { level: 20, xpRequired: 7000 },
+            { level: 25, xpRequired: 10000 }, // Red Dunes unlock
+            { level: 30, xpRequired: 13500 },
+            { level: 35, xpRequired: 17500 },
+            { level: 40, xpRequired: 22000 }, // Arctic Station unlock
+            { level: 50, xpRequired: 32000 },
+            { level: 60, xpRequired: 44000 },
+            { level: 75, xpRequired: 60000 }, // Olympus Summit unlock
+            { level: 100, xpRequired: 100000 }
+        ];
+
+        const BASE_UNLOCKS = [
+            { level: 1, days: 0, name: 'Base Camp Alpha', unlocked: true },
+            { level: 10, days: 30, name: 'Crater Nexus', unlocked: false },
+            { level: 25, days: 60, name: 'Red Dunes Outpost', unlocked: false },
+            { level: 40, days: 90, name: 'Arctic Research Station', unlocked: false },
+            { level: 75, days: 180, name: 'Olympus Summit', unlocked: false }
+        ];
+
+        async function loadXPProgress() {
+            try {
+                const userId = authenticatedUser?.uid || currentUser?.uid || currentUser?.walletAddress;
+                if (!userId) return;
+
+                const progressRef = ref(database, `user-progress/${userId}`);
+                const snapshot = await get(progressRef);
+
+                let xpData = {
+                    totalXP: 0,
+                    level: 1,
+                    loginDays: []
+                };
+
+                if (snapshot.exists()) {
+                    xpData = snapshot.val();
+                }
+
+                updateXPDisplay(xpData);
+            } catch (error) {
+                console.error('Error loading XP progress:', error);
+            }
+        }
+
+        function updateXPDisplay(xpData) {
+            const totalXP = xpData.totalXP || 0;
+            const loginDays = xpData.loginDays || [];
+
+            // Calculate current level
+            let currentLevel = 1;
+            let currentLevelXP = 0;
+            let nextLevelXP = 100;
+
+            for (let i = XP_LEVELS.length - 1; i >= 0; i--) {
+                if (totalXP >= XP_LEVELS[i].xpRequired) {
+                    currentLevel = XP_LEVELS[i].level;
+                    currentLevelXP = XP_LEVELS[i].xpRequired;
+
+                    // Find next level XP
+                    if (i < XP_LEVELS.length - 1) {
+                        nextLevelXP = XP_LEVELS[i + 1].xpRequired;
+                    } else {
+                        nextLevelXP = currentLevelXP; // Max level
+                    }
+                    break;
+                }
+            }
+
+            // Calculate XP progress within current level
+            const xpInLevel = totalXP - currentLevelXP;
+            const xpNeededForNext = nextLevelXP - currentLevelXP;
+            const xpPercent = currentLevel === 100 ? 100 : (xpInLevel / xpNeededForNext) * 100;
+
+            // Update UI
+            document.getElementById('currentLevel').textContent = currentLevel;
+            document.getElementById('xpText').textContent = `${totalXP} / ${nextLevelXP} XP`;
+            document.getElementById('xpBarFill').style.width = xpPercent + '%';
+            document.getElementById('xpBarGlow').style.width = xpPercent + '%';
+
+            // Update login days
+            const uniqueLoginDays = [...new Set(loginDays)].length;
+            document.getElementById('loginDaysText').textContent = `${uniqueLoginDays} / 30 days`;
+
+            // Determine next base unlock
+            let nextBase = null;
+            for (const base of BASE_UNLOCKS) {
+                if (!base.unlocked && (currentLevel < base.level || uniqueLoginDays < base.days)) {
+                    nextBase = base;
+                    break;
+                }
+            }
+
+            if (nextBase) {
+                document.getElementById('nextBaseText').textContent = `${nextBase.name} (Lvl ${nextBase.level})`;
+                document.getElementById('unlockStatusText').textContent = `🔒 Complete requirements to unlock ${nextBase.name}`;
+
+                // Update requirement statuses
+                const reqLevel = document.getElementById('req-level');
+                const reqDays = document.getElementById('req-days');
+                const levelStatus = document.getElementById('req-level-status');
+                const daysStatus = document.getElementById('req-days-status');
+
+                levelStatus.textContent = `${currentLevel}/${nextBase.level}`;
+                daysStatus.textContent = `${uniqueLoginDays}/${nextBase.days}`;
+
+                if (currentLevel >= nextBase.level) {
+                    reqLevel.classList.add('completed');
+                } else {
+                    reqLevel.classList.remove('completed');
+                }
+
+                if (uniqueLoginDays >= nextBase.days) {
+                    reqDays.classList.add('completed');
+                } else {
+                    reqDays.classList.remove('completed');
+                }
+
+                // Check if both requirements are met
+                if (currentLevel >= nextBase.level && uniqueLoginDays >= nextBase.days) {
+                    document.getElementById('unlockStatusText').textContent = `🎉 ${nextBase.name} is now unlocked!`;
+                    // You can add logic here to actually unlock the base
+                }
+            } else {
+                document.getElementById('unlockStatusText').textContent = `✅ All bases unlocked!`;
+                document.getElementById('unlockProgress').style.display = 'none';
+            }
+        }
+
+        // Make loadXPProgress available globally for other pages
+        window.loadXPProgress = loadXPProgress;
+        window.updateXPDisplay = updateXPDisplay;
 
         progressBtn.addEventListener('click', () => {
             instructionsModal.style.display = 'block';

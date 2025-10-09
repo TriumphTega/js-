@@ -296,17 +296,22 @@
         }
 
         // Monitor auth state to ensure user is authenticated
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
                 userUID = user.uid;
+
+                // Load custom display name from Firebase
+                const customName = await loadCustomDisplayName(user.uid);
+
                 currentUser = {
                     uid: user.uid,
                     email: user.email,
-                    displayName: user.displayName,
+                    displayName: customName || user.displayName,
                     photoURL: user.photoURL
                 };
                 localStorage.setItem('currentUser', JSON.stringify(currentUser));
                 console.log('User authenticated:', user.email);
+                console.log('Display name:', currentUser.displayName);
 
                 // Check admin access
                 checkAdminAccess(user);
@@ -319,6 +324,22 @@
                 console.log('No user authenticated');
             }
         });
+
+        // Load custom display name from Firebase user-profiles
+        async function loadCustomDisplayName(userId) {
+            try {
+                const userProfileRef = ref(database, `user-profiles/${userId}`);
+                const snapshot = await get(userProfileRef);
+
+                if (snapshot.exists() && snapshot.val().displayName) {
+                    console.log('✅ Loaded custom display name from Firebase:', snapshot.val().displayName);
+                    return snapshot.val().displayName;
+                }
+            } catch (error) {
+                console.error('Error loading custom display name:', error);
+            }
+            return null;
+        }
 
         // ============================================
         // CUSTOM MODAL SYSTEM
@@ -554,9 +575,186 @@
             updateResourceDisplays();
             checkDailyCheckInStatus();
             renderTasks();
+
+            // Track daily login and award XP
+            await trackDailyLogin();
+
+            // Check and apply energy replenishment
+            replenishEnergy();
+
+            // Set up hourly energy replenishment
+            setInterval(replenishEnergy, 3600000); // Every hour (3600000ms)
+        }
+
+        // ============================================
+        // XP & LOGIN TRACKING SYSTEM
+        // ============================================
+
+        async function trackDailyLogin() {
+            if (!userUID) return;
+
+            try {
+                const progressRef = ref(database, `user-progress/${userUID}`);
+                const snapshot = await get(progressRef);
+
+                const today = new Date().toDateString();
+                let progressData = {
+                    totalXP: 0,
+                    level: 1,
+                    loginDays: [],
+                    lastLoginDate: null
+                };
+
+                if (snapshot.exists()) {
+                    progressData = snapshot.val();
+                }
+
+                // Check if already logged in today
+                if (progressData.lastLoginDate === today) {
+                    console.log('Already logged in today');
+                    return;
+                }
+
+                // Add today to login days
+                if (!progressData.loginDays) {
+                    progressData.loginDays = [];
+                }
+                progressData.loginDays.push(today);
+
+                // Award daily login XP
+                const dailyLoginXP = 10;
+                progressData.totalXP = (progressData.totalXP || 0) + dailyLoginXP;
+                progressData.lastLoginDate = today;
+
+                // Save to Firebase
+                await set(progressRef, progressData);
+
+                console.log(`✅ Daily login tracked! +${dailyLoginXP} XP awarded`);
+                showModal('success', '🎉 Daily Login!', `Welcome back, Colonist!\n\n+${dailyLoginXP} XP earned for logging in today!`);
+            } catch (error) {
+                console.error('Error tracking daily login:', error);
+            }
+        }
+
+        async function awardXP(amount, reason = '') {
+            if (!userUID) return;
+
+            try {
+                const progressRef = ref(database, `user-progress/${userUID}`);
+                const snapshot = await get(progressRef);
+
+                let progressData = {
+                    totalXP: 0,
+                    level: 1,
+                    loginDays: [],
+                    lastLoginDate: null
+                };
+
+                if (snapshot.exists()) {
+                    progressData = snapshot.val();
+                }
+
+                progressData.totalXP = (progressData.totalXP || 0) + amount;
+
+                await set(progressRef, progressData);
+
+                console.log(`✅ Awarded ${amount} XP${reason ? ` for ${reason}` : ''}`);
+                return progressData.totalXP;
+            } catch (error) {
+                console.error('Error awarding XP:', error);
+            }
+        }
+
+        // Make awardXP available globally
+        window.awardXP = awardXP;
+
+        // ============================================
+        // ENERGY REPLENISHMENT SYSTEM
+        // ============================================
+
+        function replenishEnergy() {
+            if (!userUID) return;
+
+            try {
+                const now = Date.now();
+                const lastReplenish = localStorage.getItem('lastEnergyReplenish');
+                const lastReplenishTime = lastReplenish ? parseInt(lastReplenish) : 0;
+
+                // Calculate hours passed since last replenishment
+                const hoursPassed = Math.floor((now - lastReplenishTime) / 3600000);
+
+                if (hoursPassed >= 1) {
+                    // Replenish 1% per hour, max 100%
+                    const energyToAdd = Math.min(hoursPassed, 100 - colonyData.energy);
+
+                    if (energyToAdd > 0) {
+                        colonyData.energy = Math.min(100, colonyData.energy + energyToAdd);
+                        updateResourceDisplays();
+                        saveColonyData();
+
+                        console.log(`✅ Energy replenished: +${energyToAdd}% (${hoursPassed} hour(s) passed)`);
+
+                        // Update last replenish time
+                        localStorage.setItem('lastEnergyReplenish', now.toString());
+                    }
+                } else if (lastReplenishTime === 0) {
+                    // First time - set the baseline
+                    localStorage.setItem('lastEnergyReplenish', now.toString());
+                }
+            } catch (error) {
+                console.error('Error replenishing energy:', error);
+            }
         }
 
         initializeDashboard();
+
+        // Check for focus mode result from notes app
+        checkFocusModeReturn();
+
+        function checkFocusModeReturn() {
+            const focusResult = localStorage.getItem('focusModeResult');
+            if (focusResult) {
+                try {
+                    const result = JSON.parse(focusResult);
+                    localStorage.removeItem('focusModeResult');
+
+                    const taskId = result.taskId;
+                    const task = colonyData.tasks.find(t => t.id == taskId);
+
+                    if (task) {
+                        if (result.success && !result.tabChangeDetected) {
+                            // Task completed successfully
+                            completeTask(taskId);
+                            showModal('success', '🎉 Journal Complete!', `Great work on your journaling session!\n\n+${calculateReward(task)} Lunaris earned!`);
+                        } else {
+                            // Task failed - apply penalties
+                            applyJournalPenalties(taskId);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error processing focus mode result:', error);
+                }
+            }
+        }
+
+        function applyJournalPenalties(taskId) {
+            colonyData.lunaris = Math.max(0, colonyData.lunaris - 10);
+            colonyData.streak = 0;
+            colonyData.energy = Math.max(0, colonyData.energy - 10);
+
+            const taskIndex = colonyData.tasks.findIndex(t => t.id == taskId);
+            if (taskIndex !== -1) {
+                const failedTask = { ...colonyData.tasks[taskIndex], failedAt: Date.now(), reason: 'Left focus mode early' };
+                colonyData.failedTasks.push(failedTask);
+                colonyData.tasks.splice(taskIndex, 1);
+            }
+
+            saveColonyData();
+            updateResourceDisplays();
+            renderTasks();
+
+            showModal('error', '❌ Journal Failed', 'Penalties applied:\n• -10 Lunaris\n• Streak reset\n• -10% Energy\n\nStay focused next time!');
+        }
 
         // Daily check-in
         const dailyCheckInBtn = document.getElementById('daily-check-in-btn');
@@ -584,11 +782,15 @@
             });
         });
 
-        function performDailyCheckIn(priorityResource) {
+        async function performDailyCheckIn(priorityResource) {
             const today = new Date().toDateString();
             colonyData.lastCheckIn = today;
 
             let bonus = 50;
+
+            // Award XP for daily check-in
+            const checkInXP = 15;
+            await awardXP(checkInXP, 'daily check-in');
 
             if (currentRole && currentRole.perks.dailyBonus) {
                 if (currentRole.perks.dailyBonus === 'oxygen' && priorityResource === 'oxygen') {
@@ -745,6 +947,12 @@
         };
 
         function beginFocusMode(task) {
+            // Special handling for journal/logging tasks - redirect to notes app
+            if (task.type === 'logging') {
+                const focusUrl = `/Learning JS/notes.html?focus=true&duration=${task.timeCommitment}&taskId=${task.id}`;
+                window.location.href = focusUrl;
+                return;
+            }
 
             currentFocusTask = task;
             focusDuration = task.timeCommitment * 60;
@@ -802,7 +1010,7 @@
             }
         }
 
-        function completeFocusMode(success) {
+        async function completeFocusMode(success) {
             clearInterval(focusModeTimer);
             document.removeEventListener('visibilitychange', handleVisibilityChange);
 
@@ -813,8 +1021,13 @@
             document.getElementById('focus-mode-screen').style.display = 'none';
 
             if (success && !tabChangeDetected) {
-                completeTask(currentFocusTask.id);
-                showModal('success', '🎉 Mission Complete!', `+${calculateReward(currentFocusTask)} Lunaris earned!\n\nExcellent focus, colonist!`);
+                await completeTask(currentFocusTask.id);
+
+                // Bonus XP for completing focus mode (requires extra dedication)
+                const focusBonusXP = 20;
+                await awardXP(focusBonusXP, 'focus mode bonus');
+
+                showModal('success', '🎉 Mission Complete!', `+${calculateReward(currentFocusTask)} Lunaris earned!\n+${focusBonusXP} XP Focus Bonus!\n\nExcellent focus, colonist!`);
             } else {
                 applyFocusPenalties();
             }
@@ -853,7 +1066,7 @@
             );
         });
 
-        window.completeTask = function(taskId) {
+        window.completeTask = async function(taskId) {
             const taskIndex = colonyData.tasks.findIndex(t => t.id === taskId);
             if (taskIndex === -1) return;
 
@@ -874,7 +1087,11 @@
                 });
             }
 
-            const completedTask = { ...task, completedAt: Date.now(), reward };
+            // Award XP based on task difficulty (time commitment)
+            const taskXP = calculateTaskXP(task);
+            await awardXP(taskXP, `completing ${task.name}`);
+
+            const completedTask = { ...task, completedAt: Date.now(), reward, xpEarned: taskXP };
             colonyData.completedToday.push(completedTask);
             colonyData.tasks.splice(taskIndex, 1);
 
@@ -882,6 +1099,17 @@
             updateResourceDisplays();
             renderTasks();
         };
+
+        function calculateTaskXP(task) {
+            // Base XP scales with time commitment
+            const timeMinutes = task.timeCommitment || 10;
+
+            if (timeMinutes <= 5) return 5; // Quick tasks
+            if (timeMinutes <= 15) return 10; // Short tasks
+            if (timeMinutes <= 30) return 15; // Medium tasks
+            if (timeMinutes <= 60) return 20; // Long tasks
+            return 25; // Very long tasks (over 1 hour)
+        }
 
         window.deleteTask = function(taskId) {
             showConfirm(

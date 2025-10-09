@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Lunaris Roadmap - The Journey Ahead</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1e5128 0%, #2d6a4f 50%, #1e5128 100%);
+            color: white;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 40px 20px;
+            overflow-x: hidden;
+        }
+
+        #roadmap-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        #roadmap-title {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            text-align: center;
+            color: #FFCC00;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.6);
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        #roadmap-subtitle {
+            text-align: center;
+            font-size: clamp(1rem, 2vw, 1.3rem);
+            color: rgba(255, 204, 0, 0.8);
+            margin-bottom: 60px;
+        }
+
+        #timeline-path {
+            position: absolute;
+            top: 200px;
+            left: 50%;
+            width: 4px;
+            height: calc(100% - 200px);
+            transform: translateX(-50%);
+            z-index: 0;
+        }
+
+        #path-line {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                to bottom,
+                #32CD32 0%,
+                #FFCC00 25%,
+                #FF8C00 50%,
+                #4169E1 75%,
+                #9370DB 100%
+            );
+            box-shadow: 0 0 20px rgba(255, 204, 0, 0.6);
+            animation: pathGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes pathGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(255, 204, 0, 0.6); }
+            50% { box-shadow: 0 0 30px rgba(255, 204, 0, 0.9); }
+        }
+
+        #timeline-container {
+            position: relative;
+            z-index: 1;
+            padding: 40px 0;
+        }
+
+        .base-moment {
+            position: relative;
+            margin: 100px 0;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+
+        .base-moment[data-visible="true"] {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Alternating positions */
+        .base-moment:nth-child(odd) {
+            margin-left: 0;
+            margin-right: auto;
+            width: calc(50% - 60px);
+        }
+
+        .base-moment:nth-child(even) {
+            margin-left: auto;
+            margin-right: 0;
+            width: calc(50% - 60px);
+        }
+
+        .base-card {
+            background: linear-gradient(135deg, rgba(30, 81, 40, 0.9) 0%, rgba(45, 106, 79, 0.9) 100%);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
+            border: 3px solid #FFCC00;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .base-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 204, 0, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .base-card:hover::before {
+            left: 100%;
+        }
+
+        .base-card:hover {
+            transform: translateY(-15px) scale(1.05);
+            box-shadow: 0 20px 60px rgba(255, 204, 0, 0.4),
+                        0 0 40px rgba(255, 215, 0, 0.3);
+        }
+
+        .base-card.locked {
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.7) 0%, rgba(30, 30, 30, 0.7) 100%);
+            border-color: rgba(255, 204, 0, 0.3);
+            opacity: 0.7;
+        }
+
+        .base-card.locked:hover {
+            opacity: 1;
+        }
+
+        .base-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .base-icon {
+            font-size: 4rem;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
+        }
+
+        .base-card.locked .base-icon {
+            filter: grayscale(100%) opacity(0.5);
+        }
+
+        .base-info {
+            flex: 1;
+        }
+
+        .base-name {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #FFCC00;
+            margin-bottom: 5px;
+        }
+
+        .base-card.locked .base-name {
+            color: rgba(255, 204, 0, 0.5);
+        }
+
+        .base-phase {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            font-style: italic;
+        }
+
+        .base-description {
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .requirements {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .requirement-badge {
+            background: rgba(255, 204, 0, 0.2);
+            border: 2px solid #FFCC00;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .base-card.locked .requirement-badge {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 204, 0, 0.3);
+        }
+
+        .status-badge {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .status-badge.unlocked {
+            background: linear-gradient(135deg, #32CD32, #228B22);
+            color: white;
+        }
+
+        .status-badge.locked {
+            background: rgba(220, 53, 69, 0.3);
+            border: 2px solid #dc3545;
+            color: #dc3545;
+        }
+
+        .click-hint {
+            text-align: center;
+            color: rgba(255, 204, 0, 0.8);
+            font-size: 0.9rem;
+            margin-top: 10px;
+            font-style: italic;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background: #FFCC00;
+            border: 4px solid #1e5128;
+            border-radius: 50%;
+            top: 100px;
+            z-index: 2;
+            box-shadow: 0 0 15px rgba(255, 204, 0, 0.8);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        /* Dots on the right for left cards */
+        .base-moment:nth-child(odd) .timeline-dot {
+            right: -62px;
+        }
+
+        /* Dots on the left for right cards */
+        .base-moment:nth-child(even) .timeline-dot {
+            left: -62px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            position: relative;
+            max-width: 900px;
+            width: 100%;
+            background: linear-gradient(135deg, #1e5128 0%, #2d6a4f 100%);
+            border-radius: 15px;
+            padding: 0;
+            box-shadow: 0 0 50px rgba(255, 204, 0, 0.5);
+            border: 3px solid #FFCC00;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 30px;
+            border-bottom: 2px solid rgba(255, 204, 0, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 2.5rem;
+            color: #FFCC00;
+            background: rgba(30, 81, 40, 0.8);
+            cursor: pointer;
+            border: 3px solid #FFCC00;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s;
+        }
+
+        .modal-close:hover {
+            background: #FFCC00;
+            color: #1e5128;
+            transform: rotate(90deg);
+        }
+
+        .modal-title {
+            font-size: 2.5rem;
+            color: #FFCC00;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .modal-subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.1rem;
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .feature-section {
+            margin-bottom: 40px;
+        }
+
+        .section-header {
+            font-size: 1.8rem;
+            color: #FFCC00;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-item {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #FFCC00;
+            transition: all 0.3s;
+        }
+
+        .feature-item:hover {
+            background: rgba(255, 204, 0, 0.1);
+            transform: translateX(10px);
+        }
+
+        .feature-title {
+            font-size: 1.2rem;
+            color: #FFCC00;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .feature-description {
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+        }
+
+        .minigame-card {
+            background: rgba(255, 204, 0, 0.1);
+            border: 2px solid rgba(255, 204, 0, 0.4);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .minigame-name {
+            font-size: 1.3rem;
+            color: #FFCC00;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .minigame-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .minigame-detail {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .detail-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85rem;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            color: #FFCC00;
+            font-weight: bold;
+        }
+
+        #back-button-container {
+            text-align: center;
+            margin-top: 80px;
+        }
+
+        #back-button {
+            padding: 15px 40px;
+            background-color: #FFCC00;
+            color: #1e5128;
+            border: 3px solid #1e5128;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        #back-button:hover {
+            background-color: #e6b800;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(255, 204, 0, 0.4);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .base-moment {
+                width: 100% !important;
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+                margin-bottom: 80px;
+            }
+
+            #timeline-path {
+                left: 30px;
+                transform: none;
+            }
+
+            .timeline-dot {
+                left: 20px !important;
+                right: auto !important;
+            }
+
+            .base-card {
+                margin-left: 60px;
+            }
+
+            .modal-content {
+                margin: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="roadmap-container">
+        <h1 id="roadmap-title">🗺️ The Journey Ahead 🗺️</h1>
+        <p id="roadmap-subtitle">Explore the future of Lunaris - Unlock new bases, features, and adventures</p>
+
+        <!-- Golden Path -->
+        <div id="timeline-path">
+            <div id="path-line"></div>
+        </div>
+
+        <!-- Timeline -->
+        <div id="timeline-container">
+            <!-- Base 1: Base Camp Alpha -->
+            <div class="base-moment" data-visible="false" data-base="alpha">
+                <div class="base-card" onclick="openBaseModal('alpha')">
+                    <div class="base-header">
+                        <div class="base-icon">🏕️</div>
+                        <div class="base-info">
+                            <div class="base-name">Base Camp Alpha</div>
+                            <div class="base-phase">Phase 1 • Foundation</div>
+                        </div>
+                    </div>
+                    <div class="base-description">
+                        The first settlement. Master the basics of colony management, task completion, and resource gathering.
+                    </div>
+                    <div class="requirements">
+                        <div class="requirement-badge">
+                            <span>📅</span>
+                            <span>Available Now</span>
+                        </div>
+                        <div class="requirement-badge">
+                            <span>⭐</span>
+                            <span>Level 1+</span>
+                        </div>
+                    </div>
+                    <div class="status-badge unlocked">✅ UNLOCKED & ACTIVE</div>
+                    <div class="click-hint">👆 Click to view features</div>
+                </div>
+                <div class="timeline-dot"></div>
+            </div>
+
+            <!-- Base 2: Crater Nexus -->
+            <div class="base-moment" data-visible="false" data-base="nexus">
+                <div class="base-card locked" onclick="openBaseModal('nexus')">
+                    <div class="base-header">
+                        <div class="base-icon">🏪</div>
+                        <div class="base-info">
+                            <div class="base-name">Crater Nexus</div>
+                            <div class="base-phase">Phase 2 • Trade & Social Hub</div>
+                        </div>
+                    </div>
+                    <div class="base-description">
+                        A bustling marketplace where colonists trade resources, compete in mini-games, and build their reputation.
+                    </div>
+                    <div class="requirements">
+                        <div class="requirement-badge">
+                            <span>📅</span>
+                            <span>30 Login Days</span>
+                        </div>
+                        <div class="requirement-badge">
+                            <span>⭐</span>
+                            <span>Level 10</span>
+                        </div>
+                        <div class="requirement-badge">
+                            <span>📆</span>
+                            <span>Q1 2025</span>
+                        </div>
+                    </div>
+                    <div class="status-badge locked">🔒 COMING SOON</div>
+                    <div class="click-hint">👆 Click to preview features</div>
+                </div>
+                <div class="timeline-dot"></div>
+            </div>
+
+            <!-- Base 3: Red Dunes Outpost -->
+            <div class="base-moment" data-visible="false" data-base="dunes">
+                <div class="base-card locked" onclick="openBaseModal('dunes')">
+                    <div class="base-header">
+                        <div class="base-icon">🏜️</div>
+                        <div class="base-info">
+                            <div class="base-name">Red Dunes Outpost</div>
+                            <div class="base-phase">Phase 3 • Exploration & Discovery</div>
+                        </div>
+                    </div>
+                    <div class="base-description">
+                        Venture into the frontier. Discover ancient ruins, collect rare artifacts, and become a legendary explorer.
+                    </div>
+                    <div class="requirements">
+                        <div class="requirement-badge">
+                            <span>📅</span>
+                            <span>60 Login Days</span>
+                        </div>
+                        <div class="requirement-badge">
+                            <span>⭐</span>
+                            <span>Level 25</span>
+                        </div>
+                        <div class="requirement-badge">
+                            <span>📆</span>
+                            <span>Q3 2025</span>
+                        </div>
+                    </div>
+                    <div class="status-badge locked">🔒 PLANNED</div>
+                    <div class="click-hint">👆 Click to preview features</div>
+                </div>
+                <div class="timeline-dot"></div>
+            </div>
+
+            <!-- Base 4: Arctic Research Station -->
+            <div class="base-moment" data-visible="false" data-base="arctic">
+                <div class="base-card locked" onclick="openBaseModal('arctic')">
+                    <div class="base-header">
+                        <div class="base-icon">❄️</div>
+                        <div class="base-info">
+                            <div class="base-name">Arctic Research Station</div>
+                            <div class="base-phase">Phase 4 • Research & Innovation</div>
+                        </div>
+                    </div>
+                    <div class="base-description">
+                        Unlock the power of science. Research permanent upgrades, automate tasks, and optimize your colony.
+                    </div>
+                    <div class="requirements">
+                        <div class="requirement-badge">
+                            <span>📅</span>
+                            <span>90 Login Days</span>
+                        </div>
+                        <div class="requirement-badge">
+                            <span>⭐</span>
+                            <span>Level 40</span>
+                        </div>
+                        <div class="requirement-badge">
+                            <span>📆</span>
+                            <span>Q1 2026</span>
+                        </div>
+                    </div>
+                    <div class="status-badge locked">🔒 PLANNED</div>
+                    <div class="click-hint">👆 Click to preview features</div>
+                </div>
+                <div class="timeline-dot"></div>
+            </div>
+
+            <!-- Base 5: Olympus Summit -->
+            <div class="base-moment" data-visible="false" data-base="olympus">
+                <div class="base-card locked" onclick="openBaseModal('olympus')">
+                    <div class="base-header">
+                        <div class="base-icon">🏔️</div>
+                        <div class="base-info">
+                            <div class="base-name">Olympus Summit</div>
+                            <div class="base-phase">Phase 5 • The Pinnacle</div>
+                        </div>
+                    </div>
+                    <div class="base-description">
+                        Reach the peak of achievement. Join elite clans, compete in legendary challenges, and claim your place in history.
+                    </div>
+                    <div class="requirements">
+                        <div class="requirement-badge">
+                            <span>📅</span>
+                            <span>180 Login Days</span>
+                        </div>
+                        <div class="requirement-badge">
+                            <span>⭐</span>
+                            <span>Level 75</span>
+                        </div>
+                        <div class="requirement-badge">
+                            <span>📆</span>
+                            <span>Q3 2026</span>
+                        </div>
+                    </div>
+                    <div class="status-badge locked">🔒 PLANNED</div>
+                    <div class="click-hint">👆 Click to preview features</div>
+                </div>
+                <div class="timeline-dot"></div>
+            </div>
+        </div>
+
+        <div id="back-button-container">
+            <a href="/Learning JS/dashboard.html" id="back-button">← Back to Dashboard</a>
+        </div>
+    </div>
+
+    <!-- Modals for each base (will be populated by JavaScript) -->
+    <div id="modal-alpha" class="modal"></div>
+    <div id="modal-nexus" class="modal"></div>
+    <div id="modal-dunes" class="modal"></div>
+    <div id="modal-arctic" class="modal"></div>
+    <div id="modal-olympus" class="modal"></div>
+
+    <script>
+        // Scroll animation
+        const moments = document.querySelectorAll('.base-moment');
+
+        const observerOptions = {
+            threshold: 0.2,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.setAttribute('data-visible', 'true');
+                }
+            });
+        }, observerOptions);
+
+        moments.forEach(moment => observer.observe(moment));
+
+        // Base data for modals
+        const baseData = {
+            alpha: {
+                icon: '🏕️',
+                name: 'Base Camp Alpha',
+                subtitle: 'Foundation • Currently Active',
+                color: '#32CD32',
+                features: [
+                    {
+                        title: '🎯 Task Management System',
+                        items: [
+                            '9 different task types with unique rewards',
+                            'Custom task creation with time commitments',
+                            'Focus mode for deep work sessions',
+                            'Daily check-ins with streak tracking'
+                        ]
+                    },
+                    {
+                        title: '👤 Role System',
+                        items: [
+                            '7 unique colony roles to choose from',
+                            'Permanent role perks and bonuses',
+                            'Role-based reward multipliers',
+                            'Specialized abilities for each role'
+                        ]
+                    },
+                    {
+                        title: '📊 Resource Management',
+                        items: [
+                            'Lunaris token economy',
+                            'Oxygen, Hydroponics, and Energy tracking',
+                            'Auto-replenishment systems (1% energy/hour)',
+                            'Resource-based progression'
+                        ]
+                    },
+                    {
+                        title: '⚡ Core Features',
+                        items: [
+                            'XP and leveling system (1-100+)',
+                            'Cumulative login day tracking',
+                            'Real-time colony chat',
+                            'Notes and journaling app',
+                            'Admin dashboard for customization'
+                        ]
+                    }
+                ],
+                minigames: null
+            },
+            nexus: {
+                icon: '🏪',
+                name: 'Crater Nexus',
+                subtitle: 'Trade & Social Hub • Q1 2025',
+                color: '#00CED1',
+                features: [
+                    {
+                        title: '💱 Trading System',
+                        items: [
+                            'Trade Lunaris tokens with other colonists',
+                            'Resource marketplace (buy/sell Oxygen, Hydroponics, Energy)',
+                            'Limited-time special items and offers',
+                            'Trade history and analytics dashboard',
+                            'Auction house for rare items'
+                        ]
+                    },
+                    {
+                        title: '👥 Social Hub',
+                        items: [
+                            'Enhanced chatroom with multiple channels (General, Trade, Help)',
+                            'Detailed user profiles with stats and achievements',
+                            'Friend system and colonist connections',
+                            'Leaderboards (daily, weekly, all-time)',
+                            'Colony-wide events and challenges'
+                        ]
+                    },
+                    {
+                        title: '🎯 New Task Types',
+                        items: [
+                            '📦 Supply Run - Fetch real-world items',
+                            '🎨 Creative Project - Art, music, writing tasks',
+                            '🤝 Collaboration Task - Requires another user to complete'
+                        ]
+                    },
+                    {
+                        title: '⭐ Reputation System',
+                        items: [
+                            'Earn reputation through trades and helping others',
+                            'Reputation levels unlock special perks',
+                            'Exclusive items for high-reputation colonists',
+                            'Reputation decay if inactive (stay engaged!)'
+                        ]
+                    }
+                ],
+                minigames: [
+                    {
+                        name: 'Resource Rush',
+                        type: 'Clicker/Timing',
+                        description: 'Time-based resource collection game. Click/tap to collect resources before time runs out!',
+                        rewards: 'Lunaris tokens + Rare items',
+                        difficulty: 'Easy-Medium'
+                    }
+                ]
+            },
+            dunes: {
+                icon: '🏜️',
+                name: 'Red Dunes Outpost',
+                subtitle: 'Exploration & Discovery • Q3 2025',
+                color: '#FF8C00',
+                features: [
+                    {
+                        title: '🗺️ Exploration System',
+                        items: [
+                            'Daily expeditions to discover new territories',
+                            'Random events during exploration (good and bad!)',
+                            'Rare resource discoveries in hidden locations',
+                            'Interactive map showing explored territories',
+                            'Ancient ruins with lore and rewards'
+                        ]
+                    },
+                    {
+                        title: '🏆 Achievement System',
+                        items: [
+                            '100+ achievements to unlock',
+                            'Achievement badges displayed on profile',
+                            'Special rewards for rare achievements',
+                            'Achievement milestones unlock new content',
+                            'Secret achievements for dedicated explorers'
+                        ]
+                    },
+                    {
+                        title: '🎯 Expedition Tasks',
+                        items: [
+                            'Long-duration tasks (8-24 hours)',
+                            'High risk, high reward missions',
+                            'Can fail if requirements not met',
+                            'Special expedition-only rewards and items',
+                            'Team expeditions with other colonists'
+                        ]
+                    },
+                    {
+                        title: '📜 Discovery Log',
+                        items: [
+                            'Record of all discoveries and findings',
+                            'Share discoveries with the colony',
+                            'Rare discoveries earn bonus Lunaris',
+                            'Contributor credits for major finds'
+                        ]
+                    }
+                ],
+                minigames: [
+                    {
+                        name: 'Dune Racer',
+                        type: 'Racing',
+                        description: 'Navigate your rover through treacherous red dunes. Collect power-ups and avoid obstacles!',
+                        rewards: 'Exploration points + Special items',
+                        difficulty: 'Medium'
+                    }
+                ]
+            },
+            arctic: {
+                icon: '❄️',
+                name: 'Arctic Research Station',
+                subtitle: 'Research & Innovation • Q1 2026',
+                color: '#4169E1',
+                features: [
+                    {
+                        title: '🔬 Research Tree',
+                        items: [
+                            'Unlock permanent upgrades for your colony',
+                            'Research branches: Efficiency, Production, Social, Exploration',
+                            'Research requires resources and time',
+                            'Shared research benefits entire colony',
+                            'Specialized research paths per role'
+                        ]
+                    },
+                    {
+                        title: '🧪 Lab Experiments',
+                        items: [
+                            'Daily experiments with random outcomes',
+                            'Success chance based on streak and resources',
+                            'Rewards vary from small to legendary',
+                            'Failed experiments have minor penalties',
+                            'Breakthrough discoveries unlock new features'
+                        ]
+                    },
+                    {
+                        title: '🤖 Automation System',
+                        items: [
+                            'Auto-complete simple repetitive tasks',
+                            'Requires energy and initial setup',
+                            'Reduces active task management burden',
+                            'Efficiency improves with research upgrades',
+                            'Smart task prioritization'
+                        ]
+                    },
+                    {
+                        title: '📊 Data Analysis Dashboard',
+                        items: [
+                            'Personal productivity analytics and insights',
+                            'Beautiful charts and graphs',
+                            'Compare with colony averages',
+                            'AI-powered insights and recommendations',
+                            'Export data for external analysis'
+                        ]
+                    }
+                ],
+                minigames: [
+                    {
+                        name: 'Ice Core Drilling',
+                        type: 'Rhythm/Timing',
+                        description: 'Drill through ice layers with precise timing. Avoid obstacles and hit sweet spots for bonuses!',
+                        rewards: 'Research points + Rare materials',
+                        difficulty: 'Medium-Hard'
+                    }
+                ]
+            },
+            olympus: {
+                icon: '🏔️',
+                name: 'Olympus Summit',
+                subtitle: 'The Pinnacle • Q3 2026',
+                color: '#9370DB',
+                features: [
+                    {
+                        title: '♻️ Prestige System',
+                        items: [
+                            'Reset progress for permanent bonuses',
+                            'Prestige levels and ranks',
+                            'Exclusive prestige-only items and skins',
+                            'Special prestige currency',
+                            'Prestige leaderboards'
+                        ]
+                    },
+                    {
+                        title: '🏅 Challenge Mode',
+                        items: [
+                            'Weekly and monthly extreme challenges',
+                            'Extreme difficulty tasks for veterans',
+                            'Global leaderboards and rankings',
+                            'Exclusive rewards and titles',
+                            'Champion hall of fame'
+                        ]
+                    },
+                    {
+                        title: '🛡️ Clan/Guild System',
+                        items: [
+                            'Form clans with other colonists',
+                            'Clan vs. Clan competitions and wars',
+                            'Clan perks and bonuses',
+                            'Clan chat and coordination tools',
+                            'Clan territories and bases'
+                        ]
+                    },
+                    {
+                        title: '💎 Legendary Items',
+                        items: [
+                            'Ultra-rare items with powerful effects',
+                            'Collectible item system with rarity tiers',
+                            'Item trading and crafting',
+                            'Personal showcase and display hall',
+                            'Legendary item quests and hunts'
+                        ]
+                    }
+                ],
+                minigames: [
+                    {
+                        name: 'Summit Climb',
+                        type: 'Platformer',
+                        description: 'Scale the highest peak! Overcome obstacles, use checkpoints, and race against time!',
+                        rewards: 'Prestige points + Legendary items',
+                        difficulty: 'Hard'
+                    }
+                ]
+            }
+        };
+
+        function openBaseModal(baseId) {
+            const modal = document.getElementById(`modal-${baseId}`);
+            const data = baseData[baseId];
+
+            let minigamesHTML = '';
+            if (data.minigames && data.minigames.length > 0) {
+                minigamesHTML = `
+                    <div class="feature-section">
+                        <div class="section-header">
+                            <span>🎮</span>
+                            <span>Mini-Games</span>
+                        </div>
+                        ${data.minigames.map(game => `
+                            <div class="minigame-card">
+                                <div class="minigame-name">${game.name}</div>
+                                <div class="feature-description">${game.description}</div>
+                                <div class="minigame-details">
+                                    <div class="minigame-detail">
+                                        <div class="detail-label">Type</div>
+                                        <div class="detail-value">${game.type}</div>
+                                    </div>
+                                    <div class="minigame-detail">
+                                        <div class="detail-label">Rewards</div>
+                                        <div class="detail-value">${game.rewards}</div>
+                                    </div>
+                                    <div class="minigame-detail">
+                                        <div class="detail-label">Difficulty</div>
+                                        <div class="detail-value">${game.difficulty}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button class="modal-close" onclick="closeModal('${baseId}')">&times;</button>
+                        <div class="modal-title">
+                            <span>${data.icon}</span>
+                            <span>${data.name}</span>
+                        </div>
+                        <div class="modal-subtitle">${data.subtitle}</div>
+                    </div>
+                    <div class="modal-body">
+                        ${data.features.map(section => `
+                            <div class="feature-section">
+                                <div class="section-header">
+                                    <span>${section.title.split(' ')[0]}</span>
+                                    <span>${section.title}</span>
+                                </div>
+                                <ul class="feature-list">
+                                    ${section.items.map(item => `
+                                        <li class="feature-item">
+                                            <div class="feature-description">• ${item}</div>
+                                        </li>
+                                    `).join('')}
+                                </ul>
+                            </div>
+                        `).join('')}
+                        ${minigamesHTML}
+                    </div>
+                </div>
+            `;
+
+            modal.classList.add('active');
+        }
+
+        function closeModal(baseId) {
+            const modal = document.getElementById(`modal-${baseId}`);
+            modal.classList.remove('active');
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal')) {
+                e.target.classList.remove('active');
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal').forEach(modal => {
+                    modal.classList.remove('active');
+                });
+            }
+        });
+    </script>
+</body>
+</html>

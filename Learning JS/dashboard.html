@@ -538,67 +538,69 @@
             }
         };
 
-        // Initialize dashboard
+        // Initialize dashboard - OPTIMIZED FOR SPEED
         async function initializeDashboard() {
-            // FIREBASE IS SOURCE OF TRUTH - localStorage is only backup
-            if (userUID) {
-                try {
-                    const userDataRef = ref(database, `colony-data/${userUID}`);
-                    const snapshot = await get(userDataRef);
+            // Show loading state immediately
+            updateResourceDisplays(); // Show defaults quickly
 
-                    if (snapshot.exists()) {
-                        const firebaseData = snapshot.val();
-                        colonyData = {
-                            lunaris: firebaseData.lunaris || 0,
-                            oxygen: firebaseData.oxygen || 100,
-                            hydroponics: firebaseData.hydroponics || 100,
-                            energy: firebaseData.energy || 100,
-                            streak: firebaseData.streak || 0,
-                            lastCheckIn: firebaseData.lastCheckIn || null,
-                            tasks: firebaseData.tasks || [],
-                            completedToday: firebaseData.completedToday || [],
-                            failedTasks: firebaseData.failedTasks || []
-                        };
-                        console.log('✅ Loaded colony data from Firebase (source of truth):', colonyData);
-
-                        // Clear localStorage to prevent conflicts
-                        localStorage.removeItem('colonyData');
-                    } else {
-                        console.log('No Firebase data found, using defaults');
-                    }
-                } catch (error) {
-                    console.error('Error loading from Firebase:', error);
-                }
-            } else {
+            if (!userUID) {
                 console.log('No user authenticated - cannot load data');
+                return;
             }
 
+            try {
+                // PARALLEL LOADING: Fetch all Firebase data at once
+                const [colonySnapshot, progressSnapshot] = await Promise.all([
+                    get(ref(database, `colony-data/${userUID}`)),
+                    get(ref(database, `user-progress/${userUID}`))
+                ]);
+
+                // Load colony data
+                if (colonySnapshot.exists()) {
+                    const firebaseData = colonySnapshot.val();
+                    colonyData = {
+                        lunaris: firebaseData.lunaris || 0,
+                        oxygen: firebaseData.oxygen || 100,
+                        hydroponics: firebaseData.hydroponics || 100,
+                        energy: firebaseData.energy || 100,
+                        streak: firebaseData.streak || 0,
+                        lastCheckIn: firebaseData.lastCheckIn || null,
+                        tasks: firebaseData.tasks || [],
+                        completedToday: firebaseData.completedToday || [],
+                        failedTasks: firebaseData.failedTasks || []
+                    };
+
+                    // Clear localStorage to prevent conflicts
+                    localStorage.removeItem('colonyData');
+                }
+
+                // Track daily login silently (no popup)
+                await trackDailyLoginSilent(progressSnapshot);
+
+            } catch (error) {
+                console.error('Error loading from Firebase:', error);
+            }
+
+            // Update UI
             checkAndUpdateStreak();
             updateResourceDisplays();
             checkDailyCheckInStatus();
             renderTasks();
-
-            // Track daily login and award XP
-            await trackDailyLogin();
-
-            // Check and apply energy replenishment
             replenishEnergy();
 
             // Set up hourly energy replenishment
-            setInterval(replenishEnergy, 3600000); // Every hour (3600000ms)
+            setInterval(replenishEnergy, 3600000);
         }
 
         // ============================================
-        // XP & LOGIN TRACKING SYSTEM
+        // XP & LOGIN TRACKING SYSTEM - OPTIMIZED
         // ============================================
 
-        async function trackDailyLogin() {
+        // Silent login tracker - no modal popup, uses pre-loaded data
+        async function trackDailyLoginSilent(progressSnapshot) {
             if (!userUID) return;
 
             try {
-                const progressRef = ref(database, `user-progress/${userUID}`);
-                const snapshot = await get(progressRef);
-
                 const today = new Date().toDateString();
                 let progressData = {
                     totalXP: 0,
@@ -607,13 +609,13 @@
                     lastLoginDate: null
                 };
 
-                if (snapshot.exists()) {
-                    progressData = snapshot.val();
+                if (progressSnapshot && progressSnapshot.exists()) {
+                    progressData = progressSnapshot.val();
                 }
 
                 // Check if already logged in today
                 if (progressData.lastLoginDate === today) {
-                    console.log('Already logged in today');
+                    console.log('✅ Already logged in today');
                     return;
                 }
 
@@ -628,11 +630,13 @@
                 progressData.totalXP = (progressData.totalXP || 0) + dailyLoginXP;
                 progressData.lastLoginDate = today;
 
-                // Save to Firebase
-                await set(progressRef, progressData);
+                // Save to Firebase (async, non-blocking)
+                const progressRef = ref(database, `user-progress/${userUID}`);
+                set(progressRef, progressData).catch(error => {
+                    console.error('Error saving login:', error);
+                });
 
-                console.log(`✅ Daily login tracked! +${dailyLoginXP} XP awarded`);
-                showModal('success', '🎉 Daily Login!', `Welcome back, Colonist!\n\n+${dailyLoginXP} XP earned for logging in today!`);
+                console.log(`✅ Daily login tracked silently! +${dailyLoginXP} XP`);
             } catch (error) {
                 console.error('Error tracking daily login:', error);
             }
@@ -787,37 +791,19 @@
         async function performDailyCheckIn(priorityResource) {
             const today = new Date().toDateString();
 
-            // SERVER-SIDE VALIDATION: Check Firebase to prevent double check-in
-            if (userUID) {
-                try {
-                    const userDataRef = ref(database, `colony-data/${userUID}`);
-                    const snapshot = await get(userDataRef);
-
-                    if (snapshot.exists()) {
-                        const savedData = snapshot.val();
-                        if (savedData.lastCheckIn === today) {
-                            showModal('error', '❌ Already Checked In', 'You have already completed your daily check-in today!\n\nCome back tomorrow for your next check-in.');
-                            checkInOptions.style.display = 'none';
-                            checkInStatus.style.display = 'block';
-                            dailyCheckInBtn.disabled = true;
-                            dailyCheckInBtn.textContent = '✅ Daily Check-In Complete';
-                            return; // Prevent double check-in
-                        }
-                    }
-                } catch (error) {
-                    console.error('Error validating check-in:', error);
-                    showModal('error', '❌ Validation Error', 'Could not verify check-in status. Please try again.');
-                    return;
-                }
+            // OPTIMIZED: Check local data first (fast), then validate with Firebase
+            if (colonyData.lastCheckIn === today) {
+                showModal('error', '❌ Already Checked In', 'You have already completed your daily check-in today!\n\nCome back tomorrow for your next check-in.');
+                checkInOptions.style.display = 'none';
+                checkInStatus.style.display = 'block';
+                dailyCheckInBtn.disabled = true;
+                dailyCheckInBtn.textContent = '✅ Daily Check-In Complete';
+                return;
             }
 
+            // Update UI immediately for snappy response
             colonyData.lastCheckIn = today;
-
             let bonus = 50;
-
-            // Award XP for daily check-in
-            const checkInXP = 15;
-            await awardXP(checkInXP, 'daily check-in');
 
             if (currentRole && currentRole.perks.dailyBonus) {
                 if (currentRole.perks.dailyBonus === 'oxygen' && priorityResource === 'oxygen') {
@@ -839,14 +825,22 @@
                 colonyData.energy = Math.min(100, colonyData.energy + 5);
             }
 
-            saveColonyData();
+            // Update UI instantly
             updateResourceDisplays();
-
             checkInOptions.style.display = 'none';
             checkInStatus.style.display = 'block';
             dailyCheckInBtn.disabled = true;
             dailyCheckInBtn.textContent = '✅ Daily Check-In Complete';
             checkInMessage.innerHTML = `<span style="color: #FFCC00; font-weight: bold;">+${bonus} Lunaris earned!</span><br>Priority resource boosted. Great work, colonist!`;
+
+            // Save to Firebase in background (non-blocking)
+            const checkInXP = 15;
+            Promise.all([
+                awardXP(checkInXP, 'daily check-in'),
+                saveColonyData()
+            ]).catch(error => {
+                console.error('Error saving check-in:', error);
+            });
         }
 
         // Streak tracking

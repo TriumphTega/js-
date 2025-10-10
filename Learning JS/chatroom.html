@@ -97,20 +97,43 @@
         let messageListener = null;
 
         // ============================================
+        // LOAD CUSTOM DISPLAY NAME FROM FIREBASE
+        // ============================================
+
+        async function loadCustomDisplayName(userId) {
+            try {
+                const userProfileRef = ref(database, `user-profiles/${userId}`);
+                const snapshot = await get(userProfileRef);
+
+                if (snapshot.exists() && snapshot.val().displayName) {
+                    console.log('✅ Loaded custom display name:', snapshot.val().displayName);
+                    return snapshot.val().displayName;
+                }
+            } catch (error) {
+                console.error('Error loading custom display name:', error);
+            }
+            return null;
+        }
+
+        // ============================================
         // AUTH & USER SETUP
         // ============================================
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUser = user;
-                currentUserName = user.displayName || user.email.split('@')[0];
 
-                // Check for custom display name
-                const savedUser = localStorage.getItem('currentUser');
-                if (savedUser) {
-                    const userData = JSON.parse(savedUser);
-                    if (userData.displayName) {
-                        currentUserName = userData.displayName;
+                // Load custom display name from Firebase first
+                const customName = await loadCustomDisplayName(user.uid);
+                currentUserName = customName || user.displayName || user.email.split('@')[0];
+
+                // Update localStorage with custom name if found
+                if (customName) {
+                    const savedUser = localStorage.getItem('currentUser');
+                    if (savedUser) {
+                        const userData = JSON.parse(savedUser);
+                        userData.displayName = customName;
+                        localStorage.setItem('currentUser', JSON.stringify(userData));
                     }
                 }
 

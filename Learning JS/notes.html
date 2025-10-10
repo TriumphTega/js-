@@ -1002,11 +1002,33 @@
                 const remaining = focusDuration - elapsed;
 
                 if (remaining <= 0) {
-                    completeFocusMode(true);
+                    showTimerCompleteDialog();
                 } else {
                     updateFocusDisplay();
                 }
             }, 1000);
+        }
+
+        function showTimerCompleteDialog() {
+            clearInterval(focusTimer);
+
+            const keepWriting = confirm('⏱️ Timer Complete!\n\nYour focus session is done!\n\n✅ Click OK to KEEP WRITING and save when ready\n❌ Click Cancel to SAVE & RETURN to dashboard');
+
+            if (keepWriting) {
+                // User wants to keep writing - disable focus mode restrictions but keep them in editor
+                focusModeActive = false;
+                document.removeEventListener('visibilitychange', handleFocusVisibilityChange);
+                window.removeEventListener('beforeunload', handleFocusBeforeUnload);
+
+                // Hide focus banner
+                document.getElementById('focus-mode-banner').classList.remove('active');
+                document.body.classList.remove('focus-mode-active');
+
+                alert('✍️ Great work! Keep writing. Your notes will auto-save when you click the Save button.');
+            } else {
+                // User wants to save and return
+                completeFocusMode(true);
+            }
         }
 
         function updateFocusDisplay() {

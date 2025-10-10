@@ -200,6 +200,13 @@
                             <button id="copyAddressBtn" class="icon-btn" title="Copy Address">📋</button>
                         </div>
                     </div>
+
+                    <!-- Generate Wallet Button (shown only if no wallet exists) -->
+                    <div id="generateWalletSection" style="display: none; margin-top: 15px; padding: 15px; background: rgba(255, 204, 0, 0.1); border-radius: 8px; border: 2px solid rgba(255, 204, 0, 0.3);">
+                        <p style="color: #FFCC00; margin-bottom: 10px; text-align: center;">⚠️ No Solana wallet found for your account</p>
+                        <button id="generateWalletBtn" class="confirm-btn" style="width: 100%;">🔑 Generate Solana Wallet</button>
+                        <p style="color: rgba(255, 255, 255, 0.7); font-size: 0.85rem; margin-top: 10px; text-align: center;">This will create a new Solana address for receiving tokens</p>
+                    </div>
                 </div>
 
                 <!-- Balance Section -->
@@ -533,7 +540,7 @@
 
         // Initialize dashboard
         async function initializeDashboard() {
-            // Try to load from Firebase first if user is authenticated
+            // FIREBASE IS SOURCE OF TRUTH - localStorage is only backup
             if (userUID) {
                 try {
                     const userDataRef = ref(database, `colony-data/${userUID}`);
@@ -552,24 +559,18 @@
                             completedToday: firebaseData.completedToday || [],
                             failedTasks: firebaseData.failedTasks || []
                         };
-                        console.log('Loaded colony data from Firebase:', colonyData);
+                        console.log('✅ Loaded colony data from Firebase (source of truth):', colonyData);
+
+                        // Clear localStorage to prevent conflicts
+                        localStorage.removeItem('colonyData');
                     } else {
                         console.log('No Firebase data found, using defaults');
                     }
                 } catch (error) {
                     console.error('Error loading from Firebase:', error);
-                    // Fallback to localStorage
-                    const savedData = localStorage.getItem('colonyData');
-                    if (savedData) {
-                        colonyData = JSON.parse(savedData);
-                    }
                 }
             } else {
-                // No user authenticated, use localStorage
-                const savedData = localStorage.getItem('colonyData');
-                if (savedData) {
-                    colonyData = JSON.parse(savedData);
-                }
+                console.log('No user authenticated - cannot load data');
             }
 
             checkAndUpdateStreak();
@@ -785,6 +786,31 @@
 
         async function performDailyCheckIn(priorityResource) {
             const today = new Date().toDateString();
+
+            // SERVER-SIDE VALIDATION: Check Firebase to prevent double check-in
+            if (userUID) {
+                try {
+                    const userDataRef = ref(database, `colony-data/${userUID}`);
+                    const snapshot = await get(userDataRef);
+
+                    if (snapshot.exists()) {
+                        const savedData = snapshot.val();
+                        if (savedData.lastCheckIn === today) {
+                            showModal('error', '❌ Already Checked In', 'You have already completed your daily check-in today!\n\nCome back tomorrow for your next check-in.');
+                            checkInOptions.style.display = 'none';
+                            checkInStatus.style.display = 'block';
+                            dailyCheckInBtn.disabled = true;
+                            dailyCheckInBtn.textContent = '✅ Daily Check-In Complete';
+                            return; // Prevent double check-in
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error validating check-in:', error);
+                    showModal('error', '❌ Validation Error', 'Could not verify check-in status. Please try again.');
+                    return;
+                }
+            }
+
             colonyData.lastCheckIn = today;
 
             let bonus = 50;
@@ -1151,6 +1177,30 @@
         }
 
         async function saveColonyData() {
+            // ANTI-CHEAT VALIDATION: Enforce valid ranges
+            // Prevent negative Lunaris
+            colonyData.lunaris = Math.max(0, colonyData.lunaris);
+
+            // Prevent resources from exceeding 100% or going negative
+            colonyData.oxygen = Math.max(0, Math.min(100, colonyData.oxygen));
+            colonyData.hydroponics = Math.max(0, Math.min(100, colonyData.hydroponics));
+            colonyData.energy = Math.max(0, Math.min(100, colonyData.energy));
+
+            // Prevent negative streak
+            colonyData.streak = Math.max(0, colonyData.streak);
+
+            // Ensure arrays exist
+            colonyData.tasks = colonyData.tasks || [];
+            colonyData.completedToday = colonyData.completedToday || [];
+            colonyData.failedTasks = colonyData.failedTasks || [];
+
+            console.log('✅ Data validated - ranges enforced:', {
+                lunaris: colonyData.lunaris,
+                oxygen: colonyData.oxygen,
+                hydroponics: colonyData.hydroponics,
+                energy: colonyData.energy
+            });
+
             // Save to localStorage as backup
             localStorage.setItem('colonyData', JSON.stringify(colonyData));
 
@@ -1165,9 +1215,9 @@
                         energy: colonyData.energy,
                         streak: colonyData.streak,
                         lastCheckIn: colonyData.lastCheckIn,
-                        tasks: colonyData.tasks || [],
-                        completedToday: colonyData.completedToday || [],
-                        failedTasks: colonyData.failedTasks || [],
+                        tasks: colonyData.tasks,
+                        completedToday: colonyData.completedToday,
+                        failedTasks: colonyData.failedTasks,
                         lastUpdated: Date.now()
                     });
                     console.log('Data saved to Firebase successfully');
@@ -1235,6 +1285,9 @@
                         document.getElementById('walletAddressDisplay').textContent = shortAddress;
                         document.getElementById('receiveAddressDisplay').textContent = userWalletAddress;
 
+                        // Hide generate button
+                        document.getElementById('generateWalletSection').style.display = 'none';
+
                         // Fetch balance
                         await fetchBalance();
 
@@ -1242,13 +1295,72 @@
                         generateQRCode(userWalletAddress);
                     } else {
                         document.getElementById('walletAddressDisplay').textContent = 'No wallet found';
-                        document.getElementById('receiveAddressDisplay').textContent = 'No wallet found';
+                        document.getElementById('receiveAddressDisplay').textContent = 'Click below to generate';
+
+                        // Show generate button
+                        document.getElementById('generateWalletSection').style.display = 'block';
                     }
                 }
             } catch (error) {
                 console.error('Error loading wallet data:', error);
             }
         }
+
+        // Generate Solana wallet
+        document.getElementById('generateWalletBtn').addEventListener('click', async () => {
+            try {
+                const userData = JSON.parse(localStorage.getItem('currentUser'));
+                if (!userData || !userData.uid) {
+                    showModal('error', '❌ Error', 'User ID not found. Please sign out and sign in again.');
+                    return;
+                }
+
+                const userId = userData.uid;
+
+                showModal('info', '⏳ Generating...', 'Creating your Solana wallet address...');
+
+                // Check if wallet already exists in Firebase
+                const walletRef = ref(database, `user-wallets/${userId}`);
+                const snapshot = await get(walletRef);
+
+                let walletData;
+
+                if (snapshot.exists()) {
+                    // Wallet exists in Firebase, use it
+                    walletData = snapshot.val();
+                    console.log('Wallet already exists in Firebase, using existing wallet');
+                } else {
+                    // Create new Solana wallet
+                    const keypair = solanaWeb3.Keypair.generate();
+                    const walletAddress = keypair.publicKey.toString();
+                    const privateKey = Buffer.from(keypair.secretKey).toString('base64');
+
+                    walletData = {
+                        address: walletAddress,
+                        privateKey: privateKey, // IMPORTANT: In production, encrypt this!
+                        createdAt: Date.now(),
+                        type: 'generated'
+                    };
+
+                    // Store wallet in Firebase
+                    await set(walletRef, walletData);
+                    console.log('✅ New wallet created and saved to Firebase');
+                }
+
+                // Update localStorage
+                userData.solanaWallet = walletData.address;
+                localStorage.setItem('currentUser', JSON.stringify(userData));
+
+                // Reload wallet display
+                await loadWalletData();
+
+                showModal('success', '✅ Success!', `Wallet generated successfully!\n\nAddress: ${walletData.address.substring(0, 6)}...${walletData.address.substring(38)}\n\nYou can now receive SOL and tokens!`);
+
+            } catch (error) {
+                console.error('Error generating wallet:', error);
+                showModal('error', '❌ Generation Failed', `Failed to generate wallet: ${error.message}`);
+            }
+        });
 
         // Fetch SOL balance
         async function fetchBalance() {

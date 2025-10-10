@@ -1,0 +1,58 @@
+================================================================================
+FIREBASE FIRESTORE SECURITY RULES FOR LUNARIS
+================================================================================
+
+IMPORTANT: You need to apply these rules in the Firebase Console to fix the
+"Missing or insufficient permissions" error when saving notes.
+
+HOW TO APPLY THESE RULES:
+1. Go to https://console.firebase.google.com
+2. Select your project: "lunaris-45d84"
+3. Click "Firestore Database" in the left menu
+4. Click the "Rules" tab at the top
+5. Replace ALL existing rules with the rules below
+6. Click "Publish"
+
+================================================================================
+COPY THE RULES BELOW:
+================================================================================
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Notes collection - users can only read/write their own notes
+    match /notes/{noteId} {
+      allow read: if request.auth != null &&
+                     resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null &&
+                       request.resource.data.userId == request.auth.uid;
+      allow update, delete: if request.auth != null &&
+                               resource.data.userId == request.auth.uid;
+    }
+
+    // Default: deny all other access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
+
+================================================================================
+WHAT THESE RULES DO:
+================================================================================
+
+✅ Users can only read their own notes (where userId matches their auth.uid)
+✅ Users can only create notes with their own userId
+✅ Users can only update/delete their own notes
+❌ All other database access is denied by default (security)
+
+================================================================================
+AFTER APPLYING:
+================================================================================
+
+1. Wait 1-2 minutes for rules to propagate
+2. Try saving a note again
+3. The error should be gone!
+
+================================================================================

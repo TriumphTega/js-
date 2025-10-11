@@ -538,16 +538,47 @@
             }
         };
 
-        // Initialize dashboard - OPTIMIZED FOR SPEED
+        // Initialize dashboard - SUPER OPTIMIZED FOR INSTANT LOAD
         async function initializeDashboard() {
-            // Show loading state immediately
-            updateResourceDisplays(); // Show defaults quickly
+            // INSTANT UI: Show cached data immediately (no waiting!)
+            loadCachedDataInstantly();
+            updateResourceDisplays();
+            checkDailyCheckInStatus();
+            renderTasks();
 
             if (!userUID) {
                 console.log('No user authenticated - cannot load data');
                 return;
             }
 
+            // Background refresh: Update from Firebase without blocking UI
+            refreshFromFirebase();
+
+            // Set up hourly energy replenishment
+            setInterval(replenishEnergy, 3600000);
+        }
+
+        // Load cached data instantly (synchronous, no await)
+        function loadCachedDataInstantly() {
+            try {
+                const cached = localStorage.getItem('colonyData');
+                if (cached) {
+                    const parsedData = JSON.parse(cached);
+                    // Only use cache if it's less than 10 seconds old
+                    const now = Date.now();
+                    if (parsedData._cacheTime && (now - parsedData._cacheTime < 10000)) {
+                        colonyData = parsedData;
+                        console.log('⚡ Instant load from cache');
+                        return;
+                    }
+                }
+            } catch (error) {
+                console.error('Cache load error:', error);
+            }
+        }
+
+        // Refresh from Firebase in background
+        async function refreshFromFirebase() {
             try {
                 // PARALLEL LOADING: Fetch all Firebase data at once
                 const [colonySnapshot, progressSnapshot] = await Promise.all([
@@ -570,7 +601,12 @@
                         failedTasks: firebaseData.failedTasks || []
                     };
 
-                    console.log('✅ Colony data loaded from Firebase:', colonyData);
+                    console.log('✅ Refreshed from Firebase:', colonyData);
+
+                    // Update UI with fresh data
+                    updateResourceDisplays();
+                    renderTasks();
+                    checkDailyCheckInStatus();
                 } else {
                     console.log('⚠️ No colony data in Firebase, using defaults');
                 }
@@ -578,19 +614,13 @@
                 // Track daily login silently (no popup)
                 await trackDailyLoginSilent(progressSnapshot);
 
+                // Update replenish
+                replenishEnergy();
+                checkAndUpdateStreak();
+
             } catch (error) {
-                console.error('Error loading from Firebase:', error);
+                console.error('Error refreshing from Firebase:', error);
             }
-
-            // Update UI
-            checkAndUpdateStreak();
-            updateResourceDisplays();
-            checkDailyCheckInStatus();
-            renderTasks();
-            replenishEnergy();
-
-            // Set up hourly energy replenishment
-            setInterval(replenishEnergy, 3600000);
         }
 
         // ============================================
@@ -1205,7 +1235,14 @@
                 energy: colonyData.energy
             });
 
-            // Save to Firebase if user is authenticated (PRIMARY source)
+            // INSTANT CACHE: Save to localStorage immediately (instant feedback)
+            const cachedData = {
+                ...colonyData,
+                _cacheTime: Date.now() // Add timestamp for cache validation
+            };
+            localStorage.setItem('colonyData', JSON.stringify(cachedData));
+
+            // Save to Firebase if user is authenticated (PRIMARY source) - in background
             if (userUID) {
                 try {
                     const userDataRef = ref(database, `colony-data/${userUID}`);
@@ -1224,12 +1261,7 @@
                     console.log('✅ Data saved to Firebase successfully');
                 } catch (error) {
                     console.error('❌ Firebase save error:', error);
-                    // Only fall back to localStorage if Firebase fails
-                    localStorage.setItem('colonyData', JSON.stringify(colonyData));
                 }
-            } else {
-                // No user - save to localStorage only
-                localStorage.setItem('colonyData', JSON.stringify(colonyData));
             }
         }
 

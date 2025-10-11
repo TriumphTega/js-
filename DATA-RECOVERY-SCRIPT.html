@@ -57,21 +57,21 @@
 <body>
     <h1>🔍 Lunaris Data Recovery Tool</h1>
 
-    <div class="section">
+    <div className=ttt>
         <h2>Step 1: Check Your Current User ID</h2>
         <p>Click this button to see your current user ID (UID):</p>
         <button onclick="checkUserId()">Show My User ID</button>
         <div id="userIdOutput" style="margin-top: 10px;"></div>
     </div>
 
-    <div class="section">
+    <div className=ttt>
         <h2>Step 2: Search All Data in Firebase</h2>
         <p>This will search ALL user data paths in your Firebase to find your lunaris:</p>
         <button onclick="searchAllData()">🔎 Search All Data</button>
         <div id="searchOutput" style="margin-top: 10px;"></div>
     </div>
 
-    <div class="section">
+    <div className=ttt>
         <h2>Step 3: Load Specific User Data</h2>
         <p>Enter a user ID to check its data:</p>
         <input type="text" id="manualUserId" placeholder="Paste user ID here" style="width: 100%; padding: 10px; margin-bottom: 10px;">
@@ -79,14 +79,14 @@
         <div id="specificOutput" style="margin-top: 10px;"></div>
     </div>
 
-    <div class="section">
+    <div className=ttt>
         <h2>Step 4: Full Database Export</h2>
-        <p class="warning">⚠️ This will show ALL user data in your database (for debugging)</p>
+        <p className=nin>⚠️ This will show ALL user data in your database (for debugging)</p>
         <button onclick="exportAllData()">Export Full Database</button>
         <div id="exportOutput" style="margin-top: 10px;"></div>
     </div>
 
-    <div class="section">
+    <div className=ttt>
         <h2>Recovery Output</h2>
         <div id="output">Waiting for action...</div>
     </div>
@@ -116,10 +116,10 @@
         onAuthStateChanged(auth, (user) => {
             currentUser = user;
             if (user) {
-                log(`<span class="success">✅ Signed in as: ${user.email}</span>`, 'output');
-                log(`<span class="info">User ID: ${user.uid}</span>`, 'output');
+                log(`<span className=class="succ>✅ Signed in as: ${user.email}</span>`, 'output');
+                log(`<span className=ooo>User ID: ${user.uid}</span>`, 'output');
             } else {
-                log(`<span class="warning">⚠️ Not signed in! Sign in first.</span>`, 'output');
+                log(`<span className=nin>⚠️ Not signed in! Sign in first.</span>`, 'output');
             }
         });
 
@@ -141,13 +141,13 @@
                     </div>
                 `;
             } else {
-                output.innerHTML = '<span class="warning">⚠️ Please sign in first!</span>';
+                output.innerHTML = '<span className=nin>⚠️ Please sign in first!</span>';
             }
         };
 
         window.searchAllData = async function() {
             const searchOutput = document.getElementById('searchOutput');
-            searchOutput.innerHTML = '<span class="info">🔍 Searching all data paths...</span>';
+            searchOutput.innerHTML = '<span className=ooo>🔍 Searching all data paths...</span>';
 
             log('\n=== SEARCHING ALL DATA ===', 'output');
 
@@ -170,30 +170,30 @@
                                     lunaris: userData.lunaris,
                                     data: userData
                                 });
-                                log(`<span class="success">✅ FOUND: ${path}/${userId} - Lunaris: ${userData.lunaris}</span>`, 'output');
+                                log(`<span className=class="succ>✅ FOUND: ${path}/${userId} - Lunaris: ${userData.lunaris}</span>`, 'output');
                             }
                         });
                     } else {
-                        log(`<span class="warning">⚠️ No data in ${path}</span>`, 'output');
+                        log(`<span className=nin>⚠️ No data in ${path}</span>`, 'output');
                     }
                 } catch (error) {
-                    log(`<span class="warning">❌ Error reading ${path}: ${error.message}</span>`, 'output');
+                    log(`<span className=nin>❌ Error reading ${path}: ${error.message}</span>`, 'output');
                 }
             }
 
             if (foundData.length > 0) {
                 searchOutput.innerHTML = `
                     <div style="background: rgba(81, 207, 102, 0.2); padding: 10px; border-radius: 5px; margin-top: 10px;">
-                        <strong class="success">✅ Found ${foundData.length} data entries with Lunaris!</strong><br>
+                        <strong className=class="succ>✅ Found ${foundData.length} data entries with Lunaris!</strong><br>
                         Check the output below for details.
                     </div>
                 `;
-                log(`\n<span class="success">========================================</span>`, 'output');
-                log(`<span class="success">TOTAL FOUND: ${foundData.length} entries with Lunaris data</span>`, 'output');
-                log(`<span class="success">========================================</span>`, 'output');
+                log(`\n<span className=class="succ>========================================</span>`, 'output');
+                log(`<span className=class="succ>TOTAL FOUND: ${foundData.length} entries with Lunaris data</span>`, 'output');
+                log(`<span className=class="succ>========================================</span>`, 'output');
             } else {
-                searchOutput.innerHTML = '<span class="warning">⚠️ No lunaris data found in database!</span>';
-                log(`\n<span class="warning">❌ NO LUNARIS DATA FOUND IN ANY PATH</span>`, 'output');
+                searchOutput.innerHTML = '<span className=nin>⚠️ No lunaris data found in database!</span>';
+                log(`\n<span className=nin>❌ NO LUNARIS DATA FOUND IN ANY PATH</span>`, 'output');
             }
         };
 
@@ -202,11 +202,11 @@
             const output = document.getElementById('specificOutput');
 
             if (!userId) {
-                output.innerHTML = '<span class="warning">⚠️ Please enter a user ID first!</span>';
+                output.innerHTML = '<span className=nin>⚠️ Please enter a user ID first!</span>';
                 return;
             }
 
-            output.innerHTML = '<span class="info">🔍 Loading data...</span>';
+            output.innerHTML = '<span className=ooo>🔍 Loading data...</span>';
             log(`\n=== LOADING USER: ${userId} ===`, 'output');
 
             try {
@@ -217,10 +217,10 @@
                 log(`\ncolony-data/${userId}:`, 'output');
                 if (colonySnap.exists()) {
                     const data = colonySnap.val();
-                    log(`<span class="success">✅ FOUND!</span>`, 'output');
+                    log(`<span className=class="succ>✅ FOUND!</span>`, 'output');
                     log(JSON.stringify(data, null, 2), 'output');
                 } else {
-                    log(`<span class="warning">⚠️ Not found</span>`, 'output');
+                    log(`<span className=nin>⚠️ Not found</span>`, 'output');
                 }
 
                 // Check user-progress
@@ -230,22 +230,22 @@
                 log(`\nuser-progress/${userId}:`, 'output');
                 if (progressSnap.exists()) {
                     const data = progressSnap.val();
-                    log(`<span class="success">✅ FOUND!</span>`, 'output');
+                    log(`<span className=class="succ>✅ FOUND!</span>`, 'output');
                     log(JSON.stringify(data, null, 2), 'output');
                 } else {
-                    log(`<span class="warning">⚠️ Not found</span>`, 'output');
+                    log(`<span className=nin>⚠️ Not found</span>`, 'output');
                 }
 
-                output.innerHTML = '<span class="success">✅ Check output below for results</span>';
+                output.innerHTML = '<span className=class="succ>✅ Check output below for results</span>';
             } catch (error) {
-                log(`<span class="warning">❌ Error: ${error.message}</span>`, 'output');
-                output.innerHTML = `<span class="warning">❌ Error: ${error.message}</span>`;
+                log(`<span className=nin>❌ Error: ${error.message}</span>`, 'output');
+                output.innerHTML = `<span className=nin>❌ Error: ${error.message}</span>`;
             }
         };
 
         window.exportAllData = async function() {
             const output = document.getElementById('exportOutput');
-            output.innerHTML = '<span class="info">📦 Exporting all data...</span>';
+            output.innerHTML = '<span className=ooo>📦 Exporting all data...</span>';
 
             log(`\n=== FULL DATABASE EXPORT ===`, 'output');
 
@@ -256,14 +256,14 @@
                 if (snapshot.exists()) {
                     const allData = snapshot.val();
                     log(JSON.stringify(allData, null, 2), 'output');
-                    output.innerHTML = '<span class="success">✅ Data exported to output below</span>';
+                    output.innerHTML = '<span className=class="succ>✅ Data exported to output below</span>';
                 } else {
-                    log(`<span class="warning">⚠️ Database is empty!</span>`, 'output');
-                    output.innerHTML = '<span class="warning">⚠️ Database is empty!</span>';
+                    log(`<span className=nin>⚠️ Database is empty!</span>`, 'output');
+                    output.innerHTML = '<span className=nin>⚠️ Database is empty!</span>';
                 }
             } catch (error) {
-                log(`<span class="warning">❌ Error: ${error.message}</span>`, 'output');
-                output.innerHTML = `<span class="warning">❌ Error: ${error.message}</span>`;
+                log(`<span className=nin>❌ Error: ${error.message}</span>`, 'output');
+                output.innerHTML = `<span className=nin>❌ Error: ${error.message}</span>`;
             }
         };
     </script>

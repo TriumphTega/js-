@@ -598,11 +598,36 @@
             { level: 75, days: 180, name: 'Olympus Summit', unlocked: false }
         ];
 
+        // NEW: Load XP data from cache instantly (synchronous)
+        function loadXPCacheInstantly() {
+            try {
+                const cached = localStorage.getItem('xpProgressData');
+                if (cached) {
+                    const parsedData = JSON.parse(cached);
+                    const now = Date.now();
+
+                    // Check if cache is fresh (less than 10 seconds old)
+                    if (parsedData._cacheTime && (now - parsedData._cacheTime < 10000)) {
+                        console.log('⚡ XP loaded instantly from cache');
+                        updateXPDisplay(parsedData);
+                        return true;
+                    }
+                }
+            } catch (error) {
+                console.error('Cache load error:', error);
+            }
+            return false;
+        }
+
         async function loadXPProgress() {
             try {
                 const userId = authenticatedUser?.uid || currentUser?.uid || currentUser?.walletAddress;
                 if (!userId) return;
 
+                // First, try instant cache load
+                const cacheLoaded = loadXPCacheInstantly();
+
+                // Then refresh from Firebase in background
                 const progressRef = ref(database, `user-progress/${userId}`);
                 const snapshot = await get(progressRef);
 
@@ -614,9 +639,24 @@
 
                 if (snapshot.exists()) {
                     xpData = snapshot.val();
+                } else if (!cacheLoaded) {
+                    // Only show default if no cache was available
+                    updateXPDisplay(xpData);
+                    return;
                 }
 
+                // Add cache timestamp
+                xpData._cacheTime = Date.now();
+
+                // Save to cache
+                localStorage.setItem('xpProgressData', JSON.stringify(xpData));
+
+                // Update display with fresh data
                 updateXPDisplay(xpData);
+
+                if (cacheLoaded) {
+                    console.log('🔄 XP refreshed from Firebase in background');
+                }
             } catch (error) {
                 console.error('Error loading XP progress:', error);
             }

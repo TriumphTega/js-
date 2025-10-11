@@ -736,6 +736,11 @@
 
                 // Check if user has a role saved in Firebase
                 await loadUserRoleFromFirebase(user.uid);
+
+                // ALWAYS reload XP progress when auth state changes
+                if (currentRole) {
+                    await loadXPProgress();
+                }
             } else {
                 // Check for wallet users (not Google auth)
                 const savedUser = localStorage.getItem('currentUser');
@@ -747,6 +752,11 @@
                         await checkAdminStatusByUserId(userData.uid || userData.walletAddress);
                         // Check for saved role
                         await loadUserRoleFromFirebase(userData.uid || userData.walletAddress);
+
+                        // ALWAYS reload XP progress for wallet users too
+                        if (currentRole) {
+                            await loadXPProgress();
+                        }
                     }
                 }
             }

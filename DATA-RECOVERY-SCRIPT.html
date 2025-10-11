@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lunaris Data Recovery Tool</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1e5128;
+            color: white;
+            padding: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .section {
+            background: rgba(0,0,0,0.3);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 2px solid #FFCC00;
+        }
+        button {
+            background: #FFCC00;
+            color: #1e5128;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #e6b800;
+        }
+        #output {
+            background: rgba(0,0,0,0.5);
+            padding: 15px;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            font-size: 14px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .warning {
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+        .success {
+            color: #51cf66;
+            font-weight: bold;
+        }
+        .info {
+            color: #74c0fc;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Lunaris Data Recovery Tool</h1>
+
+    <div class="section">
+        <h2>Step 1: Check Your Current User ID</h2>
+        <p>Click this button to see your current user ID (UID):</p>
+        <button onclick="checkUserId()">Show My User ID</button>
+        <div id="userIdOutput" style="margin-top: 10px;"></div>
+    </div>
+
+    <div class="section">
+        <h2>Step 2: Search All Data in Firebase</h2>
+        <p>This will search ALL user data paths in your Firebase to find your lunaris:</p>
+        <button onclick="searchAllData()">🔎 Search All Data</button>
+        <div id="searchOutput" style="margin-top: 10px;"></div>
+    </div>
+
+    <div class="section">
+        <h2>Step 3: Load Specific User Data</h2>
+        <p>Enter a user ID to check its data:</p>
+        <input type="text" id="manualUserId" placeholder="Paste user ID here" style="width: 100%; padding: 10px; margin-bottom: 10px;">
+        <button onclick="loadSpecificUser()">Load This User's Data</button>
+        <div id="specificOutput" style="margin-top: 10px;"></div>
+    </div>
+
+    <div class="section">
+        <h2>Step 4: Full Database Export</h2>
+        <p class="warning">⚠️ This will show ALL user data in your database (for debugging)</p>
+        <button onclick="exportAllData()">Export Full Database</button>
+        <div id="exportOutput" style="margin-top: 10px;"></div>
+    </div>
+
+    <div class="section">
+        <h2>Recovery Output</h2>
+        <div id="output">Waiting for action...</div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getDatabase, ref, get } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyClPgII54QDvJB3kiV1dWbqm1et_lHasvs",
+            authDomain: "lunaris-45d84.firebaseapp.com",
+            projectId: "lunaris-45d84",
+            storageBucket: "lunaris-45d84.firebasestorage.app",
+            messagingSenderId: "74359858445",
+            appId: "1:74359858445:web:37772cebcbb0d71d707c44",
+            measurementId: "G-ETRK2NL1N2",
+            databaseURL: "https://lunaris-45d84-default-rtdb.firebaseio.com"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+
+        let currentUser = null;
+
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            if (user) {
+                log(`<span class="success">✅ Signed in as: ${user.email}</span>`, 'output');
+                log(`<span class="info">User ID: ${user.uid}</span>`, 'output');
+            } else {
+                log(`<span class="warning">⚠️ Not signed in! Sign in first.</span>`, 'output');
+            }
+        });
+
+        function log(message, elementId = 'output') {
+            const el = document.getElementById(elementId);
+            el.innerHTML += message + '\n';
+            el.scrollTop = el.scrollHeight;
+        }
+
+        window.checkUserId = function() {
+            const output = document.getElementById('userIdOutput');
+            if (currentUser) {
+                output.innerHTML = `
+                    <div style="background: rgba(81, 207, 102, 0.2); padding: 10px; border-radius: 5px; margin-top: 10px;">
+                        <strong>Your User ID:</strong><br>
+                        <code style="background: rgba(0,0,0,0.5); padding: 5px; display: block; margin-top: 5px;">${currentUser.uid}</code><br>
+                        <strong>Email:</strong> ${currentUser.email}<br>
+                        <button onclick="navigator.clipboard.writeText('${currentUser.uid}')">📋 Copy UID</button>
+                    </div>
+                `;
+            } else {
+                output.innerHTML = '<span class="warning">⚠️ Please sign in first!</span>';
+            }
+        };
+
+        window.searchAllData = async function() {
+            const searchOutput = document.getElementById('searchOutput');
+            searchOutput.innerHTML = '<span class="info">🔍 Searching all data paths...</span>';
+
+            log('\n=== SEARCHING ALL DATA ===', 'output');
+
+            const paths = ['colony-data', 'user-progress', 'user-profiles', 'colony-signups'];
+            let foundData = [];
+
+            for (const path of paths) {
+                try {
+                    log(`\nChecking ${path}/...`, 'output');
+                    const dataRef = ref(database, path);
+                    const snapshot = await get(dataRef);
+
+                    if (snapshot.exists()) {
+                        const data = snapshot.val();
+                        Object.entries(data).forEach(([userId, userData]) => {
+                            if (userData && userData.lunaris !== undefined) {
+                                foundData.push({
+                                    path: `${path}/${userId}`,
+                                    userId: userId,
+                                    lunaris: userData.lunaris,
+                                    data: userData
+                                });
+                                log(`<span class="success">✅ FOUND: ${path}/${userId} - Lunaris: ${userData.lunaris}</span>`, 'output');
+                            }
+                        });
+                    } else {
+                        log(`<span class="warning">⚠️ No data in ${path}</span>`, 'output');
+                    }
+                } catch (error) {
+                    log(`<span class="warning">❌ Error reading ${path}: ${error.message}</span>`, 'output');
+                }
+            }
+
+            if (foundData.length > 0) {
+                searchOutput.innerHTML = `
+                    <div style="background: rgba(81, 207, 102, 0.2); padding: 10px; border-radius: 5px; margin-top: 10px;">
+                        <strong class="success">✅ Found ${foundData.length} data entries with Lunaris!</strong><br>
+                        Check the output below for details.
+                    </div>
+                `;
+                log(`\n<span class="success">========================================</span>`, 'output');
+                log(`<span class="success">TOTAL FOUND: ${foundData.length} entries with Lunaris data</span>`, 'output');
+                log(`<span class="success">========================================</span>`, 'output');
+            } else {
+                searchOutput.innerHTML = '<span class="warning">⚠️ No lunaris data found in database!</span>';
+                log(`\n<span class="warning">❌ NO LUNARIS DATA FOUND IN ANY PATH</span>`, 'output');
+            }
+        };
+
+        window.loadSpecificUser = async function() {
+            const userId = document.getElementById('manualUserId').value.trim();
+            const output = document.getElementById('specificOutput');
+
+            if (!userId) {
+                output.innerHTML = '<span class="warning">⚠️ Please enter a user ID first!</span>';
+                return;
+            }
+
+            output.innerHTML = '<span class="info">🔍 Loading data...</span>';
+            log(`\n=== LOADING USER: ${userId} ===`, 'output');
+
+            try {
+                // Check colony-data
+                const colonyRef = ref(database, `colony-data/${userId}`);
+                const colonySnap = await get(colonyRef);
+
+                log(`\ncolony-data/${userId}:`, 'output');
+                if (colonySnap.exists()) {
+                    const data = colonySnap.val();
+                    log(`<span class="success">✅ FOUND!</span>`, 'output');
+                    log(JSON.stringify(data, null, 2), 'output');
+                } else {
+                    log(`<span class="warning">⚠️ Not found</span>`, 'output');
+                }
+
+                // Check user-progress
+                const progressRef = ref(database, `user-progress/${userId}`);
+                const progressSnap = await get(progressRef);
+
+                log(`\nuser-progress/${userId}:`, 'output');
+                if (progressSnap.exists()) {
+                    const data = progressSnap.val();
+                    log(`<span class="success">✅ FOUND!</span>`, 'output');
+                    log(JSON.stringify(data, null, 2), 'output');
+                } else {
+                    log(`<span class="warning">⚠️ Not found</span>`, 'output');
+                }
+
+                output.innerHTML = '<span class="success">✅ Check output below for results</span>';
+            } catch (error) {
+                log(`<span class="warning">❌ Error: ${error.message}</span>`, 'output');
+                output.innerHTML = `<span class="warning">❌ Error: ${error.message}</span>`;
+            }
+        };
+
+        window.exportAllData = async function() {
+            const output = document.getElementById('exportOutput');
+            output.innerHTML = '<span class="info">📦 Exporting all data...</span>';
+
+            log(`\n=== FULL DATABASE EXPORT ===`, 'output');
+
+            try {
+                const rootRef = ref(database);
+                const snapshot = await get(rootRef);
+
+                if (snapshot.exists()) {
+                    const allData = snapshot.val();
+                    log(JSON.stringify(allData, null, 2), 'output');
+                    output.innerHTML = '<span class="success">✅ Data exported to output below</span>';
+                } else {
+                    log(`<span class="warning">⚠️ Database is empty!</span>`, 'output');
+                    output.innerHTML = '<span class="warning">⚠️ Database is empty!</span>';
+                }
+            } catch (error) {
+                log(`<span class="warning">❌ Error: ${error.message}</span>`, 'output');
+                output.innerHTML = `<span class="warning">❌ Error: ${error.message}</span>`;
+            }
+        };
+    </script>
+</body>
+</html>

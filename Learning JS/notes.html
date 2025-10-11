@@ -479,13 +479,208 @@
             padding-top: 100px;
         }
 
+        /* BEAUTIFUL CUSTOM MODALS */
+        .custom-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 10000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-dialog {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .modal-content-custom {
+            background: linear-gradient(135deg, #1e5128 0%, #2d6a4f 100%);
+            border-radius: 15px;
+            max-width: 500px;
+            width: 100%;
+            border: 3px solid #FFCC00;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: slideIn 0.4s ease;
+        }
+
+        .modal-header-custom {
+            padding: 25px;
+            border-bottom: 2px solid rgba(255, 204, 0, 0.3);
+        }
+
+        .modal-title-custom {
+            color: #FFCC00;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .modal-body-custom {
+            padding: 30px 25px;
+            text-align: center;
+        }
+
+        .modal-icon {
+            font-size: 4rem;
+            margin-bottom: 15px;
+            animation: bounceIn 0.6s ease;
+        }
+
+        @keyframes bounceIn {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-15px); }
+            60% { transform: translateY(-7px); }
+        }
+
+        .modal-message {
+            color: white;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            white-space: pre-line;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .modal-btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-btn-primary {
+            background-color: #FFCC00;
+            color: #1e5128;
+        }
+
+        .modal-btn-primary:hover {
+            background-color: #e6b800;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 204, 0, 0.4);
+        }
+
+        .modal-btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .modal-btn-secondary:hover {
+            background-color: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        /* MOBILE RESPONSIVE DESIGN */
         @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            #page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            #page-title {
+                font-size: 2rem;
+            }
+
+            #auth-section {
+                width: 100%;
+                flex-wrap: wrap;
+            }
+
+            #user-display {
+                font-size: 0.9rem;
+            }
+
+            #user-avatar {
+                width: 32px;
+                height: 32px;
+            }
+
+            .btn {
+                padding: 10px 15px;
+                font-size: 0.9rem;
+            }
+
             #editor-container {
                 grid-template-columns: 1fr;
+                gap: 15px;
             }
 
             #notes-list-panel {
-                max-height: 300px;
+                max-height: 250px;
+            }
+
+            #form-title-input {
+                font-size: 1.2rem;
+                padding: 12px;
+            }
+
+            #form-content-textarea {
+                min-height: 200px;
+                font-size: 0.95rem;
+            }
+
+            #form-actions {
+                flex-direction: column;
+            }
+
+            #save-button, #delete-button, #cancel-button {
+                width: 100%;
+                padding: 15px;
+            }
+
+            .category-section {
+                padding: 15px;
+            }
+
+            .category-title {
+                font-size: 1.4rem;
+            }
+
+            .note-card {
+                padding: 15px;
+            }
+
+            .note-title {
+                font-size: 1.1rem;
+            }
+
+            .note-date {
+                font-size: 0.8rem;
+            }
+
+            #back-button {
+                padding: 12px 30px;
+                font-size: 1rem;
             }
 
             body.focus-mode-active {
@@ -499,6 +694,43 @@
 
             .focus-info {
                 justify-content: space-between;
+            }
+
+            .focus-timer {
+                font-size: 1.2rem;
+            }
+
+            .modal-content-custom {
+                margin: 10px;
+            }
+
+            .modal-header-custom {
+                padding: 20px;
+            }
+
+            .modal-title-custom {
+                font-size: 1.2rem;
+            }
+
+            .modal-body-custom {
+                padding: 20px;
+            }
+
+            .modal-icon {
+                font-size: 3rem;
+            }
+
+            .modal-message {
+                font-size: 1rem;
+            }
+
+            .modal-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .modal-btn {
+                width: 100%;
             }
         }
     </style>
@@ -603,11 +835,121 @@
         </div>
     </div>
 
+    <!-- Custom Modal -->
+    <div id="custom-modal" class="custom-modal">
+        <div class="modal-dialog">
+            <div class="modal-content-custom">
+                <div class="modal-header-custom">
+                    <h2 class="modal-title-custom" id="modal-title"></h2>
+                </div>
+                <div class="modal-body-custom">
+                    <div class="modal-icon" id="modal-icon"></div>
+                    <div class="modal-message" id="modal-message"></div>
+                    <div class="modal-buttons" id="modal-buttons"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
         import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, query, where, getDocs, orderBy, Timestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        // ============================================
+        // CUSTOM MODAL SYSTEM
+        // Beautiful modals replacing alert/confirm
+        // ============================================
+
+        function showModal(type, title, message, callback) {
+            const modal = document.getElementById('custom-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalIcon = document.getElementById('modal-icon');
+            const modalMessage = document.getElementById('modal-message');
+            const modalButtons = document.getElementById('modal-buttons');
+
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+
+            // Set icon based on type
+            const icons = {
+                success: '✅',
+                error: '❌',
+                warning: '⚠️',
+                info: 'ℹ️',
+                confirm: '❓'
+            };
+            modalIcon.textContent = icons[type] || '💬';
+
+            // Clear previous buttons
+            modalButtons.innerHTML = '';
+
+            // Add OK button
+            const okBtn = document.createElement('button');
+            okBtn.className = 'modal-btn modal-btn-primary';
+            okBtn.textContent = 'OK';
+            okBtn.onclick = () => {
+                modal.style.display = 'none';
+                if (callback) callback(true);
+            };
+            modalButtons.appendChild(okBtn);
+
+            modal.style.display = 'block';
+
+            // Close on outside click
+            modal.onclick = (e) => {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                    if (callback) callback(false);
+                }
+            };
+        }
+
+        function showConfirm(title, message, onConfirm, onCancel) {
+            const modal = document.getElementById('custom-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalIcon = document.getElementById('modal-icon');
+            const modalMessage = document.getElementById('modal-message');
+            const modalButtons = document.getElementById('modal-buttons');
+
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+            modalIcon.textContent = '❓';
+
+            // Clear previous buttons
+            modalButtons.innerHTML = '';
+
+            // Add Cancel button
+            const cancelBtn = document.createElement('button');
+            cancelBtn.className = 'modal-btn modal-btn-secondary';
+            cancelBtn.textContent = 'Cancel';
+            cancelBtn.onclick = () => {
+                modal.style.display = 'none';
+                if (onCancel) onCancel();
+            };
+            modalButtons.appendChild(cancelBtn);
+
+            // Add Confirm button
+            const confirmBtn = document.createElement('button');
+            confirmBtn.className = 'modal-btn modal-btn-primary';
+            confirmBtn.textContent = 'Confirm';
+            confirmBtn.onclick = () => {
+                modal.style.display = 'none';
+                if (onConfirm) onConfirm();
+            };
+            modalButtons.appendChild(confirmBtn);
+
+            modal.style.display = 'block';
+
+            // Close on outside click = cancel
+            modal.onclick = (e) => {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                    if (onCancel) onCancel();
+                }
+            };
+        }
 
         // Firebase configuration
         const firebaseConfig = {
@@ -673,7 +1015,7 @@
                 await signInWithPopup(auth, provider);
             } catch (error) {
                 console.error('Error signing in:', error);
-                alert('Sign in failed: ' + error.message);
+                showModal('error', '❌ Sign In Failed', 'Sign in failed: ' + error.message);
             }
         });
 
@@ -867,7 +1209,7 @@
             const content = document.getElementById('form-content-textarea').value.trim();
 
             if (!title || !content) {
-                alert('Please fill in both title and content');
+                showModal('warning', '⚠️ Missing Information', 'Please fill in both title and content');
                 return;
             }
 
@@ -897,7 +1239,7 @@
                 renderEditorList();
                 renderPublicView();
 
-                alert('Note saved successfully!');
+                showModal('success', '✅ Note Saved!', 'Note saved successfully!');
 
                 // Reset form
                 document.getElementById('editor-placeholder').style.display = 'flex';
@@ -905,7 +1247,7 @@
                 currentNoteId = null;
             } catch (error) {
                 console.error('Error saving note:', error);
-                alert('Error saving note: ' + error.message);
+                showModal('error', '❌ Save Failed', 'Error saving note: ' + error.message);
             }
         });
 
@@ -913,24 +1255,28 @@
         document.getElementById('delete-button').addEventListener('click', async () => {
             if (!currentNoteId) return;
 
-            if (confirm('Are you sure you want to delete this note?')) {
-                try {
-                    await deleteDoc(doc(db, 'notes', currentNoteId));
+            showConfirm(
+                '🗑️ Delete Note?',
+                'Are you sure you want to delete this note? This action cannot be undone.',
+                async () => {
+                    try {
+                        await deleteDoc(doc(db, 'notes', currentNoteId));
 
-                    await loadUserNotes();
-                    renderEditorList();
-                    renderPublicView();
+                        await loadUserNotes();
+                        renderEditorList();
+                        renderPublicView();
 
-                    alert('Note deleted successfully!');
+                        showModal('success', '✅ Note Deleted', 'Note deleted successfully!');
 
-                    document.getElementById('editor-placeholder').style.display = 'flex';
-                    document.getElementById('editor-form').style.display = 'none';
-                    currentNoteId = null;
-                } catch (error) {
-                    console.error('Error deleting note:', error);
-                    alert('Error deleting note: ' + error.message);
+                        document.getElementById('editor-placeholder').style.display = 'flex';
+                        document.getElementById('editor-form').style.display = 'none';
+                        currentNoteId = null;
+                    } catch (error) {
+                        console.error('Error deleting note:', error);
+                        showModal('error', '❌ Delete Failed', 'Error deleting note: ' + error.message);
+                    }
                 }
-            }
+            );
         });
 
         // Cancel editing
@@ -1012,23 +1358,26 @@
         function showTimerCompleteDialog() {
             clearInterval(focusTimer);
 
-            const keepWriting = confirm('⏱️ Timer Complete!\n\nYour focus session is done!\n\n✅ Click OK to KEEP WRITING and save when ready\n❌ Click Cancel to SAVE & RETURN to dashboard');
+            showConfirm(
+                '⏱️ Timer Complete!',
+                'Your focus session is done!\n\n✅ Click Confirm to KEEP WRITING and save when ready\n❌ Click Cancel to SAVE & RETURN to dashboard',
+                () => {
+                    // User wants to keep writing - disable focus mode restrictions but keep them in editor
+                    focusModeActive = false;
+                    document.removeEventListener('visibilitychange', handleFocusVisibilityChange);
+                    window.removeEventListener('beforeunload', handleFocusBeforeUnload);
 
-            if (keepWriting) {
-                // User wants to keep writing - disable focus mode restrictions but keep them in editor
-                focusModeActive = false;
-                document.removeEventListener('visibilitychange', handleFocusVisibilityChange);
-                window.removeEventListener('beforeunload', handleFocusBeforeUnload);
+                    // Hide focus banner
+                    document.getElementById('focus-mode-banner').classList.remove('active');
+                    document.body.classList.remove('focus-mode-active');
 
-                // Hide focus banner
-                document.getElementById('focus-mode-banner').classList.remove('active');
-                document.body.classList.remove('focus-mode-active');
-
-                alert('✍️ Great work! Keep writing. Your notes will auto-save when you click the Save button.');
-            } else {
-                // User wants to save and return
-                completeFocusMode(true);
-            }
+                    showModal('success', '✍️ Great Work!', 'Keep writing. Your notes will auto-save when you click the Save button.');
+                },
+                () => {
+                    // User wants to save and return
+                    completeFocusMode(true);
+                }
+            );
         }
 
         function updateFocusDisplay() {
@@ -1080,13 +1429,14 @@
             localStorage.setItem('focusModeResult', JSON.stringify(result));
 
             if (success && !tabChangeDetected) {
-                alert('🎉 Focus session complete! Great work on your journaling. Returning to dashboard...');
+                showModal('success', '🎉 Focus Session Complete!', 'Great work on your journaling. Returning to dashboard...', () => {
+                    window.location.href = '/Learning JS/dashboard.html';
+                });
             } else {
-                alert('❌ Focus mode ended early. Penalties will be applied.');
+                showModal('error', '❌ Focus Mode Ended Early', 'Penalties will be applied. Returning to dashboard...', () => {
+                    window.location.href = '/Learning JS/dashboard.html';
+                });
             }
-
-            // Return to dashboard
-            window.location.href = '/Learning JS/dashboard.html';
         }
 
         // Make function available globally for testing

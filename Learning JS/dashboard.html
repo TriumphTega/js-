@@ -570,8 +570,9 @@
                         failedTasks: firebaseData.failedTasks || []
                     };
 
-                    // Clear localStorage to prevent conflicts
-                    localStorage.removeItem('colonyData');
+                    console.log('✅ Colony data loaded from Firebase:', colonyData);
+                } else {
+                    console.log('⚠️ No colony data in Firebase, using defaults');
                 }
 
                 // Track daily login silently (no popup)
@@ -643,7 +644,10 @@
         }
 
         async function awardXP(amount, reason = '') {
-            if (!userUID) return;
+            if (!userUID) {
+                console.error('❌ Cannot award XP: No user ID');
+                return;
+            }
 
             try {
                 const progressRef = ref(database, `user-progress/${userUID}`);
@@ -660,14 +664,20 @@
                     progressData = snapshot.val();
                 }
 
-                progressData.totalXP = (progressData.totalXP || 0) + amount;
+                const oldXP = progressData.totalXP || 0;
+                progressData.totalXP = oldXP + amount;
 
                 await set(progressRef, progressData);
 
-                console.log(`✅ Awarded ${amount} XP${reason ? ` for ${reason}` : ''}`);
+                console.log(`✅ XP Updated: ${oldXP} → ${progressData.totalXP} (+${amount})${reason ? ` for ${reason}` : ''}`);
+
+                // Show in-game notification
+                showModal('success', '✨ XP Earned!', `+${amount} XP${reason ? ` for ${reason}` : ''}!\n\nTotal XP: ${progressData.totalXP}`);
+
                 return progressData.totalXP;
             } catch (error) {
-                console.error('Error awarding XP:', error);
+                console.error('❌ Error awarding XP:', error);
+                showModal('error', '⚠️ XP Error', `Failed to award XP: ${error.message}`);
             }
         }
 
@@ -1188,17 +1198,14 @@
             colonyData.completedToday = colonyData.completedToday || [];
             colonyData.failedTasks = colonyData.failedTasks || [];
 
-            console.log('✅ Data validated - ranges enforced:', {
+            console.log('💾 Saving colony data:', {
                 lunaris: colonyData.lunaris,
                 oxygen: colonyData.oxygen,
                 hydroponics: colonyData.hydroponics,
                 energy: colonyData.energy
             });
 
-            // Save to localStorage as backup
-            localStorage.setItem('colonyData', JSON.stringify(colonyData));
-
-            // Save to Firebase if user is authenticated
+            // Save to Firebase if user is authenticated (PRIMARY source)
             if (userUID) {
                 try {
                     const userDataRef = ref(database, `colony-data/${userUID}`);
@@ -1214,10 +1221,15 @@
                         failedTasks: colonyData.failedTasks,
                         lastUpdated: Date.now()
                     });
-                    console.log('Data saved to Firebase successfully');
+                    console.log('✅ Data saved to Firebase successfully');
                 } catch (error) {
-                    console.error('Firebase save error:', error);
+                    console.error('❌ Firebase save error:', error);
+                    // Only fall back to localStorage if Firebase fails
+                    localStorage.setItem('colonyData', JSON.stringify(colonyData));
                 }
+            } else {
+                // No user - save to localStorage only
+                localStorage.setItem('colonyData', JSON.stringify(colonyData));
             }
         }
 

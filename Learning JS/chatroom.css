@@ -342,7 +342,7 @@ body {
 }
 
 /* ============================================
-   RESPONSIVE
+   RESPONSIVE - MOBILE OPTIMIZED
    ============================================ */
 
 @media (max-width: 768px) {
@@ -350,16 +350,32 @@ body {
         padding: 10px;
     }
 
+    #app-container {
+        padding: 0;
+    }
+
     #page-header {
         flex-direction: column;
         align-items: stretch;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    #page-title {
+        text-align: center;
+        font-size: 2rem;
     }
 
     #nav-buttons {
+        width: 100%;
+        justify-content: center;
         flex-wrap: wrap;
+        gap: 8px;
     }
 
     .nav-btn {
+        font-size: 0.85rem;
+        padding: 10px 15px;
         flex: 1;
         min-width: 100px;
         text-align: center;
@@ -368,35 +384,193 @@ body {
     #user-info-bar {
         flex-direction: column;
         align-items: flex-start;
+        gap: 10px;
+        padding: 12px 15px;
+        font-size: 0.9rem;
+    }
+
+    #user-info-bar strong {
+        display: block;
+        margin-top: 5px;
+    }
+
+    #chat-container {
+        padding: 18px;
+        margin-bottom: 20px;
+        border-radius: 12px;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        margin-bottom: 8px;
+    }
+
+    .chat-description {
+        font-size: 0.9rem;
+        margin-bottom: 20px;
     }
 
     #messages-container {
         height: 400px;
+        padding: 15px;
+        margin-bottom: 15px;
     }
 
+    /* Messages Mobile */
+    .message {
+        padding: 10px 12px;
+        margin-bottom: 12px;
+    }
+
+    .message-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+        margin-bottom: 10px;
+    }
+
+    .message-sender {
+        font-size: 0.9rem;
+    }
+
+    .message-time {
+        font-size: 0.75rem;
+    }
+
+    .message-text {
+        font-size: 0.95rem;
+        line-height: 1.4;
+    }
+
+    /* Input Mobile */
     #message-input-container {
         flex-direction: column;
+        gap: 8px;
+        margin-bottom: 8px;
+    }
+
+    .message-input {
+        padding: 12px;
+        font-size: 0.95rem;
     }
 
     .send-btn {
         width: 100%;
+        padding: 14px 25px;
+        font-size: 0.95rem;
     }
 
-    #chat-container {
-        padding: 20px;
+    #char-counter {
+        font-size: 0.8rem;
+        padding-right: 5px;
+    }
+
+    /* Rules Section Mobile */
+    .rules-section {
+        padding: 18px;
+        border-radius: 12px;
+    }
+
+    .rules-section h3 {
+        font-size: 1.2rem;
+        margin-bottom: 12px;
+    }
+
+    .rules-section ul {
+        font-size: 0.9rem;
+        line-height: 1.6;
+    }
+
+    .rules-section li {
+        margin-bottom: 6px;
+    }
+
+    /* Admin Button Mobile */
+    .admin-float-btn {
+        bottom: 20px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
     }
 }
 
 @media (max-width: 480px) {
+    body {
+        padding: 8px;
+    }
+
     #page-title {
         font-size: 1.8rem;
     }
 
+    .nav-btn {
+        font-size: 0.8rem;
+        padding: 9px 12px;
+    }
+
+    #user-info-bar {
+        padding: 10px 12px;
+        font-size: 0.85rem;
+    }
+
+    #chat-container {
+        padding: 15px;
+    }
+
+    .section-title {
+        font-size: 1.3rem;
+    }
+
+    .chat-description {
+        font-size: 0.85rem;
+    }
+
     #messages-container {
         height: 350px;
+        padding: 12px;
     }
 
     .message {
+        padding: 8px 10px;
+        margin-bottom: 10px;
+    }
+
+    .message-sender {
+        font-size: 0.85rem;
+    }
+
+    .message-text {
+        font-size: 0.9rem;
+    }
+
+    .message-input {
         padding: 10px;
+        font-size: 0.9rem;
+    }
+
+    .send-btn {
+        padding: 12px 20px;
+        font-size: 0.9rem;
+    }
+
+    .rules-section {
+        padding: 15px;
+    }
+
+    .rules-section h3 {
+        font-size: 1.1rem;
+    }
+
+    .rules-section ul {
+        font-size: 0.85rem;
+    }
+
+    .admin-float-btn {
+        bottom: 15px;
+        right: 15px;
+        width: 45px;
+        height: 45px;
+        font-size: 1.3rem;
     }
 }

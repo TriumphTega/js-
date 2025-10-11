@@ -1,0 +1,147 @@
+================================================================================
+FIREBASE REALTIME DATABASE SECURITY RULES FOR LUNARIS
+================================================================================
+
+IMPORTANT: Apply these rules in Firebase Console to fix the "No permission"
+error that appears on login. This error occurs because the default Firebase
+Realtime Database rules are too restrictive.
+
+================================================================================
+HOW TO APPLY THESE RULES:
+================================================================================
+
+1. Go to https://console.firebase.google.com
+2. Select your project: "lunaris-45d84"
+3. Click "Realtime Database" in the left menu (NOT Firestore!)
+4. Click the "Rules" tab at the top
+5. Replace ALL existing rules with the rules below
+6. Click "Publish"
+
+================================================================================
+COPY THE RULES BELOW:
+================================================================================
+
+{
+  "rules": {
+    // User colony data - users can only access their own data
+    "colony-data": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid"
+      }
+    },
+
+    // User progress/XP data - users can only access their own data
+    "user-progress": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid"
+      }
+    },
+
+    // User profiles - users can only access their own profile
+    "user-profiles": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid"
+      }
+    },
+
+    // User wallets - users can only access their own wallet
+    "user-wallets": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid"
+      }
+    },
+
+    // Wallet users (for wallet-based auth) - can read/write their own data
+    "wallet-users": {
+      "$walletAddress": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      }
+    },
+
+    // Colony signups - users can read/write their own signup
+    "colony-signups": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid"
+      }
+    },
+
+    // Admins list - only admins can read, only root can write
+    "admins": {
+      ".read": "auth != null && root.child('admins').child(auth.uid).exists()",
+      ".write": "auth != null && root.child('admins').child(auth.uid).exists()"
+    },
+
+    // Task rules - anyone authenticated can read, only admins can write
+    "task-rules": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('admins').child(auth.uid).exists()"
+    },
+
+    // Chat messages - authenticated users can read and write
+    "chat-messages": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+
+    // Default: deny all other access
+    "$other": {
+      ".read": false,
+      ".write": false
+    }
+  }
+}
+
+================================================================================
+WHAT THESE RULES DO:
+================================================================================
+
+✅ Users can only read/write their own colony data (lunaris, resources, tasks)
+✅ Users can only read/write their own progress/XP data
+✅ Users can only read/write their own profile and wallet info
+✅ Admins can manage admin list and task rules
+✅ All authenticated users can read task rules
+✅ Chat is accessible to all authenticated users
+❌ All other database paths are denied by default (security)
+
+================================================================================
+AFTER APPLYING:
+================================================================================
+
+1. Wait 1-2 minutes for rules to propagate
+2. Sign out and sign in again
+3. The "No permission" error should be GONE!
+4. Lunaris and XP should now update correctly
+
+================================================================================
+TESTING:
+================================================================================
+
+After applying rules, test the following:
+1. Sign in → Should NOT show permission error
+2. Complete a task → Lunaris should increase
+3. Daily check-in → XP should be awarded
+4. Reload page → Data should persist
+
+================================================================================
+TROUBLESHOOTING:
+================================================================================
+
+If you still see errors:
+1. Check the Firebase Console > Realtime Database > Data tab
+2. Make sure you're using Realtime Database rules (NOT Firestore rules)
+3. Clear browser cache and localStorage
+4. Sign out and sign in again
+
+To check which user ID is being used:
+1. Open browser console (F12)
+2. Look for "User authenticated: [email]" message
+3. Copy the UID from console logs
+4. Make sure this UID exists in Firebase Database under your data paths
+
+================================================================================

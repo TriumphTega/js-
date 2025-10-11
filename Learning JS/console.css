@@ -650,20 +650,279 @@ body {
     content: ' ✓';
 }
 
+/* ============================================
+   RESPONSIVE - MOBILE OPTIMIZED
+   ============================================ */
+
 @media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+
+    #app-container {
+        padding: 0;
+    }
+
+    .header-section {
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 12px;
+    }
+
+    .page-title {
+        font-size: 2rem;
+    }
+
+    .user-greeting {
+        font-size: 1.1rem;
+    }
+
+    .user-profile-section {
+        padding: 15px;
+        margin-top: 12px;
+    }
+
+    .profile-display {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .profile-info {
+        text-align: center;
+    }
+
+    .profile-name {
+        font-size: 1.2rem;
+    }
+
+    .profile-email {
+        font-size: 0.85rem;
+    }
+
+    .edit-name-btn {
+        width: 100%;
+        padding: 12px 20px;
+        font-size: 0.95rem;
+    }
+
+    .nav-btn {
+        width: 100%;
+        padding: 12px 20px;
+        font-size: 0.95rem;
+        text-align: center;
+    }
+
+    .role-display {
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 12px;
+    }
+
+    .role-display h2 {
+        font-size: 1.5rem;
+        margin-bottom: 12px;
+    }
+
+    .role-name {
+        font-size: 1.6rem;
+        margin: 12px 0;
+    }
+
+    .role-lore {
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+
+    .role-lock-message {
+        font-size: 1rem;
+        margin: 15px 0;
+    }
+
+    .btn {
+        padding: 12px 30px;
+        font-size: 1rem;
+        margin: 8px;
+        width: calc(100% - 16px);
+    }
+
+    /* Modal Mobile */
+    .modal {
+        padding: 10px;
+    }
+
     .modal-content {
         width: 95%;
-        margin: 15px auto;
+        margin: 20px auto;
+        max-height: 85vh;
+    }
+
+    .modal-header {
+        padding: 20px;
     }
 
     .modal-header h2 {
         font-size: 1.4rem;
     }
 
+    .close-btn {
+        font-size: 28px;
+    }
+
+    .modal-body {
+        padding: 20px;
+    }
+
+    .role-option {
+        padding: 15px;
+    }
+
     .role-title {
+        font-size: 1.1rem;
+        margin-bottom: 8px;
+    }
+
+    .role-content {
+        font-size: 0.95rem;
+    }
+
+    .confirm-btn {
+        padding: 14px;
+        font-size: 1.1rem;
+        margin-top: 15px;
+    }
+
+    .instructions-section h3 {
+        font-size: 1.2rem;
+        margin-top: 20px;
+    }
+
+    .instructions-section p {
+        font-size: 0.95rem;
+    }
+
+    .instructions-section ul,
+    .instructions-section ol {
+        margin-left: 20px;
+        font-size: 0.95rem;
+    }
+
+    .modal-description {
+        font-size: 0.95rem;
+        margin-bottom: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-label {
+        font-size: 0.95rem;
+        margin-bottom: 8px;
+    }
+
+    .form-input {
+        padding: 12px 14px;
+        font-size: 0.95rem;
+    }
+
+    /* XP Section Mobile */
+    .xp-section {
+        margin-top: 20px;
+        padding: 20px;
+        border-radius: 12px;
+    }
+
+    .xp-header {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 12px;
+    }
+
+    .level-badge {
+        padding: 12px 20px;
+    }
+
+    .level-label {
+        font-size: 0.75rem;
+    }
+
+    .level-number {
+        font-size: 2rem;
+    }
+
+    .xp-info {
+        text-align: center;
+        padding-right: 0;
+    }
+
+    #xpText {
         font-size: 1.1rem;
     }
 
+    .xp-bar-container {
+        height: 25px;
+        margin-bottom: 15px;
+    }
+
+    .progress-milestones {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        margin-bottom: 15px;
+    }
+
+    .milestone-item {
+        padding: 10px 12px;
+        gap: 10px;
+    }
+
+    .milestone-icon {
+        font-size: 1.6rem;
+    }
+
+    .milestone-label {
+        font-size: 0.8rem;
+    }
+
+    .milestone-value {
+        font-size: 1rem;
+    }
+
+    .unlock-progress {
+        padding: 15px;
+    }
+
+    .unlock-message {
+        margin-bottom: 12px;
+    }
+
+    #unlockStatusText {
+        font-size: 1rem;
+    }
+
+    .requirements-checklist {
+        gap: 8px;
+    }
+
+    .requirement-item {
+        padding: 10px;
+        gap: 10px;
+    }
+
+    .req-icon {
+        font-size: 1.3rem;
+    }
+
+    .req-text {
+        font-size: 0.9rem;
+    }
+
+    .req-status {
+        font-size: 0.9rem;
+    }
+
+    /* Admin Button Mobile */
     .admin-float-btn {
         bottom: 20px;
         right: 20px;
@@ -671,17 +930,144 @@ body {
         height: 50px;
         font-size: 1.5rem;
     }
+}
 
-    .progress-milestones {
-        grid-template-columns: 1fr;
+@media (max-width: 480px) {
+    body {
+        padding: 8px;
     }
 
-    .xp-header {
-        flex-direction: column;
-        gap: 15px;
+    .header-section {
+        padding: 15px;
     }
 
-    .xp-info {
-        text-align: center;
+    .page-title {
+        font-size: 1.8rem;
+    }
+
+    .user-greeting {
+        font-size: 1rem;
+    }
+
+    .user-profile-section {
+        padding: 12px;
+    }
+
+    .profile-name {
+        font-size: 1.1rem;
+    }
+
+    .edit-name-btn {
+        font-size: 0.9rem;
+    }
+
+    .nav-btn {
+        font-size: 0.9rem;
+    }
+
+    .role-display {
+        padding: 15px;
+    }
+
+    .role-display h2 {
+        font-size: 1.3rem;
+    }
+
+    .role-name {
+        font-size: 1.4rem;
+    }
+
+    .role-lore {
+        font-size: 0.9rem;
+    }
+
+    .btn {
+        padding: 10px 25px;
+        font-size: 0.95rem;
+    }
+
+    .modal-content {
+        margin: 10px auto;
+    }
+
+    .modal-header {
+        padding: 15px;
+    }
+
+    .modal-header h2 {
+        font-size: 1.2rem;
+    }
+
+    .close-btn {
+        font-size: 24px;
+    }
+
+    .modal-body {
+        padding: 15px;
+    }
+
+    .role-option {
+        padding: 12px;
+    }
+
+    .role-title {
+        font-size: 1rem;
+    }
+
+    .confirm-btn {
+        padding: 12px;
+        font-size: 1rem;
+    }
+
+    .xp-section {
+        padding: 15px;
+    }
+
+    .level-badge {
+        padding: 10px 18px;
+    }
+
+    .level-number {
+        font-size: 1.8rem;
+    }
+
+    #xpText {
+        font-size: 1rem;
+    }
+
+    .xp-bar-container {
+        height: 20px;
+    }
+
+    .milestone-icon {
+        font-size: 1.4rem;
+    }
+
+    .milestone-label {
+        font-size: 0.75rem;
+    }
+
+    .milestone-value {
+        font-size: 0.95rem;
+    }
+
+    .req-icon {
+        font-size: 1.2rem;
+    }
+
+    .req-text {
+        font-size: 0.85rem;
+    }
+
+    .req-status {
+        font-size: 0.85rem;
+    }
+
+    .admin-float-btn {
+        bottom: 15px;
+        right: 15px;
+        width: 45px;
+        height: 45px;
+        font-size: 1.3rem;
     }
 }

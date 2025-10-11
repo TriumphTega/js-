@@ -576,54 +576,246 @@ body {
 }
 
 @media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+
+    #app-container {
+        padding: 0;
+    }
+
     #page-header {
         flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+
+    #page-title {
         text-align: center;
+        font-size: 2rem;
     }
 
     #nav-buttons {
         width: 100%;
         justify-content: center;
         flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .nav-btn {
+        font-size: 0.85rem;
+        padding: 10px 15px;
+    }
+
+    #user-role-header {
+        padding: 12px;
+        margin-bottom: 20px;
+    }
+
+    #header-role-name {
+        font-size: 1.1rem;
     }
 
     .resource-grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
+        gap: 10px;
     }
 
     .resource-card {
-        padding: 18px;
+        padding: 15px;
     }
 
     .resource-icon {
-        font-size: 2rem;
+        font-size: 1.8rem;
+        margin-bottom: 8px;
+    }
+
+    .resource-label {
+        font-size: 0.8rem;
     }
 
     .resource-value {
-        font-size: 1.6rem;
+        font-size: 1.4rem;
+    }
+
+    .streak-display {
+        padding: 12px;
+        font-size: 0.9rem;
+    }
+
+    .streak-value {
+        font-size: 1.2rem;
+        margin-left: 8px;
     }
 
     .dashboard-section {
-        padding: 20px;
+        padding: 18px;
+        margin-bottom: 20px;
+        border-radius: 12px;
     }
 
     .section-title {
-        font-size: 1.5rem;
+        font-size: 1.4rem;
+        margin-bottom: 20px;
     }
 
-    .form-grid, .btn-grid, .check-in-grid {
+    .btn {
+        padding: 12px 20px;
+        font-size: 0.95rem;
+    }
+
+    .form-group {
+        margin-bottom: 12px;
+    }
+
+    .form-input, .form-select {
+        padding: 10px;
+        font-size: 0.95rem;
+    }
+
+    .form-hint {
+        font-size: 0.8rem;
+    }
+
+    .check-in-grid {
         grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .check-in-option {
+        padding: 12px;
+        font-size: 0.95rem;
+    }
+
+    .task-card {
+        padding: 15px;
     }
 
     .task-header {
         flex-direction: column;
         align-items: stretch;
+        gap: 12px;
+    }
+
+    .task-info h4 {
+        font-size: 1.1rem;
+    }
+
+    .task-info p {
+        font-size: 0.9rem;
     }
 
     .task-reward {
         text-align: center;
-        margin-top: 10px;
+        padding: 10px;
+        font-size: 0.95rem;
+    }
+
+    .task-actions {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .task-actions button {
+        width: 100%;
+    }
+
+    .completed-task {
+        padding: 12px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .completed-task .task-meta {
+        margin-left: 0;
+    }
+
+    /* Focus Mode Mobile */
+    .focus-container {
+        padding: 15px;
+    }
+
+    .focus-title {
+        font-size: 1.8rem;
+        margin-bottom: 15px;
+    }
+
+    .focus-task-name {
+        font-size: 1.3rem;
+        margin-bottom: 30px;
+    }
+
+    .timer-display {
+        padding: 30px 40px;
+        margin-bottom: 30px;
+    }
+
+    .time-remaining {
+        font-size: 3.5rem;
+    }
+
+    .progress-container {
+        width: 90%;
+        margin-bottom: 30px;
+    }
+
+    .focus-warning {
+        padding: 15px;
+        max-width: 90%;
+    }
+
+    .warning-title {
+        font-size: 1.1rem;
+    }
+
+    .focus-instructions {
+        font-size: 1rem;
+        max-width: 90%;
+    }
+
+    .emergency-exit {
+        margin-top: 30px;
+        padding: 10px 25px;
+        font-size: 0.9rem;
+    }
+
+    /* Modal Mobile */
+    .modal-dialog {
+        margin: 20% auto;
+        padding: 0 10px;
+    }
+
+    .modal-title-custom {
+        font-size: 1.5rem;
+    }
+
+    .modal-header-custom {
+        padding: 20px;
+    }
+
+    .modal-body-custom {
+        padding: 20px;
+    }
+
+    .modal-message {
+        font-size: 1rem;
+    }
+
+    .modal-icon {
+        font-size: 3rem;
+    }
+
+    .modal-buttons {
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
+    }
+
+    .modal-btn {
+        width: 100%;
+        padding: 14px;
     }
 }
 

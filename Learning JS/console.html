@@ -17,11 +17,17 @@
             <!-- User Profile Section -->
             <div class="user-profile-section" id="userProfileSection" style="display: none;">
                 <div class="profile-display">
-                    <div class="profile-info">
-                        <div class="profile-name" id="profileDisplayName"></div>
-                        <div class="profile-email" id="profileEmail"></div>
+                    <div style="display: flex; align-items: center; gap: 20px;">
+                        <div class="profile-picture-container" style="position: relative;">
+                            <img id="profilePicture" src="" alt="Profile" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid #FFCC00; background: rgba(255, 204, 0, 0.1);">
+                            <button id="changePictureBtn" style="position: absolute; bottom: 0; right: 0; width: 28px; height: 28px; border-radius: 50%; background: #FFCC00; border: 2px solid #1e5128; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center;" title="Change Picture">📷</button>
+                        </div>
+                        <div class="profile-info">
+                            <div class="profile-name" id="profileDisplayName"></div>
+                            <div class="profile-email" id="profileEmail"></div>
+                            <button class="edit-name-btn" id="editNameBtn" style="margin-top: 10px;">✏️ Edit Name</button>
+                        </div>
                     </div>
-                    <button class="edit-name-btn" id="editNameBtn">✏️ Edit Name</button>
                 </div>
             </div>
 
@@ -275,6 +281,45 @@
         </div>
     </div>
 
+    <!-- Edit Picture Modal -->
+    <div id="editPictureModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close-btn" id="closeEditPicture">&times;</span>
+                <h2>📷 Change Profile Picture</h2>
+            </div>
+            <div class="modal-body">
+                <p class="modal-description">
+                    Upload a new profile picture or enter an image URL
+                </p>
+
+                <div class="form-group">
+                    <label class="form-label">Upload Image:</label>
+                    <input type="file" id="pictureFileInput" accept="image/*" class="form-input" style="padding: 8px;">
+                    <p class="form-hint">Choose an image from your device (JPG, PNG, GIF - max 2MB)</p>
+                </div>
+
+                <div style="text-align: center; color: rgba(255, 255, 255, 0.6); margin: 15px 0;">- OR -</div>
+
+                <div class="form-group">
+                    <label class="form-label">Image URL:</label>
+                    <input type="url" id="pictureUrlInput" placeholder="https://example.com/image.jpg" class="form-input">
+                    <p class="form-hint">Paste a direct link to an image</p>
+                </div>
+
+                <div id="imagePreview" style="text-align: center; margin: 20px 0; display: none;">
+                    <p style="color: #FFCC00; margin-bottom: 10px;">Preview:</p>
+                    <img id="previewImage" src="" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 10px; border: 2px solid #FFCC00;">
+                </div>
+
+                <div style="display: flex; gap: 10px;">
+                    <button id="savePictureBtn" class="confirm-btn" style="flex: 1;">💾 Save Picture</button>
+                    <button id="removePictureBtn" class="btn btn-danger" style="flex: 1;">🗑️ Remove</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Custom Modal for Alerts -->
     <div id="custom-modal" class="modal">
         <div class="modal-content">
@@ -302,6 +347,7 @@
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
         import { getDatabase, ref, update, get, set } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
 
         const firebaseConfig = {
             apiKey: "AIzaSyClPgII54QDvJB3kiV1dWbqm1et_lHasvs",
@@ -317,6 +363,7 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const database = getDatabase(app);
+        const storage = getStorage(app);
 
         // Role data
         const ROLES = {
@@ -773,7 +820,7 @@
         }
 
         // Load user profile from localStorage/Firebase
-        function loadUserProfile(user) {
+        async function loadUserProfile(user) {
             const savedUser = localStorage.getItem('currentUser');
             if (savedUser) {
                 const userData = JSON.parse(savedUser);
@@ -782,6 +829,34 @@
                 document.getElementById('userProfileSection').style.display = 'block';
                 document.getElementById('profileDisplayName').textContent = userData.displayName || user?.displayName || user?.email || 'User';
                 document.getElementById('profileEmail').textContent = user?.email || userData.walletAddress || 'Wallet User';
+
+                // Load profile picture from Firebase
+                await loadProfilePicture(user);
+            }
+        }
+
+        // Load profile picture from Firebase
+        async function loadProfilePicture(user) {
+            try {
+                const userId = user?.uid || JSON.parse(localStorage.getItem('currentUser'))?.uid;
+                if (!userId) return;
+
+                const userProfileRef = ref(database, `user-profiles/${userId}`);
+                const snapshot = await get(userProfileRef);
+
+                const profilePic = document.getElementById('profilePicture');
+
+                if (snapshot.exists() && snapshot.val().profilePictureUrl) {
+                    profilePic.src = snapshot.val().profilePictureUrl;
+                } else if (user?.photoURL) {
+                    // Fallback to Google photo if available
+                    profilePic.src = user.photoURL;
+                } else {
+                    // Default placeholder
+                    profilePic.src = 'https://via.placeholder.com/80/FFCC00/1e5128?text=User';
+                }
+            } catch (error) {
+                console.error('Error loading profile picture:', error);
             }
         }
 
@@ -936,6 +1011,203 @@
                 }
             });
         }
+
+        // ============================================
+        // PROFILE PICTURE MANAGEMENT
+        // ============================================
+
+        const editPictureModal = document.getElementById('editPictureModal');
+        const changePictureBtn = document.getElementById('changePictureBtn');
+        const closeEditPicture = document.getElementById('closeEditPicture');
+        const savePictureBtn = document.getElementById('savePictureBtn');
+        const removePictureBtn = document.getElementById('removePictureBtn');
+        const pictureFileInput = document.getElementById('pictureFileInput');
+        const pictureUrlInput = document.getElementById('pictureUrlInput');
+        const imagePreview = document.getElementById('imagePreview');
+        const previewImage = document.getElementById('previewImage');
+
+        let selectedImageFile = null;
+        let selectedImageUrl = null;
+
+        // Open picture modal
+        changePictureBtn.addEventListener('click', () => {
+            editPictureModal.style.display = 'block';
+            selectedImageFile = null;
+            selectedImageUrl = null;
+            imagePreview.style.display = 'none';
+            pictureFileInput.value = '';
+            pictureUrlInput.value = '';
+        });
+
+        // Close picture modal
+        closeEditPicture.addEventListener('click', () => {
+            editPictureModal.style.display = 'none';
+        });
+
+        window.addEventListener('click', (e) => {
+            if (e.target === editPictureModal) {
+                editPictureModal.style.display = 'none';
+            }
+        });
+
+        // Handle file input change
+        pictureFileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            // Check file size (max 2MB)
+            if (file.size > 2 * 1024 * 1024) {
+                showModal('error', '❌ File Too Large', 'Please choose an image smaller than 2MB');
+                pictureFileInput.value = '';
+                return;
+            }
+
+            // Check file type
+            if (!file.type.startsWith('image/')) {
+                showModal('error', '❌ Invalid File', 'Please choose a valid image file');
+                pictureFileInput.value = '';
+                return;
+            }
+
+            selectedImageFile = file;
+            selectedImageUrl = null;
+            pictureUrlInput.value = '';
+
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewImage.src = e.target.result;
+                imagePreview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Handle URL input change
+        pictureUrlInput.addEventListener('input', (e) => {
+            const url = e.target.value.trim();
+            if (!url) {
+                imagePreview.style.display = 'none';
+                return;
+            }
+
+            // Validate URL
+            try {
+                new URL(url);
+                selectedImageUrl = url;
+                selectedImageFile = null;
+                pictureFileInput.value = '';
+
+                // Show preview
+                previewImage.src = url;
+                previewImage.onerror = () => {
+                    showModal('error', '❌ Invalid URL', 'Could not load image from this URL');
+                    imagePreview.style.display = 'none';
+                };
+                previewImage.onload = () => {
+                    imagePreview.style.display = 'block';
+                };
+            } catch (error) {
+                imagePreview.style.display = 'none';
+            }
+        });
+
+        // Save picture
+        savePictureBtn.addEventListener('click', async () => {
+            if (!selectedImageFile && !selectedImageUrl) {
+                showModal('warning', '⚠️ No Image Selected', 'Please upload an image or enter a URL');
+                return;
+            }
+
+            try {
+                const userId = authenticatedUser?.uid || JSON.parse(localStorage.getItem('currentUser'))?.uid;
+                if (!userId) {
+                    showModal('error', '❌ Not Signed In', 'You must be signed in to change your picture');
+                    return;
+                }
+
+                showModal('info', '⏳ Uploading...', 'Please wait while we save your profile picture...');
+
+                let imageUrl = selectedImageUrl;
+
+                // If file was selected, upload to Firebase Storage
+                if (selectedImageFile) {
+                    const storageReference = storageRef(storage, `profile-pictures/${userId}/${Date.now()}_${selectedImageFile.name}`);
+                    const uploadResult = await uploadBytes(storageReference, selectedImageFile);
+                    imageUrl = await getDownloadURL(uploadResult.ref);
+                }
+
+                // Save URL to Firebase Database
+                const userProfileRef = ref(database, `user-profiles/${userId}`);
+                const existingProfile = await get(userProfileRef);
+                const profileData = existingProfile.exists() ? existingProfile.val() : {};
+
+                await set(userProfileRef, {
+                    ...profileData,
+                    profilePictureUrl: imageUrl,
+                    uid: userId,
+                    updatedAt: Date.now()
+                });
+
+                // Update display
+                document.getElementById('profilePicture').src = imageUrl;
+
+                // Update localStorage
+                const savedUser = JSON.parse(localStorage.getItem('currentUser'));
+                if (savedUser) {
+                    savedUser.photoURL = imageUrl;
+                    localStorage.setItem('currentUser', JSON.stringify(savedUser));
+                }
+
+                // Close modal
+                editPictureModal.style.display = 'none';
+
+                showModal('success', '✅ Success!', 'Profile picture updated successfully!');
+            } catch (error) {
+                console.error('Error saving profile picture:', error);
+                showModal('error', '❌ Upload Failed', `Error: ${error.message}`);
+            }
+        });
+
+        // Remove picture
+        removePictureBtn.addEventListener('click', async () => {
+            try {
+                const userId = authenticatedUser?.uid || JSON.parse(localStorage.getItem('currentUser'))?.uid;
+                if (!userId) {
+                    showModal('error', '❌ Not Signed In', 'You must be signed in to remove your picture');
+                    return;
+                }
+
+                // Remove from Firebase Database
+                const userProfileRef = ref(database, `user-profiles/${userId}`);
+                const existingProfile = await get(userProfileRef);
+                const profileData = existingProfile.exists() ? existingProfile.val() : {};
+
+                // Delete the URL from profile
+                delete profileData.profilePictureUrl;
+                await set(userProfileRef, {
+                    ...profileData,
+                    updatedAt: Date.now()
+                });
+
+                // Reset to default
+                document.getElementById('profilePicture').src = 'https://via.placeholder.com/80/FFCC00/1e5128?text=User';
+
+                // Update localStorage
+                const savedUser = JSON.parse(localStorage.getItem('currentUser'));
+                if (savedUser) {
+                    delete savedUser.photoURL;
+                    localStorage.setItem('currentUser', JSON.stringify(savedUser));
+                }
+
+                // Close modal
+                editPictureModal.style.display = 'none';
+
+                showModal('success', '✅ Removed!', 'Profile picture removed successfully');
+            } catch (error) {
+                console.error('Error removing profile picture:', error);
+                showModal('error', '❌ Error', `Failed to remove picture: ${error.message}`);
+            }
+        });
 
         // Global functions for other pages
         window.getUserRole = function() {

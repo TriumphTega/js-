@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "WebFetch(domain:myt-taupe.vercel.app)"
+      "WebFetch(domain:myt-taupe.vercel.app)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []

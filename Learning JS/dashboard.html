@@ -14,6 +14,27 @@
             <h1 id="page-title">🚀 Colony Dashboard</h1>
             <div id="nav-buttons">
                 <button id="walletBtn" class="nav-btn wallet-btn">👛 Wallet</button>
+
+                <!-- ═══════════════════════════════════════════════════════════════ -->
+                <!-- NEXUS CRATER NAVIGATION (Level 10 + 30 Days Required)         -->
+                <!-- ═══════════════════════════════════════════════════════════════ -->
+                <div id="nexus-nav-container" style="display: contents;">
+                    <!-- Daily Claim Station -->
+                    <a href="/Learning JS/nexus-claim-station.html" id="nexus-claim-link" class="nav-btn nexus-btn" style="background: linear-gradient(135deg, #00CED1, #00FFFF); color: #000; display: none;">
+                        🎁 Daily Claims
+                    </a>
+
+                    <!-- Marketplace -->
+                    <a href="/Learning JS/nexus-marketplace.html" id="nexus-market-link" class="nav-btn nexus-btn" style="background: linear-gradient(135deg, #00CED1, #00FFFF); color: #000; display: none;">
+                        💱 Marketplace
+                    </a>
+
+                    <!-- Locked message (shown until unlocked) -->
+                    <button id="nexus-locked-btn" class="nav-btn" style="background: rgba(0,206,209,0.2); color: rgba(0,255,255,0.5); cursor: not-allowed; border: 2px solid rgba(0,255,255,0.3);">
+                        🔒 Nexus Crater (Locked)
+                    </button>
+                </div>
+
                 <a href="/Learning JS/roadmap.html" class="nav-btn">🗺️ Roadmap</a>
                 <a href="/Learning JS/chatroom.html" class="nav-btn">💬 Chat</a>
                 <a href="/Learning JS/notes.html" class="nav-btn">📝 Notes</a>
@@ -618,9 +639,119 @@
                 replenishEnergy();
                 checkAndUpdateStreak();
 
+                // ═══════════════════════════════════════════════════════════════
+                // CHECK NEXUS CRATER UNLOCK STATUS
+                // ═══════════════════════════════════════════════════════════════
+                await checkNexusCraterUnlock(progressSnapshot);
+
             } catch (error) {
                 console.error('Error refreshing from Firebase:', error);
             }
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // NEXUS CRATER UNLOCK CHECK
+        // Requirements: Level 10 + 30 Total Login Days
+        // ═══════════════════════════════════════════════════════════════
+        async function checkNexusCraterUnlock(progressSnapshot) {
+            try {
+                let progressData = {
+                    totalXP: 0,
+                    level: 1,
+                    loginDays: []
+                };
+
+                if (progressSnapshot && progressSnapshot.exists()) {
+                    progressData = progressSnapshot.val();
+                }
+
+                // Calculate level from XP
+                const xp = progressData.totalXP || 0;
+                const level = calculateLevel(xp);
+                const totalLoginDays = (progressData.loginDays || []).length;
+
+                // Unlock requirements
+                const REQUIRED_LEVEL = 10;
+                const REQUIRED_DAYS = 30;
+
+                const hasRequiredLevel = level >= REQUIRED_LEVEL;
+                const hasRequiredDays = totalLoginDays >= REQUIRED_DAYS;
+                const isUnlocked = hasRequiredLevel && hasRequiredDays;
+
+                console.log('📊 Nexus Crater Status:', {
+                    level,
+                    totalLoginDays,
+                    hasRequiredLevel,
+                    hasRequiredDays,
+                    isUnlocked
+                });
+
+                // Update UI
+                const claimLink = document.getElementById('nexus-claim-link');
+                const marketLink = document.getElementById('nexus-market-link');
+                const lockedBtn = document.getElementById('nexus-locked-btn');
+
+                if (isUnlocked) {
+                    // Show unlocked buttons
+                    claimLink.style.display = 'inline-block';
+                    marketLink.style.display = 'inline-block';
+                    lockedBtn.style.display = 'none';
+
+                    console.log('✅ Nexus Crater UNLOCKED!');
+                } else {
+                    // Show locked button with progress
+                    const missingLevel = hasRequiredLevel ? '' : `Level ${REQUIRED_LEVEL}`;
+                    const missingDays = hasRequiredDays ? '' : `${REQUIRED_DAYS} Login Days`;
+                    const missing = [missingLevel, missingDays].filter(x => x).join(' + ');
+
+                    lockedBtn.textContent = `🔒 Nexus Crater (Need: ${missing})`;
+                    lockedBtn.style.display = 'inline-block';
+                    claimLink.style.display = 'none';
+                    marketLink.style.display = 'none';
+
+                    // Add click handler to show requirements
+                    lockedBtn.onclick = () => {
+                        showModal('info', '🔒 Nexus Crater Locked',
+                            `Unlock Requirements:\n\n` +
+                            `${hasRequiredLevel ? '✅' : '❌'} Level ${REQUIRED_LEVEL} (Current: ${level})\n` +
+                            `${hasRequiredDays ? '✅' : '❌'} ${REQUIRED_DAYS} Login Days (Current: ${totalLoginDays})\n\n` +
+                            `Keep playing to unlock the Trade & Social Hub!`
+                        );
+                    };
+
+                    console.log(`🔒 Nexus Crater LOCKED - Need: ${missing}`);
+                }
+            } catch (error) {
+                console.error('Error checking Nexus unlock:', error);
+            }
+        }
+
+        // Calculate level from XP (same formula used in console)
+        function calculateLevel(xp) {
+            const levels = [
+                { level: 1, xpRequired: 0 },
+                { level: 2, xpRequired: 100 },
+                { level: 3, xpRequired: 250 },
+                { level: 4, xpRequired: 450 },
+                { level: 5, xpRequired: 700 },
+                { level: 6, xpRequired: 1000 },
+                { level: 7, xpRequired: 1350 },
+                { level: 8, xpRequired: 1750 },
+                { level: 9, xpRequired: 2200 },
+                { level: 10, xpRequired: 2700 }, // Crater Nexus unlock
+                { level: 11, xpRequired: 3250 },
+                { level: 12, xpRequired: 3850 },
+                { level: 13, xpRequired: 4500 },
+                { level: 14, xpRequired: 5200 },
+                { level: 15, xpRequired: 5950 }
+            ];
+
+            for (let i = levels.length - 1; i >= 0; i--) {
+                if (xp >= levels[i].xpRequired) {
+                    return levels[i].level;
+                }
+            }
+            return 1;
         }
 
         // ============================================

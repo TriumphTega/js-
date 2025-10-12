@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Nexus Crater - Marketplace</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0a1f1f 0%, #1a3a3a 50%, #0a1f1f 100%);
+            color: white;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 20px;
+        }
+
+        #app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        #page-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        #page-title {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            color: #00FFFF;
+            text-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        #page-subtitle {
+            font-size: clamp(0.9rem, 2vw, 1.2rem);
+            color: rgba(0, 255, 255, 0.7);
+        }
+
+        /* Wallet Display */
+        #wallet-display {
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid #00FFFF;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .wallet-item {
+            text-align: center;
+        }
+
+        .wallet-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .wallet-value {
+            font-size: 1.8rem;
+            color: #00FFFF;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.6);
+        }
+
+        /* Main Layout */
+        #marketplace-layout {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        /* Price Ticker */
+        #price-ticker {
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        #price-ticker h3 {
+            color: #00FFFF;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .ticker-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: rgba(0, 255, 255, 0.05);
+            border-radius: 8px;
+            border-left: 3px solid #00FFFF;
+            transition: all 0.3s ease;
+        }
+
+        .ticker-row:hover {
+            background: rgba(0, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .ticker-resource {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.1rem;
+        }
+
+        .ticker-icon {
+            font-size: 1.5rem;
+        }
+
+        .ticker-price {
+            font-size: 1.2rem;
+            color: #00FFFF;
+            font-weight: bold;
+        }
+
+        .ticker-change {
+            padding: 4px 10px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .ticker-change.up {
+            background: rgba(76, 175, 80, 0.3);
+            color: #4CAF50;
+        }
+
+        .ticker-change.down {
+            background: rgba(244, 67, 54, 0.3);
+            color: #F44336;
+        }
+
+        .ticker-change.neutral {
+            background: rgba(158, 158, 158, 0.3);
+            color: #9E9E9E;
+        }
+
+        /* Quick Actions */
+        #quick-actions {
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        #quick-actions h3 {
+            color: #00FFFF;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .quick-action-btn {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #00CED1, #00FFFF);
+            color: #000;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .quick-action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 255, 255, 0.4);
+        }
+
+        .quick-action-btn.secondary {
+            background: linear-gradient(135deg, #6c757d, #5a6268);
+            color: white;
+        }
+
+        /* Trading Panel */
+        #trading-panel {
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid #00FFFF;
+            border-radius: 15px;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .tabs {
+            display: flex;
+            background: rgba(0, 0, 0, 0.5);
+            border-bottom: 2px solid rgba(0, 255, 255, 0.3);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 20px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            background: transparent;
+            color: rgba(255, 255, 255, 0.6);
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .tab:hover {
+            background: rgba(0, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .tab.active {
+            background: rgba(0, 255, 255, 0.2);
+            color: #00FFFF;
+            border-bottom: 3px solid #00FFFF;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 30px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Listings */
+        .listings-container {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .listing-card {
+            background: rgba(0, 255, 255, 0.05);
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .listing-card:hover {
+            border-color: #00FFFF;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+            transform: translateY(-3px);
+        }
+
+        .listing-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .listing-resource {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.3rem;
+            color: #00FFFF;
+            font-weight: bold;
+        }
+
+        .listing-seller {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+        }
+
+        .listing-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .listing-amount,
+        .listing-price,
+        .listing-total {
+            text-align: center;
+        }
+
+        .listing-label {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.85rem;
+            margin-bottom: 5px;
+        }
+
+        .listing-value {
+            color: #00FFFF;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .listing-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .listing-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .listing-btn.buy {
+            background: linear-gradient(135deg, #4CAF50, #66BB6A);
+            color: white;
+        }
+
+        .listing-btn.buy:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .listing-btn.cancel {
+            background: linear-gradient(135deg, #F44336, #E53935);
+            color: white;
+        }
+
+        .listing-btn.cancel:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(244, 67, 54, 0.4);
+        }
+
+        /* Create Listing Form */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            color: #00FFFF;
+            font-size: 1rem;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .form-input,
+        .form-select {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            border-radius: 8px;
+            color: white;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: #00FFFF;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+        }
+
+        .form-hint {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+
+        .form-calculation {
+            background: rgba(0, 255, 255, 0.1);
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .calc-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .calc-row.total {
+            border-top: 2px solid rgba(0, 255, 255, 0.3);
+            padding-top: 10px;
+            margin-top: 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #00FFFF;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #00CED1, #00FFFF);
+            color: #000;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 255, 255, 0.5);
+        }
+
+        .submit-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        /* Trade History */
+        .history-item {
+            background: rgba(0, 255, 255, 0.05);
+            border-left: 3px solid #00FFFF;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .history-type {
+            color: #00FFFF;
+        }
+
+        .history-date {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.85rem;
+        }
+
+        .history-details {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.95rem;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: rgba(255, 255, 255, 0.5);
+            font-style: italic;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a3a3a, #0a1f1f);
+            border: 3px solid #00FFFF;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 0 50px rgba(0, 255, 255, 0.5);
+        }
+
+        .modal-header {
+            font-size: 1.8rem;
+            color: #00FFFF;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .modal-body {
+            margin-bottom: 25px;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-btn.confirm {
+            background: linear-gradient(135deg, #4CAF50, #66BB6A);
+            color: white;
+        }
+
+        .modal-btn.cancel {
+            background: linear-gradient(135deg, #6c757d, #5a6268);
+            color: white;
+        }
+
+        /* Back Button */
+        #back-button {
+            display: block;
+            width: 200px;
+            margin: 30px auto 0;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #FFCC00, #e6b800);
+            color: #1a3a3a;
+            border: 3px solid #1a3a3a;
+            border-radius: 10px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.1rem;
+            font-weight: bold;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        #back-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(255, 204, 0, 0.4);
+        }
+
+        /* Responsive */
+        @media (max-width: 968px) {
+            #marketplace-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .listing-details {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app-container">
+        <!-- Header -->
+        <div id="page-header">
+            <h1 id="page-title">💱 NEXUS MARKETPLACE</h1>
+            <p id="page-subtitle">Trade Resources • Build Your Fortune • Dominate the Market</p>
+        </div>
+
+        <!-- Wallet Display -->
+        <div id="wallet-display">
+            <div class="wallet-item">
+                <div class="wallet-label">💰 Lunaris Balance</div>
+                <div class="wallet-value" id="lunaris-balance">2,450</div>
+            </div>
+            <div class="wallet-item">
+                <div class="wallet-label">💨 Oxygen</div>
+                <div class="wallet-value" id="oxygen-balance">85</div>
+            </div>
+            <div class="wallet-item">
+                <div class="wallet-label">🌱 Hydroponics</div>
+                <div class="wallet-value" id="hydro-balance">92</div>
+            </div>
+            <div class="wallet-item">
+                <div class="wallet-label">⚡ Energy</div>
+                <div class="wallet-value" id="energy-balance">78</div>
+            </div>
+        </div>
+
+        <!-- Main Layout -->
+        <div id="marketplace-layout">
+            <!-- Left Sidebar -->
+            <div>
+                <!-- Price Ticker -->
+                <div id="price-ticker">
+                    <h3>📊 Live Market Prices</h3>
+                    <div class="ticker-row">
+                        <div class="ticker-resource">
+                            <span class="ticker-icon">💨</span>
+                            <span>Oxygen</span>
+                        </div>
+                        <div style="display: flex; gap: 15px; align-items: center;">
+                            <span class="ticker-price">10 💰</span>
+                            <span class="ticker-change up">↑ +5%</span>
+                        </div>
+                    </div>
+                    <div class="ticker-row">
+                        <div class="ticker-resource">
+                            <span class="ticker-icon">🌱</span>
+                            <span>Hydroponics</span>
+                        </div>
+                        <div style="display: flex; gap: 15px; align-items: center;">
+                            <span class="ticker-price">15 💰</span>
+                            <span class="ticker-change down">↓ -2%</span>
+                        </div>
+                    </div>
+                    <div class="ticker-row">
+                        <div class="ticker-resource">
+                            <span class="ticker-icon">⚡</span>
+                            <span>Energy</span>
+                        </div>
+                        <div style="display: flex; gap: 15px; align-items: center;">
+                            <span class="ticker-price">20 💰</span>
+                            <span class="ticker-change neutral">→ 0%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div id="quick-actions">
+                    <h3>⚡ Quick Actions</h3>
+                    <button class="quick-action-btn" onclick="switchTab('buy')">
+                        <span>🛒</span>
+                        <span>Browse Listings</span>
+                    </button>
+                    <button class="quick-action-btn" onclick="switchTab('sell')">
+                        <span>💼</span>
+                        <span>Create Listing</span>
+                    </button>
+                    <button class="quick-action-btn secondary" onclick="switchTab('my-trades')">
+                        <span>📋</span>
+                        <span>My Active Trades</span>
+                    </button>
+                    <button class="quick-action-btn secondary" onclick="switchTab('history')">
+                        <span>📜</span>
+                        <span>Trade History</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Trading Panel -->
+            <div id="trading-panel">
+                <!-- Tabs -->
+                <div class="tabs">
+                    <button class="tab active" data-tab="buy" onclick="switchTab('buy')">
+                        🛒 Buy Resources
+                    </button>
+                    <button class="tab" data-tab="sell" onclick="switchTab('sell')">
+                        💼 Sell Resources
+                    </button>
+                    <button class="tab" data-tab="my-trades" onclick="switchTab('my-trades')">
+                        📋 My Trades
+                    </button>
+                    <button class="tab" data-tab="history" onclick="switchTab('history')">
+                        📜 History
+                    </button>
+                </div>
+
+                <!-- Buy Tab -->
+                <div class="tab-content active" data-content="buy">
+                    <div class="listings-container" id="buy-listings">
+                        <!-- Listing 1 -->
+                        <div class="listing-card">
+                            <div class="listing-header">
+                                <div class="listing-resource">
+                                    <span>💨</span>
+                                    <span>Oxygen</span>
+                                </div>
+                                <div class="listing-seller">Seller: MarsTrader47</div>
+                            </div>
+                            <div class="listing-details">
+                                <div class="listing-amount">
+                                    <div class="listing-label">Amount</div>
+                                    <div class="listing-value">100 units</div>
+                                </div>
+                                <div class="listing-price">
+                                    <div class="listing-label">Price per unit</div>
+                                    <div class="listing-value">10 💰</div>
+                                </div>
+                                <div class="listing-total">
+                                    <div class="listing-label">Total Cost</div>
+                                    <div class="listing-value">1,000 💰</div>
+                                </div>
+                            </div>
+                            <div class="listing-actions">
+                                <button class="listing-btn buy" onclick="buyResource('oxygen', 100, 1000, 'MarsTrader47')">
+                                    💰 Buy Now
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Listing 2 -->
+                        <div class="listing-card">
+                            <div class="listing-header">
+                                <div class="listing-resource">
+                                    <span>🌱</span>
+                                    <span>Hydroponics</span>
+                                </div>
+                                <div class="listing-seller">Seller: CraterFarmer</div>
+                            </div>
+                            <div class="listing-details">
+                                <div class="listing-amount">
+                                    <div class="listing-label">Amount</div>
+                                    <div class="listing-value">50 units</div>
+                                </div>
+                                <div class="listing-price">
+                                    <div class="listing-label">Price per unit</div>
+                                    <div class="listing-value">14 💰</div>
+                                </div>
+                                <div class="listing-total">
+                                    <div class="listing-label">Total Cost</div>
+                                    <div class="listing-value">700 💰</div>
+                                </div>
+                            </div>
+                            <div class="listing-actions">
+                                <button class="listing-btn buy" onclick="buyResource('hydroponics', 50, 700, 'CraterFarmer')">
+                                    💰 Buy Now
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Listing 3 -->
+                        <div class="listing-card">
+                            <div class="listing-header">
+                                <div class="listing-resource">
+                                    <span>⚡</span>
+                                    <span>Energy</span>
+                                </div>
+                                <div class="listing-seller">Seller: PowerPlant01</div>
+                            </div>
+                            <div class="listing-details">
+                                <div class="listing-amount">
+                                    <div class="listing-label">Amount</div>
+                                    <div class="listing-value">75 units</div>
+                                </div>
+                                <div class="listing-price">
+                                    <div class="listing-label">Price per unit</div>
+                                    <div class="listing-value">20 💰</div>
+                                </div>
+                                <div class="listing-total">
+                                    <div class="listing-label">Total Cost</div>
+                                    <div class="listing-value">1,500 💰</div>
+                                </div>
+                            </div>
+                            <div class="listing-actions">
+                                <button class="listing-btn buy" onclick="buyResource('energy', 75, 1500, 'PowerPlant01')">
+                                    💰 Buy Now
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Listing 4 -->
+                        <div class="listing-card">
+                            <div class="listing-header">
+                                <div class="listing-resource">
+                                    <span>💨</span>
+                                    <span>Oxygen</span>
+                                </div>
+                                <div class="listing-seller">Seller: BaseSupply</div>
+                            </div>
+                            <div class="listing-details">
+                                <div class="listing-amount">
+                                    <div class="listing-label">Amount</div>
+                                    <div class="listing-value">200 units</div>
+                                </div>
+                                <div class="listing-price">
+                                    <div class="listing-label">Price per unit</div>
+                                    <div class="listing-value">9 💰</div>
+                                </div>
+                                <div class="listing-total">
+                                    <div class="listing-label">Total Cost</div>
+                                    <div class="listing-value">1,800 💰</div>
+                                </div>
+                            </div>
+                            <div class="listing-actions">
+                                <button class="listing-btn buy" onclick="buyResource('oxygen', 200, 1800, 'BaseSupply')">
+                                    💰 Buy Now
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sell Tab -->
+                <div class="tab-content" data-content="sell">
+                    <h3 style="color: #00FFFF; margin-bottom: 25px;">Create New Listing</h3>
+
+                    <form id="sell-form" onsubmit="createListing(event)">
+                        <div class="form-group">
+                            <label class="form-label">Resource Type</label>
+                            <select class="form-select" id="sell-resource" onchange="updateSellCalculation()">
+                                <option value="">-- Select Resource --</option>
+                                <option value="oxygen">💨 Oxygen (Available: 85 units)</option>
+                                <option value="hydroponics">🌱 Hydroponics (Available: 92 units)</option>
+                                <option value="energy">⚡ Energy (Available: 78 units)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Amount to Sell</label>
+                            <input type="number" class="form-input" id="sell-amount" min="1" placeholder="Enter amount" onchange="updateSellCalculation()">
+                            <div class="form-hint">Minimum: 10 units</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Price per Unit (Lunaris)</label>
+                            <input type="number" class="form-input" id="sell-price" min="1" placeholder="Enter price" onchange="updateSellCalculation()">
+                            <div class="form-hint" id="market-price-hint">Market price: Loading...</div>
+                        </div>
+
+                        <div class="form-calculation">
+                            <div class="calc-row">
+                                <span>Subtotal:</span>
+                                <span id="calc-subtotal">0 💰</span>
+                            </div>
+                            <div class="calc-row">
+                                <span>Marketplace Fee (5%):</span>
+                                <span id="calc-fee">0 💰</span>
+                            </div>
+                            <div class="calc-row total">
+                                <span>You'll Receive:</span>
+                                <span id="calc-total">0 💰</span>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="submit-btn">
+                            📤 Create Listing
+                        </button>
+                    </form>
+                </div>
+
+                <!-- My Trades Tab -->
+                <div class="tab-content" data-content="my-trades">
+                    <div id="my-trades-list">
+                        <div class="listing-card">
+                            <div class="listing-header">
+                                <div class="listing-resource">
+                                    <span>💨</span>
+                                    <span>Oxygen</span>
+                                </div>
+                                <div class="listing-seller">Your Listing</div>
+                            </div>
+                            <div class="listing-details">
+                                <div class="listing-amount">
+                                    <div class="listing-label">Amount</div>
+                                    <div class="listing-value">50 units</div>
+                                </div>
+                                <div class="listing-price">
+                                    <div class="listing-label">Price per unit</div>
+                                    <div class="listing-value">11 💰</div>
+                                </div>
+                                <div class="listing-total">
+                                    <div class="listing-label">Total Value</div>
+                                    <div class="listing-value">550 💰</div>
+                                </div>
+                            </div>
+                            <div class="listing-actions">
+                                <button class="listing-btn cancel" onclick="cancelListing('oxygen', 50, 550)">
+                                    ❌ Cancel Listing
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="listing-card">
+                            <div class="listing-header">
+                                <div class="listing-resource">
+                                    <span>⚡</span>
+                                    <span>Energy</span>
+                                </div>
+                                <div class="listing-seller">Your Listing</div>
+                            </div>
+                            <div class="listing-details">
+                                <div class="listing-amount">
+                                    <div class="listing-label">Amount</div>
+                                    <div class="listing-value">30 units</div>
+                                </div>
+                                <div class="listing-price">
+                                    <div class="listing-label">Price per unit</div>
+                                    <div class="listing-value">22 💰</div>
+                                </div>
+                                <div class="listing-total">
+                                    <div class="listing-label">Total Value</div>
+                                    <div class="listing-value">660 💰</div>
+                                </div>
+                            </div>
+                            <div class="listing-actions">
+                                <button class="listing-btn cancel" onclick="cancelListing('energy', 30, 660)">
+                                    ❌ Cancel Listing
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- History Tab -->
+                <div class="tab-content" data-content="history">
+                    <div id="history-list">
+                        <div class="history-item">
+                            <div class="history-header">
+                                <span class="history-type">🛒 BOUGHT</span>
+                                <span class="history-date">2 hours ago</span>
+                            </div>
+                            <div class="history-details">
+                                100 💨 Oxygen for 1,000 💰 from MarsTrader47
+                            </div>
+                        </div>
+
+                        <div class="history-item">
+                            <div class="history-header">
+                                <span class="history-type">💰 SOLD</span>
+                                <span class="history-date">5 hours ago</span>
+                            </div>
+                            <div class="history-details">
+                                75 🌱 Hydroponics for 1,125 💰 to CraterExplorer
+                            </div>
+                        </div>
+
+                        <div class="history-item">
+                            <div class="history-header">
+                                <span class="history-type">🛒 BOUGHT</span>
+                                <span class="history-date">1 day ago</span>
+                            </div>
+                            <div class="history-details">
+                                50 ⚡ Energy for 1,000 💰 from PowerGrid88
+                            </div>
+                        </div>
+
+                        <div class="history-item">
+                            <div class="history-header">
+                                <span class="history-type">💰 SOLD</span>
+                                <span class="history-date">2 days ago</span>
+                            </div>
+                            <div class="history-details">
+                                200 💨 Oxygen for 2,200 💰 to BaseSupply
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back Button -->
+        <a href="/Learning JS/dashboard.html" id="back-button">← Back to Dashboard</a>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirm-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header" id="modal-header">Confirm Purchase</div>
+            <div class="modal-body" id="modal-body">
+                Are you sure you want to purchase this resource?
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn cancel" onclick="closeModal()">Cancel</button>
+                <button class="modal-btn confirm" id="modal-confirm-btn">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Market prices
+        const marketPrices = {
+            oxygen: { price: 10, change: 5 },
+            hydroponics: { price: 15, change: -2 },
+            energy: { price: 20, change: 0 }
+        };
+
+        // User wallet
+        let wallet = {
+            lunaris: 2450,
+            oxygen: 85,
+            hydroponics: 92,
+            energy: 78
+        };
+
+        // Tab switching
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+
+            // Update content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.querySelector(`[data-content="${tabName}"]`).classList.add('active');
+        }
+
+        // Update sell calculation
+        function updateSellCalculation() {
+            const resource = document.getElementById('sell-resource').value;
+            const amount = parseInt(document.getElementById('sell-amount').value) || 0;
+            const price = parseInt(document.getElementById('sell-price').value) || 0;
+
+            const subtotal = amount * price;
+            const fee = Math.floor(subtotal * 0.05);
+            const total = subtotal - fee;
+
+            document.getElementById('calc-subtotal').textContent = subtotal + ' 💰';
+            document.getElementById('calc-fee').textContent = fee + ' 💰';
+            document.getElementById('calc-total').textContent = total + ' 💰';
+
+            // Update market price hint
+            if (resource && marketPrices[resource]) {
+                const marketPrice = marketPrices[resource].price;
+                const diff = price - marketPrice;
+                let hint = `Market price: ${marketPrice} 💰`;
+
+                if (diff > 0) {
+                    hint += ` (You're ${diff} 💰 above market)`;
+                } else if (diff < 0) {
+                    hint += ` (You're ${Math.abs(diff)} 💰 below market)`;
+                } else {
+                    hint += ` (At market price)`;
+                }
+
+                document.getElementById('market-price-hint').textContent = hint;
+            }
+        }
+
+        // Create listing
+        function createListing(event) {
+            event.preventDefault();
+
+            const resource = document.getElementById('sell-resource').value;
+            const amount = parseInt(document.getElementById('sell-amount').value);
+            const price = parseInt(document.getElementById('sell-price').value);
+
+            if (!resource || !amount || !price) {
+                alert('⚠️ Please fill in all fields!');
+                return;
+            }
+
+            if (amount < 10) {
+                alert('⚠️ Minimum listing amount is 10 units!');
+                return;
+            }
+
+            const resourceNames = {
+                oxygen: 'Oxygen',
+                hydroponics: 'Hydroponics',
+                energy: 'Energy'
+            };
+
+            const available = wallet[resource];
+            if (amount > available) {
+                alert(`⚠️ Insufficient ${resourceNames[resource]}! You only have ${available} units.`);
+                return;
+            }
+
+            const subtotal = amount * price;
+            const fee = Math.floor(subtotal * 0.05);
+            const total = subtotal - fee;
+
+            // Deduct from wallet
+            wallet[resource] -= amount;
+            updateWalletDisplay();
+
+            alert(`✅ Listing Created!\n\n${amount} ${resourceNames[resource]} listed at ${price} 💰 per unit.\n\nYou'll receive ${total} 💰 when sold (after 5% fee).`);
+
+            // Reset form
+            document.getElementById('sell-form').reset();
+            updateSellCalculation();
+        }
+
+        // Buy resource
+        function buyResource(resource, amount, cost, seller) {
+            const modal = document.getElementById('confirm-modal');
+            const resourceNames = {
+                oxygen: 'Oxygen 💨',
+                hydroponics: 'Hydroponics 🌱',
+                energy: 'Energy ⚡'
+            };
+
+            document.getElementById('modal-header').textContent = 'Confirm Purchase';
+            document.getElementById('modal-body').innerHTML = `
+                <strong>Resource:</strong> ${amount} ${resourceNames[resource]}<br>
+                <strong>Total Cost:</strong> ${cost} 💰<br>
+                <strong>Seller:</strong> ${seller}<br><br>
+                Do you want to complete this purchase?
+            `;
+
+            const confirmBtn = document.getElementById('modal-confirm-btn');
+            confirmBtn.onclick = () => {
+                if (wallet.lunaris < cost) {
+                    alert('⚠️ Insufficient Lunaris tokens!');
+                    closeModal();
+                    return;
+                }
+
+                // Process purchase
+                wallet.lunaris -= cost;
+                wallet[resource] += amount;
+                updateWalletDisplay();
+
+                alert(`✅ Purchase Successful!\n\n+${amount} ${resourceNames[resource]}\n-${cost} 💰`);
+                closeModal();
+            };
+
+            modal.classList.add('active');
+        }
+
+        // Cancel listing
+        function cancelListing(resource, amount, value) {
+            const resourceNames = {
+                oxygen: 'Oxygen 💨',
+                hydroponics: 'Hydroponics 🌱',
+                energy: 'Energy ⚡'
+            };
+
+            if (confirm(`Cancel listing for ${amount} ${resourceNames[resource]}?\n\nThe resource will be returned to your inventory.`)) {
+                wallet[resource] += amount;
+                updateWalletDisplay();
+                alert(`✅ Listing cancelled! ${amount} ${resourceNames[resource]} returned to your inventory.`);
+            }
+        }
+
+        // Update wallet display
+        function updateWalletDisplay() {
+            document.getElementById('lunaris-balance').textContent = wallet.lunaris.toLocaleString();
+            document.getElementById('oxygen-balance').textContent = wallet.oxygen;
+            document.getElementById('hydro-balance').textContent = wallet.hydroponics;
+            document.getElementById('energy-balance').textContent = wallet.energy;
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('confirm-modal').classList.remove('active');
+        }
+
+        // Close modal on outside click
+        document.getElementById('confirm-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'confirm-modal') {
+                closeModal();
+            }
+        });
+
+        // Simulate price fluctuations
+        function updatePrices() {
+            Object.keys(marketPrices).forEach(resource => {
+                const change = (Math.random() * 2 - 1).toFixed(1);
+                marketPrices[resource].change = parseFloat(change);
+                marketPrices[resource].price += Math.round(change);
+                marketPrices[resource].price = Math.max(5, marketPrices[resource].price);
+            });
+        }
+
+        setInterval(updatePrices, 30000);
+    </script>
+</body>
+</html>

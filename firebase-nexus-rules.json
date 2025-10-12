@@ -1,0 +1,94 @@
+{
+  "rules": {
+    "nexus-daily-resources": {
+      "$date": {
+        ".read": true,
+        ".write": "auth != null",
+        ".validate": "newData.hasChildren(['premiumOxygen', 'hyperHydroponics', 'energyCrystal', 'lunarisBonus'])",
+        "$resource": {
+          ".validate": "newData.hasChildren(['total', 'claimed', 'lastUpdate']) && newData.child('claimed').val() <= newData.child('total').val()"
+        }
+      }
+    },
+
+    "nexus-user-claims": {
+      "$userId": {
+        ".read": "auth != null && auth.uid == $userId",
+        ".write": "auth != null && auth.uid == $userId",
+        "$date": {
+          "$resourceType": {
+            ".validate": "newData.hasChildren(['claimed', 'timestamp', 'amount'])"
+          }
+        }
+      }
+    },
+
+    "nexus-marketplace-listings": {
+      ".read": true,
+      "$listingId": {
+        ".write": "auth != null && (
+          !data.exists() ||
+          data.child('sellerId').val() == auth.uid ||
+          newData.child('buyerId').val() == auth.uid
+        )",
+        ".validate": "newData.hasChildren(['sellerId', 'resourceType', 'amount', 'pricePerUnit', 'totalPrice', 'status']) &&
+                      newData.child('amount').val() >= 10 &&
+                      newData.child('pricePerUnit').val() >= 1 &&
+                      newData.child('status').val().matches(/^(active|sold|cancelled)$/)"
+      }
+    },
+
+    "nexus-trade-history": {
+      "$tradeId": {
+        ".read": "auth != null && (
+          data.child('buyerId').val() == auth.uid ||
+          data.child('sellerId').val() == auth.uid
+        )",
+        ".write": "auth != null && !data.exists()",
+        ".validate": "newData.hasChildren(['buyerId', 'sellerId', 'resourceType', 'amount', 'price', 'timestamp', 'type'])"
+      }
+    },
+
+    "nexus-reputation": {
+      "$userId": {
+        ".read": true,
+        ".write": "auth != null",
+        ".validate": "newData.hasChildren(['totalRep', 'level']) &&
+                      newData.child('totalRep').isNumber() &&
+                      newData.child('totalRep').val() >= 0 &&
+                      newData.child('level').isNumber() &&
+                      newData.child('level').val() >= 1 &&
+                      newData.child('level').val() <= 6"
+      }
+    },
+
+    "nexus-market-prices": {
+      ".read": true,
+      ".write": "auth != null",
+      "$resource": {
+        ".validate": "newData.hasChildren(['price', 'change', 'lastUpdate']) &&
+                      newData.child('price').isNumber() &&
+                      newData.child('price').val() >= 1"
+      }
+    },
+
+    "colony-data": {
+      "$userId": {
+        ".read": "auth != null && auth.uid == $userId",
+        ".write": "auth != null && auth.uid == $userId",
+        "lunaris": {
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        },
+        "oxygen": {
+          ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100"
+        },
+        "hydroponics": {
+          ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100"
+        },
+        "energy": {
+          ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100"
+        }
+      }
+    }
+  }
+}

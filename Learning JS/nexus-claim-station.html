@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Nexus Crater - Daily Claim Station</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0a1f1f 0%, #1a3a3a 50%, #0a1f1f 100%);
+            color: white;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        /* Animated background particles */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.3; }
+            50% { transform: translateY(-20px) rotate(180deg); opacity: 0.6; }
+        }
+
+        .bg-particle {
+            position: fixed;
+            background: rgba(0, 255, 255, 0.2);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        #app-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        #page-header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: slideDown 0.8s ease;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        #page-title {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            color: #00FFFF;
+            text-shadow: 0 0 20px rgba(0, 255, 255, 0.8),
+                         0 0 40px rgba(0, 255, 255, 0.4);
+            margin-bottom: 10px;
+            font-weight: bold;
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { text-shadow: 0 0 20px rgba(0, 255, 255, 0.8), 0 0 40px rgba(0, 255, 255, 0.4); }
+            50% { text-shadow: 0 0 30px rgba(0, 255, 255, 1), 0 0 60px rgba(0, 255, 255, 0.6); }
+        }
+
+        #page-subtitle {
+            font-size: clamp(0.9rem, 2vw, 1.2rem);
+            color: rgba(0, 255, 255, 0.7);
+            font-style: italic;
+        }
+
+        /* Timer Section */
+        #reset-timer {
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid #00FFFF;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+        }
+
+        #reset-timer h3 {
+            color: #00FFFF;
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+        }
+
+        #countdown-display {
+            font-size: 2.5rem;
+            color: #00FFFF;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+            letter-spacing: 3px;
+        }
+
+        /* Claim Station */
+        #claim-station {
+            background: linear-gradient(135deg, rgba(0, 30, 30, 0.9) 0%, rgba(0, 50, 50, 0.9) 100%);
+            border: 3px solid #00FFFF;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 0 50px rgba(0, 255, 255, 0.4),
+                        inset 0 0 50px rgba(0, 255, 255, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .station-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .station-header h2 {
+            font-size: 2rem;
+            color: #00FFFF;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .station-header p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.1rem;
+        }
+
+        /* Resource Card */
+        .resource-card {
+            background: rgba(0, 0, 0, 0.4);
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .resource-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .resource-card:hover::before {
+            left: 100%;
+        }
+
+        .resource-card:hover {
+            border-color: #00FFFF;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.4);
+            transform: translateY(-5px);
+        }
+
+        .resource-card.sold-out {
+            opacity: 0.5;
+            border-color: rgba(220, 53, 69, 0.5);
+        }
+
+        .resource-card.almost-gone {
+            animation: pulse 2s ease-in-out infinite;
+            border-color: #FF6B35;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(255, 107, 53, 0.4); }
+            50% { box-shadow: 0 0 40px rgba(255, 107, 53, 0.8); }
+        }
+
+        .resource-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .resource-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #00FFFF;
+        }
+
+        .resource-icon {
+            font-size: 2.5rem;
+            filter: drop-shadow(0 0 10px rgba(0, 255, 255, 0.6));
+        }
+
+        .rarity-badge {
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .rarity-uncommon {
+            background: linear-gradient(135deg, #4CAF50, #66BB6A);
+            box-shadow: 0 0 15px rgba(76, 175, 80, 0.5);
+        }
+
+        .rarity-rare {
+            background: linear-gradient(135deg, #2196F3, #42A5F5);
+            box-shadow: 0 0 15px rgba(33, 150, 243, 0.5);
+        }
+
+        .rarity-epic {
+            background: linear-gradient(135deg, #9C27B0, #BA68C8);
+            box-shadow: 0 0 15px rgba(156, 39, 176, 0.5);
+        }
+
+        .rarity-legendary {
+            background: linear-gradient(135deg, #FF9800, #FFB74D);
+            box-shadow: 0 0 15px rgba(255, 152, 0, 0.5);
+            animation: legendary-glow 2s ease-in-out infinite;
+        }
+
+        @keyframes legendary-glow {
+            0%, 100% { box-shadow: 0 0 15px rgba(255, 152, 0, 0.5); }
+            50% { box-shadow: 0 0 30px rgba(255, 152, 0, 0.9); }
+        }
+
+        .resource-claim-value {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 15px;
+        }
+
+        .resource-claim-value strong {
+            color: #00FFFF;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            margin-bottom: 15px;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .progress-remaining {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .progress-percentage {
+            color: #00FFFF;
+            font-weight: bold;
+        }
+
+        .progress-bar-bg {
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            border-radius: 10px;
+            height: 30px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00CED1, #00FFFF);
+            border-radius: 8px;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: #000;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
+        }
+
+        .progress-bar-fill.low {
+            background: linear-gradient(90deg, #FF6B35, #FF8C00);
+        }
+
+        .progress-bar-fill.very-low {
+            background: linear-gradient(90deg, #dc3545, #c82333);
+            animation: bar-pulse 1s ease-in-out infinite;
+        }
+
+        @keyframes bar-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Claim Button */
+        .claim-button {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            font-family: 'Courier New', Courier, monospace;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .claim-button.available {
+            background: linear-gradient(135deg, #00CED1, #00FFFF);
+            color: #000;
+            box-shadow: 0 5px 20px rgba(0, 255, 255, 0.4);
+        }
+
+        .claim-button.available:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0, 255, 255, 0.6);
+            background: linear-gradient(135deg, #00FFFF, #00CED1);
+        }
+
+        .claim-button.available:active {
+            transform: translateY(-1px);
+        }
+
+        .claim-button.claimed {
+            background: linear-gradient(135deg, #4CAF50, #66BB6A);
+            color: white;
+            cursor: not-allowed;
+        }
+
+        .claim-button.sold-out {
+            background: linear-gradient(135deg, #6c757d, #5a6268);
+            color: rgba(255, 255, 255, 0.5);
+            cursor: not-allowed;
+        }
+
+        /* Activity Feed */
+        #activity-feed {
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        #activity-feed h3 {
+            color: #00FFFF;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .activity-item {
+            background: rgba(0, 255, 255, 0.05);
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 3px solid #00FFFF;
+            animation: slideInRight 0.5s ease;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(50px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .activity-item .user {
+            color: #00FFFF;
+            font-weight: bold;
+        }
+
+        .activity-item .time {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.85rem;
+            margin-left: 10px;
+        }
+
+        /* Statistics */
+        #claim-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            border-color: #00FFFF;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            color: #00FFFF;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.6);
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1rem;
+        }
+
+        /* Back Button */
+        #back-button {
+            display: block;
+            width: 200px;
+            margin: 0 auto;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #FFCC00, #e6b800);
+            color: #1a3a3a;
+            border: 3px solid #1a3a3a;
+            border-radius: 10px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.1rem;
+            font-weight: bold;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        #back-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(255, 204, 0, 0.4);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            #page-title {
+                font-size: 2rem;
+            }
+
+            .resource-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            #countdown-display {
+                font-size: 1.8rem;
+            }
+
+            .claim-button {
+                font-size: 1rem;
+                padding: 12px;
+            }
+        }
+
+        /* Celebration animation */
+        @keyframes celebrate {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .celebrating {
+            animation: celebrate 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+    <!-- Background particles -->
+    <div id="particles"></div>
+
+    <div id="app-container">
+        <!-- Header -->
+        <div id="page-header">
+            <h1 id="page-title">🏪 NEXUS CRATER</h1>
+            <p id="page-subtitle">Daily Claim Station • Limited Resources Available</p>
+        </div>
+
+        <!-- Reset Timer -->
+        <div id="reset-timer">
+            <h3>⏰ Resources Reset In:</h3>
+            <div id="countdown-display">08:42:17</div>
+        </div>
+
+        <!-- Statistics -->
+        <div id="claim-stats">
+            <div class="stat-card">
+                <div class="stat-value" id="total-claimed">0</div>
+                <div class="stat-label">Resources Claimed Today</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="claim-streak">7</div>
+                <div class="stat-label">Day Claim Streak 🔥</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="active-colonists">1,247</div>
+                <div class="stat-label">Active Colonists</div>
+            </div>
+        </div>
+
+        <!-- Claim Station -->
+        <div id="claim-station">
+            <div class="station-header">
+                <h2>
+                    <span>🎁</span>
+                    <span>DAILY RESOURCE CLAIM STATION</span>
+                    <span>🎁</span>
+                </h2>
+                <p>First come, first served! Claim your resources before they run out!</p>
+            </div>
+
+            <!-- Resource: Lunaris Bonus -->
+            <div class="resource-card" data-resource="lunarisBonus">
+                <div class="resource-header">
+                    <div class="resource-title">
+                        <span class="resource-icon">💰</span>
+                        <span>Lunaris Bonus</span>
+                    </div>
+                    <span class="rarity-badge rarity-uncommon">
+                        <span>✨</span>
+                        <span>Uncommon</span>
+                    </span>
+                </div>
+                <div class="resource-claim-value">
+                    Claim: <strong>100 Lunaris Tokens</strong>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-info">
+                        <span class="progress-remaining">1,856 / 2,000 remaining</span>
+                        <span class="progress-percentage">92.8% left</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: 92.8%;">Plenty Available!</div>
+                    </div>
+                </div>
+                <button class="claim-button available" onclick="claimResource('lunarisBonus')">
+                    🎯 Claim Now
+                </button>
+            </div>
+
+            <!-- Resource: Premium Oxygen -->
+            <div class="resource-card" data-resource="premiumOxygen">
+                <div class="resource-header">
+                    <div class="resource-title">
+                        <span class="resource-icon">💨</span>
+                        <span>Premium Oxygen</span>
+                    </div>
+                    <span class="rarity-badge rarity-rare">
+                        <span>💎</span>
+                        <span>Rare</span>
+                    </span>
+                </div>
+                <div class="resource-claim-value">
+                    Claim: <strong>50 Oxygen Units</strong>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-info">
+                        <span class="progress-remaining">367 / 1,000 remaining</span>
+                        <span class="progress-percentage">36.7% left</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill low" style="width: 36.7%;">Going Fast!</div>
+                    </div>
+                </div>
+                <button class="claim-button available" onclick="claimResource('premiumOxygen')">
+                    🎯 Claim Now
+                </button>
+            </div>
+
+            <!-- Resource: Hyper-Hydroponics -->
+            <div class="resource-card almost-gone" data-resource="hyperHydro">
+                <div class="resource-header">
+                    <div class="resource-title">
+                        <span class="resource-icon">🌱</span>
+                        <span>Hyper-Hydroponics</span>
+                    </div>
+                    <span class="rarity-badge rarity-epic">
+                        <span>⚡</span>
+                        <span>Epic</span>
+                    </span>
+                </div>
+                <div class="resource-claim-value">
+                    Claim: <strong>75 Hydroponics Units</strong>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-info">
+                        <span class="progress-remaining">23 / 500 remaining</span>
+                        <span class="progress-percentage">4.6% left</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill very-low" style="width: 4.6%;">🔥 HURRY!</div>
+                    </div>
+                </div>
+                <button class="claim-button available" onclick="claimResource('hyperHydro')">
+                    🔥 CLAIM NOW - ALMOST GONE!
+                </button>
+            </div>
+
+            <!-- Resource: Energy Crystal -->
+            <div class="resource-card sold-out" data-resource="energyCrystal">
+                <div class="resource-header">
+                    <div class="resource-title">
+                        <span class="resource-icon" style="filter: grayscale(100%) opacity(0.5);">⚡</span>
+                        <span>Energy Crystal</span>
+                    </div>
+                    <span class="rarity-badge rarity-legendary" style="opacity: 0.5;">
+                        <span>🌟</span>
+                        <span>Legendary</span>
+                    </span>
+                </div>
+                <div class="resource-claim-value">
+                    Claim: <strong>100 Energy Units</strong>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-info">
+                        <span class="progress-remaining">0 / 250 remaining</span>
+                        <span class="progress-percentage">0% left</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: 0%; background: #dc3545;"></div>
+                    </div>
+                </div>
+                <button class="claim-button sold-out" disabled>
+                    ❌ SOLD OUT - Try Again Tomorrow
+                </button>
+            </div>
+        </div>
+
+        <!-- Activity Feed -->
+        <div id="activity-feed">
+            <h3>
+                <span>📡</span>
+                <span>Live Activity Feed</span>
+            </h3>
+            <div id="activity-list">
+                <div class="activity-item">
+                    <span class="user">ColonistX247</span> just claimed Energy Crystal! <span class="time">2 sec ago</span>
+                </div>
+                <div class="activity-item">
+                    <span class="user">MarsExplorer</span> claimed Premium Oxygen <span class="time">5 sec ago</span>
+                </div>
+                <div class="activity-item">
+                    <span class="user">SpaceEngineer</span> claimed Lunaris Bonus <span class="time">8 sec ago</span>
+                </div>
+                <div class="activity-item">
+                    <span class="user">RedPlanetPro</span> claimed Hyper-Hydroponics <span class="time">12 sec ago</span>
+                </div>
+                <div class="activity-item">
+                    <span class="user">BaseBuilder</span> claimed Premium Oxygen <span class="time">15 sec ago</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back Button -->
+        <a href="/Learning JS/dashboard.html" id="back-button">← Back to Dashboard</a>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- FIREBASE INTEGRATION - DAILY CLAIM STATION                     -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+
+    <script type="module">
+        // ═══════════════════════════════════════════════════════════════
+        // SECTION 1: FIREBASE IMPORTS & INITIALIZATION
+        // ═══════════════════════════════════════════════════════════════
+
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import {
+            getDatabase,
+            ref,
+            get,
+            set,
+            update,
+            onValue,
+            increment,
+            serverTimestamp,
+            runTransaction
+        } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyClPgII54QDvJB3kiV1dWbqm1et_lHasvs",
+            authDomain: "lunaris-45d84.firebaseapp.com",
+            projectId: "lunaris-45d84",
+            storageBucket: "lunaris-45d84.firebasestorage.app",
+            messagingSenderId: "74359858445",
+            appId: "1:74359858445:web:37772cebcbb0d71d707c44",
+            measurementId: "G-ETRK2NL1N2",
+            databaseURL: "https://lunaris-45d84-default-rtdb.firebaseio.com"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+
+        let currentUserId = null;
+
+        // ═══════════════════════════════════════════════════════════════
+        // SECTION 2: RESOURCE CONFIGURATION
+        // ═══════════════════════════════════════════════════════════════
+
+        const DAILY_RESOURCES = {
+            lunarisBonus: {
+                name: 'Lunaris Bonus',
+                icon: '💰',
+                dailyLimit: 2000,
+                claimAmount: 100,
+                rarity: 'uncommon',
+                resourceKey: 'lunaris'
+            },
+            premiumOxygen: {
+                name: 'Premium Oxygen',
+                icon: '💨',
+                dailyLimit: 1000,
+                claimAmount: 50,
+                rarity: 'rare',
+                resourceKey: 'oxygen'
+            },
+            hyperHydro: {
+                name: 'Hyper-Hydroponics',
+                icon: '🌱',
+                dailyLimit: 500,
+                claimAmount: 75,
+                rarity: 'epic',
+                resourceKey: 'hydroponics'
+            },
+            energyCrystal: {
+                name: 'Energy Crystal',
+                icon: '⚡',
+                dailyLimit: 250,
+                claimAmount: 100,
+                rarity: 'legendary',
+                resourceKey: 'energy'
+            }
+        };
+
+        // ═══════════════════════════════════════════════════════════════
+        // SECTION 3: UTILITY FUNCTIONS
+        // ═══════════════════════════════════════════════════════════════
+
+        function getTodayString() {
+            return new Date().toISOString().split('T')[0];
+        }
+
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'bg-particle';
+                particle.style.width = Math.random() * 8 + 4 + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 4 + 4) + 's';
+                container.appendChild(particle);
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // SECTION 4: COUNTDOWN TIMER
+        // ═══════════════════════════════════════════════════════════════
+
+        function updateCountdown() {
+            const now = new Date();
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            tomorrow.setHours(0, 0, 0, 0);
+
+            const diff = tomorrow - now;
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            document.getElementById('countdown-display').textContent =
+                `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // SECTION 5: FIREBASE - INITIALIZE DAILY RESOURCES
+        // ═══════════════════════════════════════════════════════════════
+
+        async function initializeDailyResources() {
+            const today = getTodayString();
+            const resourcesRef = ref(database, `nexus-daily-resources/${today}`);
+
+            try {
+                const snapshot = await get(resourcesRef);
+
+                if (!snapshot.exists()) {
+                    const initialData = {};
+                    Object.keys(DAILY_RESOURCES).forEach(key => {
+                        initialData[key] = {
+                            total: DAILY_RESOURCES[key].dailyLimit,
+                            claimed: 0,
+                            lastUpdate: Date.now()
+                        };
+                    });
+
+                    await set(resourcesRef, initialData);
+                    console.log('✅ Daily resources initialized for', today);
+                }
+                return true;
+            } catch (error) {
+                console.error('❌ Error initializing resources:', error);
+                return false;
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // SECTION 6: FIREBASE - LOAD & UPDATE UI WITH REAL-TIME DATA
+        // ═══════════════════════════════════════════════════════════════
+
+        async function loadResourceStatus() {
+            const today = getTodayString();
+            const resourcesRef = ref(database, `nexus-daily-resources/${today}`);
+
+            try {
+                const snapshot = await get(resourcesRef);
+                if (!snapshot.exists()) {
+                    await initializeDailyResources();
+                    return await loadResourceStatus();
+                }
+
+                const data = snapshot.val();
+                updateAllResourceCards(data);
+
+                // Check which resources user has already claimed
+                if (currentUserId) {
+                    await checkUserClaims();
+                }
+            } catch (error) {
+                console.error('❌ Error loading resources:', error);
+            }
+        }
+
+        function updateAllResourceCards(data) {
+            Object.keys(DAILY_RESOURCES).forEach(key => {
+                const config = DAILY_RESOURCES[key];
+                const current = data[key] || { total: config.dailyLimit, claimed: 0 };
+                const remaining = current.total - current.claimed;
+                const percentage = (remaining / current.total * 100).toFixed(1);
+
+                updateResourceCard(key, remaining, current.total, percentage);
+            });
+        }
+
+        function updateResourceCard(resourceKey, remaining, total, percentage) {
+            const card = document.querySelector(`[data-resource="${resourceKey}"]`);
+            if (!card) return;
+
+            const progressFill = card.querySelector('.progress-bar-fill');
+            const progressRemaining = card.querySelector('.progress-remaining');
+            const progressPercentage = card.querySelector('.progress-percentage');
+            const button = card.querySelector('.claim-button');
+
+            progressRemaining.textContent = `${remaining} / ${total} remaining`;
+            progressPercentage.textContent = `${percentage}% left`;
+            progressFill.style.width = percentage + '%';
+
+            // Remove all classes first
+            card.classList.remove('sold-out', 'almost-gone');
+            progressFill.classList.remove('low', 'very-low');
+
+            if (remaining === 0) {
+                card.classList.add('sold-out');
+                button.className = 'claim-button sold-out';
+                button.disabled = true;
+                button.textContent = '❌ SOLD OUT';
+                progressFill.style.background = '#dc3545';
+                progressFill.textContent = '';
+            } else if (percentage < 10) {
+                card.classList.add('almost-gone');
+                progressFill.classList.add('very-low');
+                progressFill.textContent = '🔥 HURRY!';
+            } else if (percentage < 40) {
+                progressFill.classList.add('low');
+                progressFill.textContent = 'Going Fast!';
+            } else {
+                progressFill.textContent = 'Plenty Available!';
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // SECTION 7: FIREBASE - REAL-TIME LISTENERS
+        // ═══════════════════════════════════════════════════════════════
+
+        function setupRealtimeListeners() {
+            const today = getTodayString();
+            const resourcesRef = ref(database, `nexus-daily-resources/${today}`);
+
+            onValue(resourcesRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    updateAllResourceCards(data);
+                }
+            });
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // SECTION 8: FIREBASE - CHECK USER CLAIMS
+        // ═══════════════════════════════════════════════════════════════
+
+        async function checkUserClaims() {
+            const today = getTodayString();
+            const claimsRef = ref(database, `nexus-user-claims/${currentUserId}/${today}`);
+
+            try {
+                const snapshot = await get(claimsRef);
+                if (snapshot.exists()) {
+                    const claims = snapshot.val();
+
+                    Object.keys(claims).forEach(resourceKey => {
+                        if (claims[resourceKey].claimed) {
+                            markAsAlreadyClaimed(resourceKey);
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('❌ Error checking user claims:', error);
+            }
+        }
+
+        function markAsAlreadyClaimed(resourceKey) {
+            const card = document.querySelector(`[data-resource="${resourceKey}"]`);
+            if (!card) return;
+
+            const button = card.querySelector('.claim-button');
+            button.className = 'claim-button claimed';
+            button.disabled = true;
+            button.textContent = '✅ Already Claimed Today';
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // SECTION 9: FIREBASE - CLAIM RESOURCE (ATOMIC TRANSACTION)
+        // ═══════════════════════════════════════════════════════════════
+
+        window.claimResource = async function(resourceKey) {
+            if (!currentUserId) {
+                alert('❌ Please sign in to claim resources!');
+                window.location.href = '/index.html';
+                return;
+            }
+
+            const config = DAILY_RESOURCES[resourceKey];
+            const today = getTodayString();
+
+            // Check if already claimed
+            const claimRef = ref(database, `nexus-user-claims/${currentUserId}/${today}/${resourceKey}`);
+            const claimSnapshot = await get(claimRef);
+
+            if (claimSnapshot.exists() && claimSnapshot.val().claimed) {
+                alert('⚠️ You already claimed this resource today!');
+                return;
+            }
+
+            // Atomic transaction to claim
+            const resourceRef = ref(database, `nexus-daily-resources/${today}/${resourceKey}`);
+
+            try {
+                const result = await runTransaction(resourceRef, (current) => {
+                    if (current === null) {
+                        return {
+                            total: config.dailyLimit,
+                            claimed: 1,
+                            lastUpdate: Date.now()
+                        };
+                    }
+
+                    if (current.claimed >= current.total) {
+                        return; // Abort - sold out
+                    }
+
+                    return {
+                        ...current,
+                        claimed: current.claimed + 1,
+                        lastUpdate: Date.now()
+                    };
+                });
+
+                if (!result.committed) {
+                    alert('❌ Sorry! This resource is sold out. Try again tomorrow!');
+                    return;
+                }
+
+                // Record user's claim
+                await set(claimRef, {
+                    claimed: true,
+                    timestamp: Date.now(),
+                    amount: config.claimAmount
+                });
+
+                // Update user's colony resources
+                const userResourceRef = ref(database, `colony-data/${currentUserId}`);
+                await update(userResourceRef, {
+                    [config.resourceKey]: increment(config.claimAmount)
+                });
+
+                // Update reputation
+                const repRef = ref(database, `nexus-reputation/${currentUserId}`);
+                await update(repRef, {
+                    totalRep: increment(2),
+                    lastClaimDate: today
+                });
+
+                // Success!
+                const card = document.querySelector(`[data-resource="${resourceKey}"]`);
+                card.classList.add('celebrating');
+                markAsAlreadyClaimed(resourceKey);
+
+                const totalClaimed = document.getElementById('total-claimed');
+                totalClaimed.textContent = parseInt(totalClaimed.textContent) + 1;
+
+                setTimeout(() => {
+                    alert(`🎉 Success! You claimed ${config.claimAmount} ${config.resourceKey}!\n\nCheck your dashboard to see your new resources.`);
+                    card.classList.remove('celebrating');
+                }, 500);
+
+            } catch (error) {
+                console.error('❌ Error claiming resource:', error);
+                alert('❌ An error occurred. Please try again.');
+            }
+        };
+
+        // ═══════════════════════════════════════════════════════════════
+        // SECTION 10: INITIALIZATION ON PAGE LOAD
+        // ═══════════════════════════════════════════════════════════════
+
+        createParticles();
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUserId = user.uid;
+                console.log('✅ User authenticated:', user.email);
+
+                await initializeDailyResources();
+                await loadResourceStatus();
+                setupRealtimeListeners();
+
+                // Load user's claim streak
+                const repRef = ref(database, `nexus-reputation/${currentUserId}`);
+                const repSnapshot = await get(repRef);
+                if (repSnapshot.exists()) {
+                    const streak = repSnapshot.val().claimStreak || 0;
+                    document.getElementById('claim-streak').textContent = streak;
+                }
+            } else {
+                console.log('❌ No user authenticated - redirecting...');
+                alert('⚠️ Please sign in to access Nexus Crater features!');
+                window.location.href = '/index.html';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,245 @@
+{
+  "rules": {
+    // ═══════════════════════════════════════════════════════════════
+    // BASE CAMP ALPHA - EXISTING RULES
+    // ═══════════════════════════════════════════════════════════════
+
+    // User colony data - users can only access their own data
+    "colony-data": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid",
+        // Validation for colony data fields
+        ".validate": "newData.hasChildren(['lunaris', 'oxygen', 'hydroponics', 'energy'])",
+        "lunaris": {
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        },
+        "oxygen": {
+          ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100"
+        },
+        "hydroponics": {
+          ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100"
+        },
+        "energy": {
+          ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100"
+        },
+        "streak": {
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        }
+      }
+    },
+
+    // User progress/XP data - users can only access their own data
+    "user-progress": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid",
+        "totalXP": {
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        },
+        "level": {
+          ".validate": "newData.isNumber() && newData.val() >= 1"
+        }
+      }
+    },
+
+    // User profiles - users can only access their own profile
+    "user-profiles": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid"
+      }
+    },
+
+    // User wallets - users can only access their own wallet
+    "user-wallets": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid"
+      }
+    },
+
+    // Wallet users (for wallet-based auth) - can read/write their own data
+    "wallet-users": {
+      "$walletAddress": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      }
+    },
+
+    // Colony signups - users can read/write their own signup
+    "colony-signups": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid"
+      }
+    },
+
+    // Admins list - only admins can read, only root can write
+    "admins": {
+      ".read": "auth != null && root.child('admins').child(auth.uid).exists()",
+      ".write": "auth != null && root.child('admins').child(auth.uid).exists()"
+    },
+
+    // Task rules - anyone authenticated can read, only admins can write
+    "task-rules": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('admins').child(auth.uid).exists()"
+    },
+
+    // Chat messages - authenticated users can read and write
+    "chat-messages": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+
+    // ═══════════════════════════════════════════════════════════════
+    // NEXUS CRATER - NEW RULES FOR PHASE 2
+    // ═══════════════════════════════════════════════════════════════
+
+    // Daily Resources - Global pool that depletes throughout the day
+    "nexus-daily-resources": {
+      "$date": {
+        ".read": true,
+        ".write": "auth != null",
+        ".validate": "newData.hasChildren(['premiumOxygen', 'hyperHydroponics', 'energyCrystal', 'lunarisBonus'])",
+        "$resource": {
+          ".validate": "newData.hasChildren(['total', 'claimed', 'lastUpdate']) && newData.child('claimed').val() <= newData.child('total').val()",
+          "total": {
+            ".validate": "newData.isNumber() && newData.val() >= 0"
+          },
+          "claimed": {
+            ".validate": "newData.isNumber() && newData.val() >= 0"
+          },
+          "lastUpdate": {
+            ".validate": "newData.isNumber()"
+          }
+        }
+      }
+    },
+
+    // User Claims - Tracks which resources each user claimed each day
+    "nexus-user-claims": {
+      "$userId": {
+        ".read": "auth != null && auth.uid == $userId",
+        ".write": "auth != null && auth.uid == $userId",
+        "$date": {
+          "$resourceType": {
+            ".validate": "newData.hasChildren(['claimed', 'timestamp', 'amount'])",
+            "claimed": {
+              ".validate": "newData.isBoolean()"
+            },
+            "timestamp": {
+              ".validate": "newData.isNumber()"
+            },
+            "amount": {
+              ".validate": "newData.isNumber() && newData.val() > 0"
+            }
+          }
+        }
+      }
+    },
+
+    // Marketplace Listings - Buy/sell resources between users
+    "nexus-marketplace-listings": {
+      ".read": true,
+      "$listingId": {
+        ".write": "auth != null && (!data.exists() || data.child('sellerId').val() == auth.uid || newData.child('buyerId').val() == auth.uid)",
+        ".validate": "newData.hasChildren(['sellerId', 'resourceType', 'amount', 'pricePerUnit', 'totalPrice', 'status']) && newData.child('amount').val() >= 10 && newData.child('pricePerUnit').val() >= 1 && (newData.child('status').val() == 'active' || newData.child('status').val() == 'sold' || newData.child('status').val() == 'cancelled')",
+        "sellerId": {
+          ".validate": "newData.isString()"
+        },
+        "resourceType": {
+          ".validate": "newData.isString() && (newData.val() == 'oxygen' || newData.val() == 'hydroponics' || newData.val() == 'energy')"
+        },
+        "amount": {
+          ".validate": "newData.isNumber() && newData.val() >= 10"
+        },
+        "pricePerUnit": {
+          ".validate": "newData.isNumber() && newData.val() >= 1"
+        },
+        "totalPrice": {
+          ".validate": "newData.isNumber() && newData.val() >= 10"
+        },
+        "status": {
+          ".validate": "newData.isString() && (newData.val() == 'active' || newData.val() == 'sold' || newData.val() == 'cancelled')"
+        }
+      }
+    },
+
+    // Trade History - Record of completed trades
+    "nexus-trade-history": {
+      "$tradeId": {
+        ".read": "auth != null && (data.child('buyerId').val() == auth.uid || data.child('sellerId').val() == auth.uid)",
+        ".write": "auth != null && !data.exists()",
+        ".validate": "newData.hasChildren(['buyerId', 'sellerId', 'resourceType', 'amount', 'price', 'timestamp', 'type'])",
+        "buyerId": {
+          ".validate": "newData.isString()"
+        },
+        "sellerId": {
+          ".validate": "newData.isString()"
+        },
+        "resourceType": {
+          ".validate": "newData.isString()"
+        },
+        "amount": {
+          ".validate": "newData.isNumber() && newData.val() > 0"
+        },
+        "price": {
+          ".validate": "newData.isNumber() && newData.val() > 0"
+        },
+        "timestamp": {
+          ".validate": "newData.isNumber()"
+        },
+        "type": {
+          ".validate": "newData.isString() && (newData.val() == 'marketplace' || newData.val() == 'direct')"
+        }
+      }
+    },
+
+    // Reputation System - Tracks user reputation for trading
+    "nexus-reputation": {
+      "$userId": {
+        ".read": true,
+        ".write": "auth != null",
+        ".validate": "newData.hasChildren(['totalRep', 'level']) && newData.child('totalRep').val() >= 0 && newData.child('level').val() >= 1 && newData.child('level').val() <= 6",
+        "totalRep": {
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        },
+        "level": {
+          ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 6"
+        },
+        "tradesCompleted": {
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        },
+        "claimStreak": {
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        },
+        "lastClaimDate": {
+          ".validate": "newData.isString()"
+        },
+        "lastActiveDate": {
+          ".validate": "newData.isString()"
+        }
+      }
+    },
+
+    // Market Prices - Dynamic pricing for resources
+    "nexus-market-prices": {
+      ".read": true,
+      ".write": "auth != null",
+      "$resource": {
+        ".validate": "newData.hasChildren(['price', 'change', 'lastUpdate']) && newData.child('price').val() >= 1",
+        "price": {
+          ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 100"
+        },
+        "change": {
+          ".validate": "newData.isString()"
+        },
+        "lastUpdate": {
+          ".validate": "newData.isNumber()"
+        }
+      }
+    }
+  }
+}

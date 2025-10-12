@@ -88,6 +88,117 @@
             background-color: #5a6268;
         }
 
+        /* Category Filter */
+        #category-filter-container, #category-filter-container-public {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            border: 2px solid rgba(255, 204, 0, 0.3);
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 2px solid rgba(255, 204, 0, 0.5);
+            border-radius: 20px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover {
+            background: rgba(255, 204, 0, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .filter-btn.active {
+            background: #FFCC00;
+            color: #1e5128;
+            border-color: #FFCC00;
+        }
+
+        /* Category Management */
+        #category-management {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            border: 2px solid rgba(255, 204, 0, 0.3);
+        }
+
+        #category-input-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        #new-category-input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #FFCC00;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #1e5128;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        #add-category-btn {
+            padding: 10px 20px;
+            background-color: #FFCC00;
+            color: #1e5128;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #add-category-btn:hover {
+            background-color: #e6b800;
+            transform: translateY(-2px);
+        }
+
+        #categories-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .category-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: rgba(255, 204, 0, 0.2);
+            border: 1px solid #FFCC00;
+            border-radius: 15px;
+            color: white;
+            font-size: 0.85rem;
+        }
+
+        .category-tag button {
+            background: none;
+            border: none;
+            color: #ff4444;
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 0;
+            margin: 0;
+            line-height: 1;
+        }
+
+        .category-tag button:hover {
+            color: #ff0000;
+        }
+
         /* Loading and Auth Messages */
         #loading-screen, #auth-required {
             text-align: center;
@@ -362,7 +473,7 @@
             margin-bottom: 15px;
         }
 
-        #form-category-select {
+        #form-category-input {
             width: 100%;
             padding: 12px;
             font-size: 1rem;
@@ -372,7 +483,6 @@
             color: #1e5128;
             font-family: 'Courier New', Courier, monospace;
             margin-bottom: 15px;
-            cursor: pointer;
         }
 
         #form-content-textarea {
@@ -885,6 +995,12 @@
 
         <!-- PUBLIC VIEW -->
         <div id="public-view">
+            <!-- Category Filter (Public) -->
+            <div id="category-filter-container-public">
+                <button class="filter-btn active" data-filter="all">All Notes</button>
+                <!-- Dynamic category filters will be added here -->
+            </div>
+
             <div id="categories-container">
                 <!-- Categories will be dynamically generated -->
             </div>
@@ -892,6 +1008,24 @@
 
         <!-- EDITOR VIEW -->
         <div id="editor-view">
+            <!-- Category Management (Editor) -->
+            <div id="category-management">
+                <h3 style="color: #FFCC00; margin-bottom: 10px;">Manage Categories</h3>
+                <div id="category-input-container">
+                    <input type="text" id="new-category-input" placeholder="Enter new category name">
+                    <button id="add-category-btn">+ Add</button>
+                </div>
+                <div id="categories-list">
+                    <!-- Categories will be dynamically generated -->
+                </div>
+            </div>
+
+            <!-- Category Filter (Editor) -->
+            <div id="category-filter-container">
+                <button class="filter-btn active" data-filter="all">All Notes</button>
+                <!-- Dynamic category filters will be added here -->
+            </div>
+
             <div id="editor-container">
                 <!-- Left Panel: Notes List -->
                 <div id="notes-list-panel">
@@ -908,12 +1042,10 @@
                     </div>
                     <div id="editor-form">
                         <input type="text" id="form-title-input" placeholder="Note Title">
-                        <select id="form-category-select">
-                            <option value="spirituality">✨ Spirituality</option>
-                            <option value="music">🎵 Music</option>
-                            <option value="life">🌱 Life</option>
-                            <option value="love">💛 Love</option>
-                        </select>
+                        <input type="text" id="form-category-input" list="categories-datalist" placeholder="Select or create category">
+                        <datalist id="categories-datalist">
+                            <!-- Dynamic categories will be added here -->
+                        </datalist>
                         <textarea id="form-content-textarea" placeholder="Write your thoughts..."></textarea>
                         <div id="form-public-toggle">
                             <input type="checkbox" id="form-public-checkbox">
@@ -1073,6 +1205,122 @@
         let currentNoteId = null;
         let isPublicView = true;
         let userNotes = [];
+        let currentCategoryFilter = 'all';
+        let userCategories = [];
+
+        // Default categories
+        const defaultCategories = ['spirituality', 'music', 'life', 'love'];
+
+        // Category Management Functions
+        function loadCategories() {
+            const saved = localStorage.getItem(`categories_${currentUser?.uid || 'default'}`);
+            if (saved) {
+                userCategories = JSON.parse(saved);
+            } else {
+                userCategories = [...defaultCategories];
+            }
+            return userCategories;
+        }
+
+        function saveCategories() {
+            localStorage.setItem(`categories_${currentUser?.uid || 'default'}`, JSON.stringify(userCategories));
+        }
+
+        function addCategory(categoryName) {
+            const normalized = categoryName.toLowerCase().trim();
+            if (normalized && !userCategories.includes(normalized)) {
+                userCategories.push(normalized);
+                saveCategories();
+                renderCategoryUI();
+                return true;
+            }
+            return false;
+        }
+
+        function removeCategory(categoryName) {
+            const index = userCategories.indexOf(categoryName);
+            if (index > -1) {
+                userCategories.splice(index, 1);
+                saveCategories();
+                renderCategoryUI();
+            }
+        }
+
+        function renderCategoryUI() {
+            // Render category tags in management section
+            const categoriesList = document.getElementById('categories-list');
+            categoriesList.innerHTML = '';
+            userCategories.forEach(cat => {
+                const tag = document.createElement('div');
+                tag.className = 'category-tag';
+                tag.innerHTML = `
+                    ${cat}
+                    <button onclick="window.removeCategoryHandler('${cat}')" title="Remove category">✖</button>
+                `;
+                categoriesList.appendChild(tag);
+            });
+
+            // Update datalist
+            const datalist = document.getElementById('categories-datalist');
+            datalist.innerHTML = '';
+            userCategories.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat;
+                datalist.appendChild(option);
+            });
+
+            // Update filter buttons
+            renderFilterButtons();
+        }
+
+        function renderFilterButtons() {
+            // Get unique categories from notes
+            const noteCats = [...new Set(userNotes.map(n => n.category))];
+
+            // Editor filter
+            const editorFilter = document.getElementById('category-filter-container');
+            editorFilter.innerHTML = '<button class="filter-btn active" data-filter="all">All Notes</button>';
+            noteCats.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = 'filter-btn';
+                btn.dataset.filter = cat;
+                btn.textContent = cat.charAt(0).toUpperCase() + cat.slice(1);
+                btn.addEventListener('click', () => setFilter(cat));
+                editorFilter.appendChild(btn);
+            });
+
+            // Public filter
+            const publicFilter = document.getElementById('category-filter-container-public');
+            publicFilter.innerHTML = '<button class="filter-btn active" data-filter="all">All Notes</button>';
+            noteCats.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = 'filter-btn';
+                btn.dataset.filter = cat;
+                btn.textContent = cat.charAt(0).toUpperCase() + cat.slice(1);
+                btn.addEventListener('click', () => setFilter(cat));
+                publicFilter.appendChild(btn);
+            });
+
+            // Attach click handlers to "All Notes" buttons
+            editorFilter.querySelector('[data-filter="all"]').addEventListener('click', () => setFilter('all'));
+            publicFilter.querySelector('[data-filter="all"]').addEventListener('click', () => setFilter('all'));
+        }
+
+        function setFilter(category) {
+            currentCategoryFilter = category;
+
+            // Update active state on buttons
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.filter === category);
+            });
+
+            // Re-render views
+            renderPublicView();
+            renderEditorList();
+        }
+
+        // Make function available globally for inline handlers
+        window.removeCategoryHandler = removeCategory;
 
         // DOM Elements
         const loadingScreen = document.getElementById('loading-screen');
@@ -1095,8 +1343,10 @@
                 userDisplay.style.display = 'flex';
                 viewToggle.style.display = 'block';
 
-                // Load user's notes
+                // Load categories and notes
+                loadCategories();
                 await loadUserNotes();
+                renderCategoryUI();
                 renderPublicView();
                 publicView.style.display = 'block';
             } else {
@@ -1129,6 +1379,30 @@
             }
         });
 
+        // Add Category
+        document.getElementById('add-category-btn').addEventListener('click', () => {
+            const input = document.getElementById('new-category-input');
+            const categoryName = input.value.trim();
+
+            if (categoryName) {
+                if (addCategory(categoryName)) {
+                    input.value = '';
+                    showModal('success', '✅ Category Added!', `Category "${categoryName}" added successfully!`);
+                } else {
+                    showModal('warning', '⚠️ Duplicate Category', 'This category already exists!');
+                }
+            } else {
+                showModal('warning', '⚠️ Empty Category', 'Please enter a category name!');
+            }
+        });
+
+        // Add category on Enter key
+        document.getElementById('new-category-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                document.getElementById('add-category-btn').click();
+            }
+        });
+
         // Load user's notes from Firestore
         async function loadUserNotes() {
             if (!currentUser) return;
@@ -1156,118 +1430,102 @@
             }
         }
 
-        // Render public view
+        // Render public view (grouped by date, newest first)
         function renderPublicView() {
             const container = document.getElementById('categories-container');
             container.innerHTML = '';
 
-            const categoryEmojis = {
-                spirituality: '✨',
-                music: '🎵',
-                life: '🌱',
-                love: '💛'
-            };
+            // Generate dynamic color for categories
+            function getCategoryColor(category) {
+                const hash = category.split('').reduce((acc, char) => char.charCodeAt(0) + acc, 0);
+                const hue = hash % 360;
+                return `hsl(${hue}, 70%, 55%)`;
+            }
 
-            const categoryNames = {
-                spirituality: 'Spirituality',
-                music: 'Music',
-                life: 'Life',
-                love: 'Love'
-            };
+            // Filter notes by category if needed
+            let filteredNotes = currentCategoryFilter === 'all'
+                ? userNotes
+                : userNotes.filter(n => n.category === currentCategoryFilter);
 
-            const categories = {
-                spirituality: { title: '✨ Spirituality', notes: [] },
-                music: { title: '🎵 Music', notes: [] },
-                life: { title: '🌱 Life', notes: [] },
-                love: { title: '💛 Love', notes: [] }
-            };
+            if (filteredNotes.length === 0) {
+                const empty = document.createElement('div');
+                empty.className = 'empty-message';
+                empty.textContent = 'No notes to display';
+                container.appendChild(empty);
+                return;
+            }
 
-            // Group notes by category
-            userNotes.forEach(note => {
-                if (categories[note.category]) {
-                    categories[note.category].notes.push(note);
+            // Group notes by date (newest first)
+            const notesByDate = {};
+            filteredNotes.forEach(note => {
+                const noteDate = note.createdAt?.toDate ?
+                    note.createdAt.toDate() :
+                    new Date();
+                const dateKey = noteDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+                if (!notesByDate[dateKey]) {
+                    notesByDate[dateKey] = {
+                        date: noteDate,
+                        notes: []
+                    };
                 }
+                notesByDate[dateKey].notes.push(note);
             });
 
-            // Create category sections
-            Object.entries(categories).forEach(([key, cat]) => {
-                const section = document.createElement('div');
-                section.className = 'category-section';
+            // Sort dates (newest first)
+            const sortedDates = Object.entries(notesByDate).sort((a, b) => {
+                return b[1].date - a[1].date;
+            });
 
-                const title = document.createElement('h2');
-                title.className = 'category-title';
-                title.textContent = cat.title;
-                section.appendChild(title);
+            // Render each date group
+            sortedDates.forEach(([dateKey, { notes }]) => {
+                const dateGroup = document.createElement('div');
+                dateGroup.className = 'date-group';
 
-                const notesContainer = document.createElement('div');
-                notesContainer.className = 'category-notes';
+                const dateHeader = document.createElement('div');
+                dateHeader.className = 'date-group-header';
+                dateHeader.textContent = dateKey;
+                dateGroup.appendChild(dateHeader);
 
-                if (cat.notes.length === 0) {
-                    const empty = document.createElement('div');
-                    empty.className = 'empty-message';
-                    empty.textContent = 'No notes yet in this category';
-                    notesContainer.appendChild(empty);
-                } else {
-                    // Group notes by date
-                    const notesByDate = {};
-                    cat.notes.forEach(note => {
-                        const noteDate = note.createdAt?.toDate ?
-                            note.createdAt.toDate() :
-                            new Date();
-                        const dateKey = noteDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+                // Sort notes within the date by time (newest first)
+                notes.sort((a, b) => {
+                    const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date();
+                    const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date();
+                    return dateB - dateA;
+                });
 
-                        if (!notesByDate[dateKey]) {
-                            notesByDate[dateKey] = [];
-                        }
-                        notesByDate[dateKey].push(note);
-                    });
+                notes.forEach(note => {
+                    const noteCard = document.createElement('div');
+                    noteCard.className = 'note-card';
 
-                    // Render each date group
-                    Object.entries(notesByDate).forEach(([dateKey, notes]) => {
-                        const dateGroup = document.createElement('div');
-                        dateGroup.className = 'date-group';
+                    const noteDate = note.createdAt?.toDate ?
+                        note.createdAt.toDate() :
+                        new Date();
 
-                        const dateHeader = document.createElement('div');
-                        dateHeader.className = 'date-group-header';
-                        dateHeader.textContent = dateKey;
-                        dateGroup.appendChild(dateHeader);
+                    const formattedDate = noteDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                    const formattedTime = noteDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+                    const timestamp = `${formattedDate} • ${formattedTime}`;
 
-                        notes.forEach(note => {
-                            const noteCard = document.createElement('div');
-                            noteCard.className = 'note-card';
+                    const publicBadge = note.isPublic ? '<span class="public-badge">🌍 Public</span>' : '';
+                    const categoryColor = getCategoryColor(note.category);
 
-                            const noteDate = note.createdAt?.toDate ?
-                                note.createdAt.toDate() :
-                                new Date();
+                    noteCard.innerHTML = `
+                        <div class="note-category-badge" style="background: ${categoryColor};">
+                            ${note.category.charAt(0).toUpperCase() + note.category.slice(1)}
+                        </div>
+                        <div class="note-header">
+                            <div class="note-title">${note.title}</div>
+                        </div>
+                        <div class="note-meta">
+                            <div class="note-timestamp">${timestamp}</div>
+                            ${publicBadge}
+                        </div>
+                        <div class="note-content">${note.content}</div>
+                    `;
+                    dateGroup.appendChild(noteCard);
+                });
 
-                            const formattedDate = noteDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                            const formattedTime = noteDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-                            const timestamp = `${formattedDate} • ${formattedTime}`;
-
-                            const publicBadge = note.isPublic ? '<span class="public-badge">🌍 Public</span>' : '';
-
-                            noteCard.innerHTML = `
-                                <div class="note-category-badge category-${key}">
-                                    ${categoryEmojis[key]} ${categoryNames[key]}
-                                </div>
-                                <div class="note-header">
-                                    <div class="note-title">${note.title}</div>
-                                </div>
-                                <div class="note-meta">
-                                    <div class="note-timestamp">${timestamp}</div>
-                                    ${publicBadge}
-                                </div>
-                                <div class="note-content">${note.content}</div>
-                            `;
-                            dateGroup.appendChild(noteCard);
-                        });
-
-                        notesContainer.appendChild(dateGroup);
-                    });
-                }
-
-                section.appendChild(notesContainer);
-                container.appendChild(section);
+                container.appendChild(dateGroup);
             });
         }
 
@@ -1276,14 +1534,23 @@
             const notesList = document.getElementById('notes-list');
             notesList.innerHTML = '';
 
-            const categoryEmojis = {
-                spirituality: '✨',
-                music: '🎵',
-                life: '🌱',
-                love: '💛'
-            };
+            // Filter notes by category if needed
+            let filteredNotes = currentCategoryFilter === 'all'
+                ? userNotes
+                : userNotes.filter(n => n.category === currentCategoryFilter);
 
-            userNotes.forEach(note => {
+            if (filteredNotes.length === 0) {
+                const empty = document.createElement('div');
+                empty.style.color = 'rgba(255, 204, 0, 0.7)';
+                empty.style.textAlign = 'center';
+                empty.style.padding = '20px';
+                empty.style.fontStyle = 'italic';
+                empty.textContent = 'No notes to display';
+                notesList.appendChild(empty);
+                return;
+            }
+
+            filteredNotes.forEach(note => {
                 const listItem = document.createElement('div');
                 listItem.className = 'list-item';
                 listItem.dataset.noteId = note.id;
@@ -1300,7 +1567,7 @@
 
                 listItem.innerHTML = `
                     <div class="list-title">${note.title}${publicIndicator}</div>
-                    <div class="list-category">${categoryEmojis[note.category]} ${note.category.charAt(0).toUpperCase() + note.category.slice(1)}</div>
+                    <div class="list-category">${note.category.charAt(0).toUpperCase() + note.category.slice(1)}</div>
                     <div class="list-category">${timestamp}</div>
                 `;
 
@@ -1314,7 +1581,7 @@
             currentNoteId = note.id;
 
             document.getElementById('form-title-input').value = note.title;
-            document.getElementById('form-category-select').value = note.category;
+            document.getElementById('form-category-input').value = note.category;
             document.getElementById('form-content-textarea').value = note.content;
             document.getElementById('form-public-checkbox').checked = note.isPublic || false;
             document.getElementById('editor-placeholder').style.display = 'none';
@@ -1353,7 +1620,7 @@
         document.getElementById('new-note-button').addEventListener('click', () => {
             currentNoteId = null;
             document.getElementById('form-title-input').value = '';
-            document.getElementById('form-category-select').value = 'spirituality';
+            document.getElementById('form-category-input').value = '';
             document.getElementById('form-content-textarea').value = '';
             document.getElementById('form-public-checkbox').checked = false;
             document.getElementById('editor-placeholder').style.display = 'none';
@@ -1368,13 +1635,18 @@
         // Save note
         document.getElementById('save-button').addEventListener('click', async () => {
             const title = document.getElementById('form-title-input').value.trim();
-            const category = document.getElementById('form-category-select').value;
+            const category = document.getElementById('form-category-input').value.trim().toLowerCase();
             const content = document.getElementById('form-content-textarea').value.trim();
             const isPublic = document.getElementById('form-public-checkbox').checked;
 
-            if (!title || !content) {
-                showModal('warning', '⚠️ Missing Information', 'Please fill in both title and content');
+            if (!title || !content || !category) {
+                showModal('warning', '⚠️ Missing Information', 'Please fill in title, category, and content');
                 return;
+            }
+
+            // Auto-add category if it doesn't exist
+            if (!userCategories.includes(category)) {
+                addCategory(category);
             }
 
             try {
@@ -1402,6 +1674,7 @@
                 }
 
                 await loadUserNotes();
+                renderCategoryUI();
                 renderEditorList();
                 renderPublicView();
 
@@ -1429,6 +1702,7 @@
                         await deleteDoc(doc(db, 'notes', currentNoteId));
 
                         await loadUserNotes();
+                        renderCategoryUI();
                         renderEditorList();
                         renderPublicView();
 

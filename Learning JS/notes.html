@@ -182,6 +182,62 @@
             color: #666;
         }
 
+        .note-category-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .category-spirituality {
+            background: linear-gradient(135deg, #9333ea 0%, #c084fc 100%);
+        }
+
+        .category-music {
+            background: linear-gradient(135deg, #ec4899 0%, #ef4444 100%);
+        }
+
+        .category-life {
+            background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+        }
+
+        .category-love {
+            background: linear-gradient(135deg, #f97316 0%, #facc15 100%);
+        }
+
+        .note-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 10px;
+        }
+
+        .note-timestamp {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .date-group {
+            margin-bottom: 35px;
+        }
+
+        .date-group-header {
+            font-size: 1.1rem;
+            color: #FFCC00;
+            font-weight: bold;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid rgba(255, 204, 0, 0.3);
+        }
+
         .note-content {
             line-height: 1.6;
             color: #444;
@@ -332,6 +388,45 @@
             font-family: 'Courier New', Courier, monospace;
             resize: vertical;
             margin-bottom: 15px;
+        }
+
+        #form-public-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            border: 2px solid rgba(255, 204, 0, 0.3);
+        }
+
+        #form-public-toggle label {
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #form-public-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #FFCC00;
+        }
+
+        .public-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+            color: white;
         }
 
         #form-actions {
@@ -820,6 +915,12 @@
                             <option value="love">💛 Love</option>
                         </select>
                         <textarea id="form-content-textarea" placeholder="Write your thoughts..."></textarea>
+                        <div id="form-public-toggle">
+                            <input type="checkbox" id="form-public-checkbox">
+                            <label for="form-public-checkbox">
+                                🌍 Make this note public (visible to others)
+                            </label>
+                        </div>
                         <div id="form-actions">
                             <button id="save-button">💾 Save</button>
                             <button id="delete-button">🗑️ Delete</button>
@@ -1060,6 +1161,20 @@
             const container = document.getElementById('categories-container');
             container.innerHTML = '';
 
+            const categoryEmojis = {
+                spirituality: '✨',
+                music: '🎵',
+                life: '🌱',
+                love: '💛'
+            };
+
+            const categoryNames = {
+                spirituality: 'Spirituality',
+                music: 'Music',
+                life: 'Life',
+                love: 'Love'
+            };
+
             const categories = {
                 spirituality: { title: '✨ Spirituality', notes: [] },
                 music: { title: '🎵 Music', notes: [] },
@@ -1093,22 +1208,61 @@
                     empty.textContent = 'No notes yet in this category';
                     notesContainer.appendChild(empty);
                 } else {
+                    // Group notes by date
+                    const notesByDate = {};
                     cat.notes.forEach(note => {
-                        const noteCard = document.createElement('div');
-                        noteCard.className = 'note-card';
-
                         const noteDate = note.createdAt?.toDate ?
-                            note.createdAt.toDate().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) :
-                            new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+                            note.createdAt.toDate() :
+                            new Date();
+                        const dateKey = noteDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
-                        noteCard.innerHTML = `
-                            <div class="note-header">
-                                <div class="note-title">${note.title}</div>
-                                <div class="note-date">${noteDate}</div>
-                            </div>
-                            <div class="note-content">${note.content}</div>
-                        `;
-                        notesContainer.appendChild(noteCard);
+                        if (!notesByDate[dateKey]) {
+                            notesByDate[dateKey] = [];
+                        }
+                        notesByDate[dateKey].push(note);
+                    });
+
+                    // Render each date group
+                    Object.entries(notesByDate).forEach(([dateKey, notes]) => {
+                        const dateGroup = document.createElement('div');
+                        dateGroup.className = 'date-group';
+
+                        const dateHeader = document.createElement('div');
+                        dateHeader.className = 'date-group-header';
+                        dateHeader.textContent = dateKey;
+                        dateGroup.appendChild(dateHeader);
+
+                        notes.forEach(note => {
+                            const noteCard = document.createElement('div');
+                            noteCard.className = 'note-card';
+
+                            const noteDate = note.createdAt?.toDate ?
+                                note.createdAt.toDate() :
+                                new Date();
+
+                            const formattedDate = noteDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                            const formattedTime = noteDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+                            const timestamp = `${formattedDate} • ${formattedTime}`;
+
+                            const publicBadge = note.isPublic ? '<span class="public-badge">🌍 Public</span>' : '';
+
+                            noteCard.innerHTML = `
+                                <div class="note-category-badge category-${key}">
+                                    ${categoryEmojis[key]} ${categoryNames[key]}
+                                </div>
+                                <div class="note-header">
+                                    <div class="note-title">${note.title}</div>
+                                </div>
+                                <div class="note-meta">
+                                    <div class="note-timestamp">${timestamp}</div>
+                                    ${publicBadge}
+                                </div>
+                                <div class="note-content">${note.content}</div>
+                            `;
+                            dateGroup.appendChild(noteCard);
+                        });
+
+                        notesContainer.appendChild(dateGroup);
                     });
                 }
 
@@ -1135,12 +1289,19 @@
                 listItem.dataset.noteId = note.id;
 
                 const noteDate = note.createdAt?.toDate ?
-                    note.createdAt.toDate().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) :
-                    new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+                    note.createdAt.toDate() :
+                    new Date();
+
+                const formattedDate = noteDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                const formattedTime = noteDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+                const timestamp = `${formattedDate} • ${formattedTime}`;
+
+                const publicIndicator = note.isPublic ? ' 🌍' : '';
 
                 listItem.innerHTML = `
-                    <div class="list-title">${note.title}</div>
-                    <div class="list-category">${categoryEmojis[note.category]} ${note.category.charAt(0).toUpperCase() + note.category.slice(1)} • ${noteDate}</div>
+                    <div class="list-title">${note.title}${publicIndicator}</div>
+                    <div class="list-category">${categoryEmojis[note.category]} ${note.category.charAt(0).toUpperCase() + note.category.slice(1)}</div>
+                    <div class="list-category">${timestamp}</div>
                 `;
 
                 listItem.addEventListener('click', () => openNote(note));
@@ -1155,6 +1316,7 @@
             document.getElementById('form-title-input').value = note.title;
             document.getElementById('form-category-select').value = note.category;
             document.getElementById('form-content-textarea').value = note.content;
+            document.getElementById('form-public-checkbox').checked = note.isPublic || false;
             document.getElementById('editor-placeholder').style.display = 'none';
             document.getElementById('editor-form').style.display = 'block';
             document.getElementById('delete-button').style.display = 'inline-block';
@@ -1193,6 +1355,7 @@
             document.getElementById('form-title-input').value = '';
             document.getElementById('form-category-select').value = 'spirituality';
             document.getElementById('form-content-textarea').value = '';
+            document.getElementById('form-public-checkbox').checked = false;
             document.getElementById('editor-placeholder').style.display = 'none';
             document.getElementById('editor-form').style.display = 'block';
             document.getElementById('delete-button').style.display = 'none';
@@ -1207,6 +1370,7 @@
             const title = document.getElementById('form-title-input').value.trim();
             const category = document.getElementById('form-category-select').value;
             const content = document.getElementById('form-content-textarea').value.trim();
+            const isPublic = document.getElementById('form-public-checkbox').checked;
 
             if (!title || !content) {
                 showModal('warning', '⚠️ Missing Information', 'Please fill in both title and content');
@@ -1221,6 +1385,7 @@
                         title,
                         category,
                         content,
+                        isPublic,
                         updatedAt: Timestamp.now()
                     });
                 } else {
@@ -1230,6 +1395,7 @@
                         title,
                         category,
                         content,
+                        isPublic,
                         createdAt: Timestamp.now(),
                         updatedAt: Timestamp.now()
                     });

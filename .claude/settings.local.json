@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:myt-taupe.vercel.app)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

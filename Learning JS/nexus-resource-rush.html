@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resource Rush - Nexus Crater Mini-Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #2d1b4e 100%);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .game-container {
+            max-width: 900px;
+            width: 100%;
+            padding: 20px;
+        }
+
+        .game-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .game-title {
+            font-size: 3em;
+            background: linear-gradient(135deg, #00d4ff, #7b2ff7, #f72585);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            text-shadow: 0 0 30px rgba(123, 47, 247, 0.5);
+        }
+
+        .game-subtitle {
+            font-size: 1.2em;
+            color: #a0a0a0;
+            margin-bottom: 20px;
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px 25px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+            gap: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            flex: 1;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #a0a0a0;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #00d4ff;
+        }
+
+        .stat-value.combo {
+            color: #f72585;
+        }
+
+        .stat-value.time {
+            color: #ffd700;
+        }
+
+        .stat-value.attempts {
+            color: #7b2ff7;
+        }
+
+        .game-canvas-container {
+            position: relative;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 20px;
+            padding: 20px;
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            box-shadow: 0 0 50px rgba(0, 212, 255, 0.2);
+            margin-bottom: 20px;
+        }
+
+        #gameCanvas {
+            width: 100%;
+            height: 500px;
+            background: linear-gradient(180deg, #0a0e27 0%, #1a1a2e 100%);
+            border-radius: 10px;
+            display: block;
+            image-rendering: pixelated;
+        }
+
+        .game-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 40px 60px;
+            border-radius: 20px;
+            border: 2px solid #00d4ff;
+            box-shadow: 0 0 50px rgba(0, 212, 255, 0.5);
+            z-index: 10;
+        }
+
+        .overlay-title {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #00d4ff, #7b2ff7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .overlay-message {
+            font-size: 1.2em;
+            color: #a0a0a0;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .overlay-score {
+            font-size: 3em;
+            color: #ffd700;
+            margin: 20px 0;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .overlay-reward {
+            font-size: 1.5em;
+            color: #00d4ff;
+            margin: 20px 0;
+        }
+
+        .game-button {
+            background: linear-gradient(135deg, #7b2ff7, #f72585);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .game-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(123, 47, 247, 0.5);
+        }
+
+        .game-button:disabled {
+            background: #555;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .game-button.secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .controls-info {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .controls-title {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            color: #00d4ff;
+        }
+
+        .control-item {
+            display: inline-block;
+            margin: 10px 20px;
+            padding: 10px 20px;
+            background: rgba(0, 212, 255, 0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+        }
+
+        .key {
+            display: inline-block;
+            background: #7b2ff7;
+            padding: 5px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            margin: 0 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .legend-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+        }
+
+        .legend-icon.oxygen {
+            background: #00d4ff;
+        }
+
+        .legend-icon.hydro {
+            background: #00ff88;
+        }
+
+        .legend-icon.energy {
+            background: #ffd700;
+        }
+
+        .legend-icon.meteor {
+            background: #ff4444;
+        }
+
+        .high-score-board {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .high-score-title {
+            font-size: 1.5em;
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+
+        .high-score-value {
+            font-size: 2.5em;
+            color: #00d4ff;
+            font-weight: bold;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #00d4ff;
+            text-decoration: none;
+            font-size: 1.1em;
+            padding: 10px 20px;
+            border: 1px solid #00d4ff;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .back-link:hover {
+            background: rgba(0, 212, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .pulsing {
+            animation: pulse 1s infinite;
+        }
+
+        /* Loading animation */
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-left-color: #00d4ff;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-header">
+            <h1 class="game-title">⚡ RESOURCE RUSH ⚡</h1>
+            <p class="game-subtitle">Catch falling resources, avoid meteors, earn Lunaris!</p>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-label">Score</div>
+                <div class="stat-value" id="scoreDisplay">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Combo</div>
+                <div class="stat-value combo" id="comboDisplay">x1</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Time Left</div>
+                <div class="stat-value time" id="timeDisplay">60s</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Attempts Left</div>
+                <div class="stat-value attempts" id="attemptsDisplay">3/3</div>
+            </div>
+        </div>
+
+        <div class="game-canvas-container">
+            <canvas id="gameCanvas" width="800" height="500"></canvas>
+
+            <!-- Start Overlay -->
+            <div class="game-overlay" id="startOverlay">
+                <h2 class="overlay-title">Ready to Rush?</h2>
+                <div class="overlay-message">
+                    Catch falling resources to earn points!<br>
+                    Avoid meteors or lose your combo!<br>
+                    <strong>60 seconds</strong> to get the highest score!
+                </div>
+                <button class="game-button" id="startButton">START GAME</button>
+                <button class="game-button secondary" onclick="window.location.href='nexus-claim-station.html'">Back to Nexus</button>
+            </div>
+
+            <!-- Game Over Overlay -->
+            <div class="game-overlay" id="gameOverOverlay" style="display: none;">
+                <h2 class="overlay-title">Game Over!</h2>
+                <div class="overlay-score" id="finalScore">0</div>
+                <div class="overlay-reward" id="rewardDisplay">+0 Lunaris</div>
+                <div class="overlay-message" id="gameOverMessage">Great job!</div>
+                <button class="game-button" id="playAgainButton">Play Again</button>
+                <button class="game-button secondary" onclick="window.location.href='nexus-claim-station.html'">Back to Nexus</button>
+            </div>
+
+            <!-- No Attempts Overlay -->
+            <div class="game-overlay" id="noAttemptsOverlay" style="display: none;">
+                <h2 class="overlay-title">Out of Attempts</h2>
+                <div class="overlay-message">
+                    You've used all 3 attempts today!<br>
+                    Come back tomorrow for more Resource Rush!
+                </div>
+                <div class="overlay-message" style="margin-top: 20px;">
+                    Next reset: <span id="resetTime">--:--:--</span>
+                </div>
+                <button class="game-button secondary" onclick="window.location.href='nexus-claim-station.html'">Back to Nexus</button>
+            </div>
+        </div>
+
+        <div class="controls-info">
+            <div class="controls-title">Controls</div>
+            <div class="control-item">
+                <span class="key">←</span> <span class="key">→</span> or <span class="key">A</span> <span class="key">D</span> to move
+            </div>
+
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-icon oxygen">💨</div>
+                    <span>Oxygen (+10 pts)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-icon hydro">🌱</div>
+                    <span>Hydroponics (+15 pts)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-icon energy">⚡</div>
+                    <span>Energy (+20 pts)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-icon meteor">☄️</div>
+                    <span>Meteor (-25 pts)</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="high-score-board">
+            <div class="high-score-title">Today's High Score</div>
+            <div class="high-score-value" id="highScoreDisplay">0</div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- SECTION 1: Firebase Configuration -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+        import {
+            getDatabase,
+            ref,
+            get,
+            set,
+            update,
+            onValue
+        } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+        import {
+            getAuth,
+            onAuthStateChanged
+        } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBUEQRxWJsWCzMd3gQVhrIqm99ZVbpAmMg",
+            authDomain: "lunaris-8c656.firebaseapp.com",
+            databaseURL: "https://lunaris-8c656-default-rtdb.firebaseio.com",
+            projectId: "lunaris-8c656",
+            storageBucket: "lunaris-8c656.firebasestorage.app",
+            messagingSenderId: "1062353479390",
+            appId: "1:1062353479390:web:8acf279c7c6707e1d3e3de"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        const auth = getAuth(app);
+
+        let currentUser = null;
+
+        // ═══════════════════════════════════════════════════════════════
+        // SECTION 2: Game State Variables
+        // ═══════════════════════════════════════════════════════════════
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let gameState = 'menu'; // menu, playing, gameOver
+        let score = 0;
+        let combo = 1;
+        let timeLeft = 60;
+        let attemptsLeft = 3;
+        let highScore = 0;
+        let lastResourceType = null;
+
+        // Player
+        const player = {
+            x: canvas.width / 2 - 30,
+            y: canvas.height - 80,
+            width: 60,
+            height: 40,
+            speed: 8,
+            color: '#00d4ff'
+        };
+
+        // Falling objects
+        let fallingObjects = [];
+        const objectTypes = [
+            { type: 'oxygen', emoji: '💨', color: '#00d4ff', points: 10 },
+            { type: 'hydroponics', emoji: '🌱', color: '#00ff88', points: 15 },
+            { type: 'energy', emoji: '⚡', color: '#ffd700', points: 20 },
+            { type: 'meteor', emoji: '☄️', color: '#ff4444', points: -25 }
+        ];
+
+        // Input handling
+        const keys = {};
+
+        // ═══════════════════════════════════════════════════════════════
+        // SECTION 3: Firebase Auth Check
+        // ═══════════════════════════════════════════════════════════════
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                await loadGameData();
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        // ═══════════════════════════════════════════════════════════════
+        // SECTION 4: Load Game Data from Firebase
+        // ═══════════════════════════════════════════════════════════════
+        async function loadGameData() {
+            if (!currentUser) return;
+
+            const today = new Date().toISOString().split('T')[0];
+            const gameDataRef = ref(database, `nexus-resource-rush/${currentUser.uid}/${today}`);
+
+            try {
+                const snapshot = await get(gameDataRef);
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    attemptsLeft = 3 - (data.attemptsUsed || 0);
+                    highScore = data.highScore || 0;
+                } else {
+                    attemptsLeft = 3;
+                    highScore = 0;
+                }
+
+                document.getElementById('attemptsDisplay').textContent = `${attemptsLeft}/3`;
+                document.getElementById('highScoreDisplay').textContent = highScore;
+
+                // Check if out of attempts
+                if (attemptsLeft <= 0) {
+                    showNoAttemptsOverlay();
+                }
+            } catch (error) {
+                console.error('Error loading game data:', error);
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // SECTION 5: Game Logic - Start Game
+        // ═══════════════════════════════════════════════════════════════
+        document.getElementById('startButton').addEventListener('click', startGame);
+        document.getElementById('playAgainButton').addEventListener('click', startGame);
+
+        function startGame() {
+            if (attemptsLeft <= 0) {
+                showNoAttemptsOverlay();
+                return;
+            }
+
+            // Reset game state
+            score = 0;
+            combo = 1;
+            timeLeft = 60;
+            lastResourceType = null;
+            fallingObjects = [];
+            player.x = canvas.width / 2 - 30;
+
+            // Hide overlays
+            document.getElementById('startOverlay').style.display = 'none';
+            document.getElementById('gameOverOverlay').style.display = 'none';
+            document.getElementById('noAttemptsOverlay').style.display = 'none';
+
+            // Update displays
+            updateDisplays();
+
+            // Start game
+            gameState = 'playing';
+            gameLoop();
+            spawnObjects();
+            startTimer();
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // SECTION 6: Game Loop
+        // ═══════════════════════════════════════════════════════════════
+        let animationId;
+        let spawnInterval;
+        let timerInterval;
+
+        function gameLoop() {
+            if (gameState !== 'playing') return;
+
+            // Clear canvas
+            ctx.fillStyle = 'rgba(10, 14, 39, 0.3)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw stars background
+            drawStars();
+
+            // Update player position
+            if (keys['ArrowLeft'] || keys['a'] || keys['A']) {
+                player.x = Math.max(0, player.x - player.speed);
+            }
+            if (keys['ArrowRight'] || keys['d'] || keys['D']) {
+                player.x = Math.min(canvas.width - player.width, player.x + player.speed);
+            }
+
+            // Draw player (lunar rover)
+            drawPlayer();
+
+            // Update and draw falling objects
+            updateFallingObjects();
+
+            // Continue loop
+            animationId = requestAnimationFrame(gameLoop);
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // SECTION 7: Drawing Functions
+        // ═══════════════════════════════════════════════════════════════
+        function drawStars() {
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            for (let i = 0; i < 50; i++) {
+                const x = (i * 37) % canvas.width;
+                const y = (i * 47) % canvas.height;
+                ctx.fillRect(x, y, 2, 2);
+            }
+        }
+
+        function drawPlayer() {
+            // Rover body
+            ctx.fillStyle = player.color;
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+
+            // Rover wheels
+            ctx.fillStyle = '#555';
+            ctx.fillRect(player.x + 5, player.y + player.height - 5, 15, 8);
+            ctx.fillRect(player.x + player.width - 20, player.y + player.height - 5, 15, 8);
+
+            // Rover antenna
+            ctx.strokeStyle = '#00d4ff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(player.x + player.width / 2, player.y);
+            ctx.lineTo(player.x + player.width / 2, player.y - 10);
+            ctx.stroke();
+
+            // Antenna light
+            ctx.fillStyle = '#00ff88';
+            ctx.beginPath();
+            ctx.arc(player.x + player.width / 2, player.y - 10, 3, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function updateFallingObjects() {
+            for (let i = fallingObjects.length - 1; i >= 0; i--) {
+                const obj = fallingObjects[i];
+                obj.y += obj.speed;
+
+                // Draw object
+                ctx.font = '30px Arial';
+                ctx.fillText(obj.emoji, obj.x, obj.y);
+
+                // Check collision with player
+                if (checkCollision(obj, player)) {
+                    handleCollision(obj);
+                    fallingObjects.splice(i, 1);
+                    continue;
+                }
+
+                // Remove if off screen
+                if (obj.y > canvas.height) {
+                    fallingObjects.splice(i, 1);
+                }
+            }
+        }
+
+        function checkCollision(obj, player) {
+            return obj.x < player.x + player.width &&
+                   obj.x + 30 > player.x &&
+                   obj.y < player.y + player.height &&
+                   obj.y + 30 > player.y;
+        }
+
+        function handleCollision(obj) {
+            if (obj.type === 'meteor') {
+                // Hit meteor - lose points and reset combo
+                score = Math.max(0, score + obj.points);
+                combo = 1;
+                lastResourceType = null;
+                flashScreen('#ff4444');
+            } else {
+                // Caught resource
+                let points = obj.points;
+
+                // Check for combo
+                if (lastResourceType === obj.type) {
+                    combo = Math.min(5, combo + 1);
+                } else {
+                    combo = 1;
+                }
+
+                points *= combo;
+                score += points;
+                lastResourceType = obj.type;
+
+                flashScreen(obj.color);
+            }
+
+            updateDisplays();
+        }
+
+        function flashScreen(color) {
+            ctx.fillStyle = color + '30';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // SECTION 8: Object Spawning
+        // ═══════════════════════════════════════════════════════════════
+        function spawnObjects() {
+            spawnInterval = setInterval(() => {
+                if (gameState !== 'playing') {
+                    clearInterval(spawnInterval);
+                    return;
+                }
+
+                // Random object type (70% resources, 30% meteors)
+                const isResource = Math.random() > 0.3;
+                let objectType;
+
+                if (isResource) {
+                    objectType = objectTypes[Math.floor(Math.random() * 3)];
+                } else {
+                    objectType = objectTypes[3]; // meteor
+                }
+
+                const obj = {
+                    type: objectType.type,
+                    emoji: objectType.emoji,
+                    color: objectType.color,
+                    points: objectType.points,
+                    x: Math.random() * (canvas.width - 30),
+                    y: 0,
+                    speed: 2 + Math.random() * 2
+                };
+
+                fallingObjects.push(obj);
+            }, 800);
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // SECTION 9: Timer
+        // ═══════════════════════════════════════════════════════════════
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                if (gameState !== 'playing') {
+                    clearInterval(timerInterval);
+                    return;
+                }
+
+                timeLeft--;
+                document.getElementById('timeDisplay').textContent = `${timeLeft}s`;
+
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // SECTION 10: End Game and Save Results
+        // ═══════════════════════════════════════════════════════════════
+        async function endGame() {
+            gameState = 'gameOver';
+            clearInterval(spawnInterval);
+            clearInterval(timerInterval);
+            cancelAnimationFrame(animationId);
+
+            // Calculate reward
+            const reward = calculateReward(score);
+
+            // Update high score
+            if (score > highScore) {
+                highScore = score;
+            }
+
+            // Update attempts
+            attemptsLeft--;
+
+            // Save to Firebase
+            await saveGameResults(score, reward);
+
+            // Award Lunaris
+            await awardLunaris(reward);
+
+            // Show game over overlay
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('rewardDisplay').textContent = `+${reward} Lunaris`;
+            document.getElementById('gameOverMessage').textContent = getScoreMessage(score);
+            document.getElementById('gameOverOverlay').style.display = 'block';
+            document.getElementById('attemptsDisplay').textContent = `${attemptsLeft}/3`;
+            document.getElementById('highScoreDisplay').textContent = highScore;
+
+            // Check if out of attempts
+            if (attemptsLeft <= 0) {
+                document.getElementById('playAgainButton').disabled = true;
+                document.getElementById('playAgainButton').textContent = 'No Attempts Left';
+            }
+        }
+
+        function calculateReward(score) {
+            if (score >= 2001) return 500;
+            if (score >= 1501) return 350;
+            if (score >= 1001) return 200;
+            if (score >= 501) return 100;
+            return 50;
+        }
+
+        function getScoreMessage(score) {
+            if (score >= 2001) return '🏆 LEGENDARY PERFORMANCE! 🏆';
+            if (score >= 1501) return '⭐ AMAZING! Epic score!';
+            if (score >= 1001) return '✨ GREAT JOB! Excellent skills!';
+            if (score >= 501) return '👍 Nice work! Good score!';
+            return 'Keep practicing! You\'ll get better!';
+        }
+
+        async function saveGameResults(finalScore, reward) {
+            if (!currentUser) return;
+
+            const today = new Date().toISOString().split('T')[0];
+            const gameDataRef = ref(database, `nexus-resource-rush/${currentUser.uid}/${today}`);
+
+            try {
+                const snapshot = await get(gameDataRef);
+                const existingData = snapshot.exists() ? snapshot.val() : {};
+
+                await set(gameDataRef, {
+                    attemptsUsed: (existingData.attemptsUsed || 0) + 1,
+                    highScore: Math.max(existingData.highScore || 0, finalScore),
+                    lastPlayed: Date.now(),
+                    totalRewards: (existingData.totalRewards || 0) + reward
+                });
+
+                // Update reputation
+                await updateReputation(reward);
+            } catch (error) {
+                console.error('Error saving game results:', error);
+            }
+        }
+
+        async function awardLunaris(amount) {
+            if (!currentUser) return;
+
+            const colonyDataRef = ref(database, `colony-data/${currentUser.uid}`);
+
+            try {
+                const snapshot = await get(colonyDataRef);
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    await update(colonyDataRef, {
+                        lunaris: (data.lunaris || 0) + amount
+                    });
+                }
+            } catch (error) {
+                console.error('Error awarding Lunaris:', error);
+            }
+        }
+
+        async function updateReputation(gameReward) {
+            if (!currentUser) return;
+
+            const repRef = ref(database, `nexus-reputation/${currentUser.uid}`);
+
+            try {
+                const snapshot = await get(repRef);
+                const existingRep = snapshot.exists() ? snapshot.val() : { totalRep: 0, level: 1 };
+
+                const repGain = Math.floor(gameReward / 10);
+                const newTotalRep = (existingRep.totalRep || 0) + repGain;
+
+                // Calculate reputation level (Newcomer, Rising Star, Veteran, Elite, Master, Legend)
+                let newLevel = 1;
+                if (newTotalRep >= 1000) newLevel = 6;
+                else if (newTotalRep >= 500) newLevel = 5;
+                else if (newTotalRep >= 250) newLevel = 4;
+                else if (newTotalRep >= 100) newLevel = 3;
+                else if (newTotalRep >= 50) newLevel = 2;
+
+                await update(repRef, {
+                    totalRep: newTotalRep,
+                    level: newLevel,
+                    lastActiveDate: new Date().toISOString().split('T')[0]
+                });
+            } catch (error) {
+                console.error('Error updating reputation:', error);
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // SECTION 11: No Attempts Overlay
+        // ═══════════════════════════════════════════════════════════════
+        function showNoAttemptsOverlay() {
+            document.getElementById('startOverlay').style.display = 'none';
+            document.getElementById('gameOverOverlay').style.display = 'none';
+            document.getElementById('noAttemptsOverlay').style.display = 'block';
+
+            updateResetTimer();
+            setInterval(updateResetTimer, 1000);
+        }
+
+        function updateResetTimer() {
+            const now = new Date();
+            const tomorrow = new Date(now);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            tomorrow.setHours(0, 0, 0, 0);
+
+            const diff = tomorrow - now;
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            document.getElementById('resetTime').textContent =
+                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // SECTION 12: Input Handling
+        // ═══════════════════════════════════════════════════════════════
+        window.addEventListener('keydown', (e) => {
+            keys[e.key] = true;
+        });
+
+        window.addEventListener('keyup', (e) => {
+            keys[e.key] = false;
+        });
+
+        function updateDisplays() {
+            document.getElementById('scoreDisplay').textContent = score;
+            document.getElementById('comboDisplay').textContent = `x${combo}`;
+        }
+    </script>
+</body>
+</html>

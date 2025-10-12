@@ -1,10 +1,12 @@
 {
   "rules": {
     // ═══════════════════════════════════════════════════════════════
-    // BASE CAMP ALPHA - EXISTING RULES
+    // BASE CAMP ALPHA - EXISTING RULES (DO NOT DELETE)
+    // These are your original rules for the base game
     // ═══════════════════════════════════════════════════════════════
 
     // User colony data - users can only access their own data
+    // This stores Lunaris tokens, oxygen, hydroponics, energy, etc.
     "colony-data": {
       "$uid": {
         ".read": "auth != null && auth.uid == $uid",
@@ -29,7 +31,8 @@
       }
     },
 
-    // User progress/XP data - users can only access their own data
+    // BASE CAMP ALPHA - User progress/XP data
+    // Stores totalXP, level, loginDays for progression system
     "user-progress": {
       "$uid": {
         ".read": "auth != null && auth.uid == $uid",
@@ -43,7 +46,8 @@
       }
     },
 
-    // User profiles - users can only access their own profile
+    // BASE CAMP ALPHA - User profiles
+    // Stores displayName, role selection, custom settings
     "user-profiles": {
       "$uid": {
         ".read": "auth != null && auth.uid == $uid",
@@ -51,7 +55,8 @@
       }
     },
 
-    // User wallets - users can only access their own wallet
+    // BASE CAMP ALPHA - User wallets
+    // Stores Solana wallet addresses for each user
     "user-wallets": {
       "$uid": {
         ".read": "auth != null && auth.uid == $uid",
@@ -59,7 +64,8 @@
       }
     },
 
-    // Wallet users (for wallet-based auth) - can read/write their own data
+    // BASE CAMP ALPHA - Wallet-based authentication
+    // For users who sign in with Phantom/Solflare/Jupiter wallets
     "wallet-users": {
       "$walletAddress": {
         ".read": "auth != null",
@@ -67,7 +73,8 @@
       }
     },
 
-    // Colony signups - users can read/write their own signup
+    // BASE CAMP ALPHA - Colony role signups
+    // Tracks which role users selected (Engineer, Explorer, etc.)
     "colony-signups": {
       "$uid": {
         ".read": "auth != null && auth.uid == $uid",
@@ -75,29 +82,35 @@
       }
     },
 
-    // Admins list - only admins can read, only root can write
+    // BASE CAMP ALPHA - Admin access list
+    // Only admins can read/write this list
     "admins": {
       ".read": "auth != null && root.child('admins').child(auth.uid).exists()",
       ".write": "auth != null && root.child('admins').child(auth.uid).exists()"
     },
 
-    // Task rules - anyone authenticated can read, only admins can write
+    // BASE CAMP ALPHA - Task configuration rules
+    // Admins can customize task types and rewards
     "task-rules": {
       ".read": "auth != null",
       ".write": "auth != null && root.child('admins').child(auth.uid).exists()"
     },
 
-    // Chat messages - authenticated users can read and write
+    // BASE CAMP ALPHA - Colony chat messages
+    // All authenticated users can read and write messages
     "chat-messages": {
       ".read": "auth != null",
       ".write": "auth != null"
     },
 
     // ═══════════════════════════════════════════════════════════════
-    // NEXUS CRATER - NEW RULES FOR PHASE 2
+    // NEXUS CRATER - NEW RULES FOR PHASE 2 (Trade & Social Hub)
+    // These rules enable the daily resource claim system and marketplace
     // ═══════════════════════════════════════════════════════════════
 
-    // Daily Resources - Global pool that depletes throughout the day
+    // NEXUS CRATER - Daily Resources (Global Pool)
+    // Tracks app-wide limited resources that reset daily at 00:00 UTC
+    // Everyone competes for the same pool (first-come, first-served)
     "nexus-daily-resources": {
       "$date": {
         ".read": true,
@@ -118,7 +131,9 @@
       }
     },
 
-    // User Claims - Tracks which resources each user claimed each day
+    // NEXUS CRATER - User Claims Tracking
+    // Records which resources each user claimed on each day
+    // Prevents users from claiming the same resource twice per day
     "nexus-user-claims": {
       "$userId": {
         ".read": "auth != null && auth.uid == $userId",
@@ -140,7 +155,9 @@
       }
     },
 
-    // Marketplace Listings - Buy/sell resources between users
+    // NEXUS CRATER - Marketplace Listings
+    // Users can create listings to sell oxygen, hydroponics, energy
+    // Buyers can purchase from active listings using Lunaris tokens
     "nexus-marketplace-listings": {
       ".read": true,
       "$listingId": {
@@ -167,7 +184,9 @@
       }
     },
 
-    // Trade History - Record of completed trades
+    // NEXUS CRATER - Trade History
+    // Record of completed trades between users
+    // Both buyer and seller can view their own trade history
     "nexus-trade-history": {
       "$tradeId": {
         ".read": "auth != null && (data.child('buyerId').val() == auth.uid || data.child('sellerId').val() == auth.uid)",
@@ -197,7 +216,9 @@
       }
     },
 
-    // Reputation System - Tracks user reputation for trading
+    // NEXUS CRATER - Reputation System
+    // Tracks user reputation for trading (6 levels: Newcomer to Legend)
+    // Earned through trades, daily claims, and activity streaks
     "nexus-reputation": {
       "$userId": {
         ".read": true,
@@ -224,7 +245,9 @@
       }
     },
 
-    // Market Prices - Dynamic pricing for resources
+    // NEXUS CRATER - Market Prices
+    // Dynamic pricing for oxygen, hydroponics, and energy resources
+    // Prices fluctuate based on supply/demand (1-100 Lunaris range)
     "nexus-market-prices": {
       ".read": true,
       ".write": "auth != null",
@@ -238,6 +261,31 @@
         },
         "lastUpdate": {
           ".validate": "newData.isNumber()"
+        }
+      }
+    },
+
+    // NEXUS CRATER - Resource Rush Mini-Game
+    // Tracks daily attempts, high scores, and rewards from the arcade game
+    // Each user gets 3 attempts per day (resets at 00:00 UTC)
+    "nexus-resource-rush": {
+      "$userId": {
+        ".read": "auth != null && auth.uid == $userId",
+        ".write": "auth != null && auth.uid == $userId",
+        "$date": {
+          ".validate": "newData.hasChildren(['attemptsUsed', 'highScore', 'lastPlayed'])",
+          "attemptsUsed": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 3"
+          },
+          "highScore": {
+            ".validate": "newData.isNumber() && newData.val() >= 0"
+          },
+          "lastPlayed": {
+            ".validate": "newData.isNumber()"
+          },
+          "totalRewards": {
+            ".validate": "newData.isNumber() && newData.val() >= 0"
+          }
         }
       }
     }

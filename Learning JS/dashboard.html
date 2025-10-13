@@ -29,6 +29,11 @@
                         💱 Marketplace
                     </a>
 
+                    <!-- Resource Rush Mini-Game -->
+                    <a href="/Learning JS/nexus-resource-rush.html" id="nexus-rush-link" class="nav-btn nexus-btn" style="background: linear-gradient(135deg, #7b2ff7, #f72585); color: #fff; display: none;">
+                        ⚡ Resource Rush
+                    </a>
+
                     <!-- Locked message (shown until unlocked) -->
                     <button id="nexus-locked-btn" class="nav-btn" style="background: rgba(0,206,209,0.2); color: rgba(0,255,255,0.5); cursor: not-allowed; border: 2px solid rgba(0,255,255,0.3);">
                         🔒 Nexus Crater (Locked)
@@ -689,12 +694,14 @@
                 // Update UI
                 const claimLink = document.getElementById('nexus-claim-link');
                 const marketLink = document.getElementById('nexus-market-link');
+                const rushLink = document.getElementById('nexus-rush-link');
                 const lockedBtn = document.getElementById('nexus-locked-btn');
 
                 if (isUnlocked) {
                     // Show unlocked buttons
                     claimLink.style.display = 'inline-block';
                     marketLink.style.display = 'inline-block';
+                    rushLink.style.display = 'inline-block';
                     lockedBtn.style.display = 'none';
 
                     console.log('✅ Nexus Crater UNLOCKED!');
@@ -708,6 +715,7 @@
                     lockedBtn.style.display = 'inline-block';
                     claimLink.style.display = 'none';
                     marketLink.style.display = 'none';
+                    rushLink.style.display = 'none';
 
                     // Add click handler to show requirements
                     lockedBtn.onclick = () => {

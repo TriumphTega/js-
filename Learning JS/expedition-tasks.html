@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expedition Tasks - Red Dunes Outpost</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background: linear-gradient(135deg, #1a0a00 0%, #4a1c00 50%, #2d1100 100%);
+            color: #FF8C42;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #8B2500 0%, #D2691E 100%);
+            border: 3px solid #FF6B35;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 0 30px rgba(255, 107, 53, 0.4);
+        }
+
+        .header h1 {
+            color: #FFD700;
+            text-shadow: 0 0 20px rgba(255, 107, 53, 0.8);
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: linear-gradient(135deg, #8B2500 0%, #D2691E 100%);
+            border: 2px solid #FF6B35;
+            color: #FFD700;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .nav-btn:hover {
+            background: linear-gradient(135deg, #D2691E 0%, #FF6B35 100%);
+            box-shadow: 0 0 20px rgba(255, 107, 53, 0.6);
+            transform: translateY(-2px);
+        }
+
+        /* Stats Overview */
+        .stats-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #4a1c00 0%, #2d1100 100%);
+            border: 2px solid #FF6B35;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 0 15px rgba(255, 107, 53, 0.3);
+        }
+
+        .stat-label {
+            color: #FF8C42;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            color: #FFD700;
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        /* Expedition sections */
+        .expedition-section {
+            background: linear-gradient(135deg, #4a1c00 0%, #2d1100 100%);
+            border: 3px solid #FF6B35;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 0 20px rgba(255, 107, 53, 0.3);
+        }
+
+        .expedition-section h2 {
+            color: #FFD700;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            text-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
+        }
+
+        /* Expedition cards */
+        .expedition-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .expedition-card {
+            background: rgba(0, 0, 0, 0.4);
+            border: 2px solid #8B2500;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .expedition-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 25px rgba(255, 107, 53, 0.4);
+            border-color: #FF6B35;
+        }
+
+        .expedition-card.active {
+            border-color: #FFD700;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+        }
+
+        .expedition-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .expedition-title {
+            color: #FFD700;
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .expedition-icon {
+            font-size: 2.5em;
+            filter: drop-shadow(0 0 10px rgba(255, 107, 53, 0.5));
+        }
+
+        .risk-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 5px;
+            font-size: 0.8em;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .risk-low {
+            background: rgba(0, 255, 0, 0.2);
+            color: #90EE90;
+            border: 1px solid #90EE90;
+        }
+
+        .risk-medium {
+            background: rgba(255, 165, 0, 0.2);
+            color: #FFA500;
+            border: 1px solid #FFA500;
+        }
+
+        .risk-high {
+            background: rgba(255, 0, 0, 0.2);
+            color: #FF6347;
+            border: 1px solid #FF6347;
+        }
+
+        .risk-extreme {
+            background: rgba(139, 0, 0, 0.3);
+            color: #DC143C;
+            border: 1px solid #DC143C;
+        }
+
+        .expedition-description {
+            color: #FF8C42;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .expedition-details {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 15px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(139, 37, 0, 0.3);
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: #FF8C42;
+        }
+
+        .detail-value {
+            color: #FFD700;
+            font-weight: bold;
+        }
+
+        .requirements {
+            background: rgba(139, 37, 0, 0.2);
+            border-left: 3px solid #FF6B35;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+
+        .requirements h4 {
+            color: #FFD700;
+            margin-bottom: 8px;
+        }
+
+        .requirement-item {
+            color: #FF8C42;
+            padding: 3px 0;
+        }
+
+        .requirement-item.met {
+            color: #90EE90;
+        }
+
+        .requirement-item.unmet {
+            color: #FF6347;
+        }
+
+        .rewards {
+            background: rgba(255, 215, 0, 0.1);
+            border: 2px solid #FFD700;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 15px;
+        }
+
+        .rewards h4 {
+            color: #FFD700;
+            margin-bottom: 8px;
+        }
+
+        .reward-item {
+            color: #FF8C42;
+            padding: 3px 0;
+        }
+
+        .expedition-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #8B2500 0%, #D2691E 100%);
+            border: 2px solid #FFD700;
+            color: #FFD700;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .expedition-btn:hover:not(:disabled) {
+            background: linear-gradient(135deg, #D2691E 0%, #FF6B35 100%);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .expedition-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .countdown {
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid #FFD700;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .countdown-label {
+            color: #FF8C42;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .countdown-timer {
+            color: #FFD700;
+            font-size: 2em;
+            font-weight: bold;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .progress-bar-container {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 5px;
+            height: 10px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #8B2500, #FFD700);
+            height: 100%;
+            transition: width 0.3s;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .complete-btn {
+            background: linear-gradient(135deg, #228B22 0%, #32CD32 100%);
+            border-color: #90EE90;
+        }
+
+        .complete-btn:hover:not(:disabled) {
+            background: linear-gradient(135deg, #32CD32 0%, #00FF00 100%);
+            box-shadow: 0 0 20px rgba(144, 238, 144, 0.5);
+        }
+
+        .cancel-btn {
+            background: linear-gradient(135deg, #8B0000 0%, #DC143C 100%);
+            border-color: #FF6347;
+            margin-top: 10px;
+        }
+
+        .cancel-btn:hover:not(:disabled) {
+            background: linear-gradient(135deg, #DC143C 0%, #FF0000 100%);
+            box-shadow: 0 0 20px rgba(255, 99, 71, 0.5);
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #8B2500;
+            padding: 40px;
+            font-size: 1.1em;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #4a1c00 0%, #2d1100 100%);
+            border: 3px solid #FF6B35;
+            border-radius: 15px;
+            margin: 10% auto;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 0 50px rgba(255, 107, 53, 0.5);
+            animation: slideDown 0.3s;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-content h2 {
+            color: #FFD700;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .modal-content p {
+            color: #FF8C42;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            background: linear-gradient(135deg, #8B2500 0%, #D2691E 100%);
+            border: 2px solid #FF6B35;
+            color: #FFD700;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .modal-btn:hover {
+            background: linear-gradient(135deg, #D2691E 0%, #FF6B35 100%);
+            box-shadow: 0 0 20px rgba(255, 107, 53, 0.5);
+        }
+
+        .modal-btn.secondary {
+            background: rgba(139, 37, 0, 0.5);
+        }
+
+        .loading {
+            text-align: center;
+            color: #FFD700;
+            font-size: 1.5em;
+            padding: 50px;
+        }
+
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #8B2500;
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #D2691E;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading" class="loading">
+        ⏳ Loading Expedition Tasks...
+    </div>
+
+    <div id="main-content" style="display: none;">
+        <div class="header">
+            <h1>⏳ Expedition Tasks</h1>
+            <p>High Risk, High Reward - Long Duration Missions</p>
+        </div>
+
+        <div class="nav-buttons">
+            <a href="red-dunes-dashboard.html" class="nav-btn">← Back to Red Dunes</a>
+            <a href="dashboard.html" class="nav-btn">🏠 Base Camp</a>
+        </div>
+
+        <!-- Statistics -->
+        <div class="stats-section">
+            <div class="stat-card">
+                <div class="stat-label">Active Expeditions</div>
+                <div class="stat-value" id="active-count">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Completed</div>
+                <div class="stat-value" id="completed-count">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Failed</div>
+                <div class="stat-value" id="failed-count">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Success Rate</div>
+                <div class="stat-value" id="success-rate">--%</div>
+            </div>
+        </div>
+
+        <!-- Active Expeditions -->
+        <div class="expedition-section">
+            <h2>🚀 Active Expeditions</h2>
+            <div class="expedition-grid" id="active-expeditions">
+                <div class="empty-message">No active expeditions. Start one below!</div>
+            </div>
+        </div>
+
+        <!-- Available Expeditions -->
+        <div class="expedition-section">
+            <h2>📋 Available Expeditions</h2>
+            <div class="expedition-grid" id="available-expeditions">
+                <!-- Will be populated dynamically -->
+            </div>
+        </div>
+
+        <!-- Completed Expeditions -->
+        <div class="expedition-section">
+            <h2>✅ Recently Completed</h2>
+            <div class="expedition-grid" id="completed-expeditions">
+                <div class="empty-message">No completed expeditions yet.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <h2 id="modal-title">Confirm Action</h2>
+            <div id="modal-body"></div>
+            <div class="modal-buttons">
+                <button class="modal-btn secondary" id="modal-cancel">Cancel</button>
+                <button class="modal-btn" id="modal-confirm">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+        import { getDatabase, ref, get, set, update } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyABq1_gk2v5PctmkAkBUFuh0k22-I6gTN0",
+            authDomain: "productivity-app-d72b8.firebaseapp.com",
+            databaseURL: "https://productivity-app-d72b8-default-rtdb.firebaseio.com",
+            projectId: "productivity-app-d72b8",
+            storageBucket: "productivity-app-d72b8.firebasestorage.app",
+            messagingSenderId: "105664971583",
+            appId: "1:105664971583:web:f44e59f1f13b24eba61b27"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+
+        let currentUser = null;
+        let userProgress = {};
+        let expeditionData = {
+            active: [],
+            completed: [],
+            failed: []
+        };
+
+        // Expedition templates
+        const EXPEDITION_TEMPLATES = [
+            {
+                id: 'ancient_tomb',
+                name: 'Ancient Tomb Excavation',
+                icon: '🏛️',
+                description: 'Excavate an ancient Martian tomb. High risk of structural collapse, but incredible rewards await.',
+                duration: 8 * 60 * 60 * 1000, // 8 hours
+                risk: 'high',
+                requirements: {
+                    explorationPoints: 100,
+                    level: 15
+                },
+                rewards: {
+                    explorationPoints: 500,
+                    lunaris: 1000,
+                    xp: 500,
+                    specialItem: 'Ancient Artifact'
+                }
+            },
+            {
+                id: 'deep_crater',
+                name: 'Deep Crater Descent',
+                icon: '🕳️',
+                description: 'Descend into the deepest crater on Mars. Requires advanced equipment and experience.',
+                duration: 12 * 60 * 60 * 1000, // 12 hours
+                risk: 'extreme',
+                requirements: {
+                    explorationPoints: 250,
+                    level: 20,
+                    areasExplored: 15
+                },
+                rewards: {
+                    explorationPoints: 1000,
+                    lunaris: 2500,
+                    xp: 1000,
+                    specialItem: 'Crater Core Sample'
+                }
+            },
+            {
+                id: 'resource_survey',
+                name: 'Extended Resource Survey',
+                icon: '⛏️',
+                description: 'Survey a large area for valuable resources. Low risk but requires patience.',
+                duration: 24 * 60 * 60 * 1000, // 24 hours
+                risk: 'low',
+                requirements: {
+                    level: 10
+                },
+                rewards: {
+                    explorationPoints: 300,
+                    lunaris: 800,
+                    xp: 300,
+                    specialItem: 'Resource Map'
+                }
+            },
+            {
+                id: 'sandstorm_research',
+                name: 'Sandstorm Research Mission',
+                icon: '🌪️',
+                description: 'Study sandstorm patterns in the red dunes. Dangerous but scientifically valuable.',
+                duration: 10 * 60 * 60 * 1000, // 10 hours
+                risk: 'high',
+                requirements: {
+                    explorationPoints: 150,
+                    level: 18
+                },
+                rewards: {
+                    explorationPoints: 600,
+                    lunaris: 1500,
+                    xp: 600,
+                    specialItem: 'Weather Data'
+                }
+            },
+            {
+                id: 'underground_cave',
+                name: 'Underground Cave Exploration',
+                icon: '🔦',
+                description: 'Explore an unmapped underground cave system. Unknown dangers lurk in the darkness.',
+                duration: 16 * 60 * 60 * 1000, // 16 hours
+                risk: 'extreme',
+                requirements: {
+                    explorationPoints: 300,
+                    level: 25,
+                    areasExplored: 20
+                },
+                rewards: {
+                    explorationPoints: 1200,
+                    lunaris: 3000,
+                    xp: 1500,
+                    specialItem: 'Cave Crystal'
+                }
+            },
+            {
+                id: 'quick_scouting',
+                name: 'Quick Scouting Mission',
+                icon: '🧭',
+                description: 'Scout nearby areas for points of interest. Fast and relatively safe.',
+                duration: 8 * 60 * 60 * 1000, // 8 hours
+                risk: 'low',
+                requirements: {
+                    level: 5
+                },
+                rewards: {
+                    explorationPoints: 150,
+                    lunaris: 400,
+                    xp: 150,
+                    specialItem: null
+                }
+            }
+        ];
+
+        // Auth listener
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                await loadData();
+                renderAll();
+                startCountdownUpdates();
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('main-content').style.display = 'block';
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        // Load data
+        async function loadData() {
+            try {
+                // Load user progress
+                const progressRef = ref(database, `users/${currentUser.uid}/redDunes/exploration`);
+                const progressSnap = await get(progressRef);
+                userProgress = progressSnap.exists() ? progressSnap.val() : {};
+
+                // Load expedition data
+                const expeditionRef = ref(database, `users/${currentUser.uid}/redDunes/expeditions`);
+                const expeditionSnap = await get(expeditionRef);
+                expeditionData = expeditionSnap.exists() ? expeditionSnap.val() : { active: [], completed: [], failed: [] };
+
+                console.log('Data loaded:', { userProgress, expeditionData });
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+
+        // Save expedition data
+        async function saveExpeditionData() {
+            try {
+                const expeditionRef = ref(database, `users/${currentUser.uid}/redDunes/expeditions`);
+                await set(expeditionRef, expeditionData);
+                console.log('Expedition data saved');
+            } catch (error) {
+                console.error('Error saving expedition data:', error);
+            }
+        }
+
+        // Check requirements
+        function checkRequirements(template) {
+            const req = template.requirements;
+            const results = {};
+
+            if (req.level !== undefined) {
+                const level = calculateLevel(userProgress.totalXP || 0);
+                results.level = { met: level >= req.level, current: level, required: req.level };
+            }
+
+            if (req.explorationPoints !== undefined) {
+                const points = userProgress.explorationPoints || 0;
+                results.explorationPoints = { met: points >= req.explorationPoints, current: points, required: req.explorationPoints };
+            }
+
+            if (req.areasExplored !== undefined) {
+                const areas = (userProgress.exploredAreas || []).length;
+                results.areasExplored = { met: areas >= req.areasExplored, current: areas, required: req.areasExplored };
+            }
+
+            return results;
+        }
+
+        // Calculate level
+        function calculateLevel(xp) {
+            const levels = [
+                { level: 1, xpRequired: 0 },
+                { level: 5, xpRequired: 700 },
+                { level: 10, xpRequired: 2700 },
+                { level: 15, xpRequired: 5950 },
+                { level: 20, xpRequired: 10450 },
+                { level: 25, xpRequired: 16200 }
+            ];
+
+            for (let i = levels.length - 1; i >= 0; i--) {
+                if (xp >= levels[i].xpRequired) {
+                    return levels[i].level;
+                }
+            }
+            return 1;
+        }
+
+        // Start expedition
+        function startExpedition(templateId) {
+            const template = EXPEDITION_TEMPLATES.find(t => t.id === templateId);
+            if (!template) return;
+
+            const reqResults = checkRequirements(template);
+            const allMet = Object.values(reqResults).every(r => r.met);
+
+            if (!allMet) {
+                showModal('⚠️ Requirements Not Met', 'You do not meet all requirements for this expedition.');
+                return;
+            }
+
+            // Check if already active
+            if (expeditionData.active.some(e => e.id === templateId)) {
+                showModal('⚠️ Already Active', 'You already have this expedition in progress.');
+                return;
+            }
+
+            showConfirmModal(
+                '🚀 Start Expedition?',
+                `Are you sure you want to start "${template.name}"?\n\nDuration: ${formatDuration(template.duration)}\nRisk Level: ${template.risk.toUpperCase()}\n\nYou cannot cancel once started without losing progress.`,
+                () => {
+                    const expedition = {
+                        ...template,
+                        startTime: Date.now(),
+                        endTime: Date.now() + template.duration
+                    };
+
+                    if (!expeditionData.active) expeditionData.active = [];
+                    expeditionData.active.push(expedition);
+
+                    saveExpeditionData();
+                    renderAll();
+                }
+            );
+        }
+
+        // Complete expedition
+        async function completeExpedition(expeditionId) {
+            const index = expeditionData.active.findIndex(e => e.id === expeditionId);
+            if (index === -1) return;
+
+            const expedition = expeditionData.active[index];
+            const now = Date.now();
+
+            // Check if expedition is actually complete
+            if (now < expedition.endTime) {
+                showModal('⚠️ Not Ready', 'This expedition is not complete yet. Wait for the timer to finish.');
+                return;
+            }
+
+            // Calculate success chance based on risk
+            let successChance = 1.0;
+            switch (expedition.risk) {
+                case 'low': successChance = 0.95; break;
+                case 'medium': successChance = 0.80; break;
+                case 'high': successChance = 0.65; break;
+                case 'extreme': successChance = 0.50; break;
+            }
+
+            const success = Math.random() < successChance;
+
+            if (success) {
+                // Success! Award rewards
+                await awardRewards(expedition);
+
+                expedition.completedAt = now;
+                expedition.status = 'success';
+
+                if (!expeditionData.completed) expeditionData.completed = [];
+                expeditionData.completed.push(expedition);
+
+                showModal(
+                    '✅ Expedition Successful!',
+                    `Congratulations! "${expedition.name}" was a success!\n\n` +
+                    `Rewards:\n` +
+                    `+${expedition.rewards.explorationPoints} Exploration Points\n` +
+                    `+${expedition.rewards.lunaris} Lunaris\n` +
+                    `+${expedition.rewards.xp} XP\n` +
+                    (expedition.rewards.specialItem ? `\n🎁 Special Item: ${expedition.rewards.specialItem}` : '')
+                );
+            } else {
+                // Failure
+                expedition.completedAt = now;
+                expedition.status = 'failed';
+
+                if (!expeditionData.failed) expeditionData.failed = [];
+                expeditionData.failed.push(expedition);
+
+                showModal(
+                    '❌ Expedition Failed',
+                    `Unfortunately, "${expedition.name}" encountered problems and failed.\n\nNo rewards earned. Better luck next time!`
+                );
+            }
+
+            expeditionData.active.splice(index, 1);
+            await saveExpeditionData();
+            await loadData();
+            renderAll();
+        }
+
+        // Award rewards
+        async function awardRewards(expedition) {
+            try {
+                const rewards = expedition.rewards;
+
+                // Update exploration points
+                const explorationRef = ref(database, `users/${currentUser.uid}/redDunes/exploration`);
+                const explorationSnap = await get(explorationRef);
+                if (explorationSnap.exists()) {
+                    const explorationData = explorationSnap.val();
+                    explorationData.explorationPoints = (explorationData.explorationPoints || 0) + rewards.explorationPoints;
+                    await update(explorationRef, { explorationPoints: explorationData.explorationPoints });
+                }
+
+                // Update Lunaris
+                const progressRef = ref(database, `users/${currentUser.uid}/progress`);
+                const progressSnap = await get(progressRef);
+                if (progressSnap.exists()) {
+                    const progress = progressSnap.val();
+                    progress.lunarisTokens = (progress.lunarisTokens || 0) + rewards.lunaris;
+                    progress.totalXP = (progress.totalXP || 0) + rewards.xp;
+                    await update(progressRef, {
+                        lunarisTokens: progress.lunarisTokens,
+                        totalXP: progress.totalXP
+                    });
+                }
+
+                console.log('Rewards awarded:', rewards);
+            } catch (error) {
+                console.error('Error awarding rewards:', error);
+            }
+        }
+
+        // Render all sections
+        function renderAll() {
+            renderStats();
+            renderActiveExpeditions();
+            renderAvailableExpeditions();
+            renderCompletedExpeditions();
+        }
+
+        // Render stats
+        function renderStats() {
+            const active = expeditionData.active ? expeditionData.active.length : 0;
+            const completed = expeditionData.completed ? expeditionData.completed.length : 0;
+            const failed = expeditionData.failed ? expeditionData.failed.length : 0;
+            const total = completed + failed;
+            const successRate = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+            document.getElementById('active-count').textContent = active;
+            document.getElementById('completed-count').textContent = completed;
+            document.getElementById('failed-count').textContent = failed;
+            document.getElementById('success-rate').textContent = total > 0 ? `${successRate}%` : '--%';
+        }
+
+        // Render active expeditions
+        function renderActiveExpeditions() {
+            const container = document.getElementById('active-expeditions');
+
+            if (!expeditionData.active || expeditionData.active.length === 0) {
+                container.innerHTML = '<div class="empty-message">No active expeditions. Start one below!</div>';
+                return;
+            }
+
+            container.innerHTML = expeditionData.active.map(exp => {
+                const now = Date.now();
+                const timeLeft = exp.endTime - now;
+                const progress = ((exp.duration - timeLeft) / exp.duration) * 100;
+                const isComplete = timeLeft <= 0;
+
+                return `
+                    <div class="expedition-card active">
+                        <div class="expedition-header">
+                            <div>
+                                <div class="expedition-title">${exp.name}</div>
+                                <span class="risk-badge risk-${exp.risk}">${exp.risk} risk</span>
+                            </div>
+                            <div class="expedition-icon">${exp.icon}</div>
+                        </div>
+
+                        <div class="countdown">
+                            <div class="countdown-label">${isComplete ? '✅ READY TO COMPLETE!' : 'Time Remaining:'}</div>
+                            <div class="countdown-timer" data-end="${exp.endTime}">
+                                ${isComplete ? 'COMPLETE' : formatTimeRemaining(timeLeft)}
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" style="width: ${Math.min(progress, 100)}%"></div>
+                            </div>
+                        </div>
+
+                        <button class="expedition-btn complete-btn" onclick="completeExpedition('${exp.id}')" ${!isComplete ? 'disabled' : ''}>
+                            ${isComplete ? '🎁 Complete Expedition' : '⏳ In Progress...'}
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Render available expeditions
+        function renderAvailableExpeditions() {
+            const container = document.getElementById('available-expeditions');
+
+            container.innerHTML = EXPEDITION_TEMPLATES.map(template => {
+                const reqResults = checkRequirements(template);
+                const allMet = Object.values(reqResults).every(r => r.met);
+                const isActive = expeditionData.active && expeditionData.active.some(e => e.id === template.id);
+
+                return `
+                    <div class="expedition-card">
+                        <div class="expedition-header">
+                            <div>
+                                <div class="expedition-title">${template.name}</div>
+                                <span class="risk-badge risk-${template.risk}">${template.risk} risk</span>
+                            </div>
+                            <div class="expedition-icon">${template.icon}</div>
+                        </div>
+
+                        <div class="expedition-description">${template.description}</div>
+
+                        <div class="expedition-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Duration:</span>
+                                <span class="detail-value">${formatDuration(template.duration)}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Success Chance:</span>
+                                <span class="detail-value">${getSuccessChance(template.risk)}</span>
+                            </div>
+                        </div>
+
+                        <div class="requirements">
+                            <h4>📋 Requirements:</h4>
+                            ${Object.entries(reqResults).map(([key, result]) => `
+                                <div class="requirement-item ${result.met ? 'met' : 'unmet'}">
+                                    ${result.met ? '✅' : '❌'} ${key}: ${result.current} / ${result.required}
+                                </div>
+                            `).join('')}
+                        </div>
+
+                        <div class="rewards">
+                            <h4>🎁 Rewards:</h4>
+                            <div class="reward-item">+${template.rewards.explorationPoints} Exploration Points</div>
+                            <div class="reward-item">+${template.rewards.lunaris} Lunaris Tokens</div>
+                            <div class="reward-item">+${template.rewards.xp} XP</div>
+                            ${template.rewards.specialItem ? `<div class="reward-item">🎁 ${template.rewards.specialItem}</div>` : ''}
+                        </div>
+
+                        <button class="expedition-btn" onclick="startExpedition('${template.id}')" ${!allMet || isActive ? 'disabled' : ''}>
+                            ${isActive ? '⏳ In Progress' : !allMet ? '🔒 Requirements Not Met' : '🚀 Start Expedition'}
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Render completed expeditions
+        function renderCompletedExpeditions() {
+            const container = document.getElementById('completed-expeditions');
+
+            const recent = expeditionData.completed ? [...expeditionData.completed]
+                .sort((a, b) => b.completedAt - a.completedAt)
+                .slice(0, 6) : [];
+
+            if (recent.length === 0) {
+                container.innerHTML = '<div class="empty-message">No completed expeditions yet.</div>';
+                return;
+            }
+
+            container.innerHTML = recent.map(exp => `
+                <div class="expedition-card">
+                    <div class="expedition-header">
+                        <div>
+                            <div class="expedition-title">${exp.name}</div>
+                            <span class="risk-badge risk-${exp.risk}">${exp.risk} risk</span>
+                        </div>
+                        <div class="expedition-icon">${exp.icon}</div>
+                    </div>
+
+                    <div class="expedition-description">
+                        ✅ Completed ${new Date(exp.completedAt).toLocaleDateString()}
+                    </div>
+
+                    <div class="rewards">
+                        <h4>🎁 Rewards Earned:</h4>
+                        <div class="reward-item">+${exp.rewards.explorationPoints} Exploration Points</div>
+                        <div class="reward-item">+${exp.rewards.lunaris} Lunaris Tokens</div>
+                        <div class="reward-item">+${exp.rewards.xp} XP</div>
+                        ${exp.rewards.specialItem ? `<div class="reward-item">🎁 ${exp.rewards.specialItem}</div>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Start countdown updates
+        function startCountdownUpdates() {
+            setInterval(() => {
+                document.querySelectorAll('.countdown-timer').forEach(timer => {
+                    const endTime = parseInt(timer.dataset.end);
+                    const timeLeft = endTime - Date.now();
+
+                    if (timeLeft <= 0) {
+                        timer.textContent = 'COMPLETE';
+                        renderAll(); // Refresh to enable complete button
+                    } else {
+                        timer.textContent = formatTimeRemaining(timeLeft);
+                    }
+                });
+            }, 1000);
+        }
+
+        // Format duration
+        function formatDuration(ms) {
+            const hours = Math.floor(ms / (1000 * 60 * 60));
+            return `${hours} hours`;
+        }
+
+        // Format time remaining
+        function formatTimeRemaining(ms) {
+            const hours = Math.floor(ms / (1000 * 60 * 60));
+            const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((ms % (1000 * 60)) / 1000);
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // Get success chance
+        function getSuccessChance(risk) {
+            switch (risk) {
+                case 'low': return '95%';
+                case 'medium': return '80%';
+                case 'high': return '65%';
+                case 'extreme': return '50%';
+                default: return 'Unknown';
+            }
+        }
+
+        // Modal functions
+        function showModal(title, message) {
+            const modal = document.getElementById('confirmModal');
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-body').innerHTML = `<p>${message}</p>`;
+            document.getElementById('modal-confirm').style.display = 'none';
+            document.getElementById('modal-cancel').textContent = 'OK';
+            modal.style.display = 'block';
+        }
+
+        function showConfirmModal(title, message, onConfirm) {
+            const modal = document.getElementById('confirmModal');
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-body').innerHTML = `<p style="white-space: pre-line;">${message}</p>`;
+            document.getElementById('modal-confirm').style.display = 'block';
+            document.getElementById('modal-cancel').textContent = 'Cancel';
+
+            document.getElementById('modal-confirm').onclick = () => {
+                modal.style.display = 'none';
+                onConfirm();
+            };
+
+            modal.style.display = 'block';
+        }
+
+        document.getElementById('modal-cancel').addEventListener('click', () => {
+            document.getElementById('confirmModal').style.display = 'none';
+        });
+
+        // Make functions global
+        window.startExpedition = startExpedition;
+        window.completeExpedition = completeExpedition;
+
+    </script>
+</body>
+</html>

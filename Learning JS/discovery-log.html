@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discovery Log - Red Dunes Outpost</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background: linear-gradient(135deg, #1a0a00 0%, #4a1c00 50%, #2d1100 100%);
+            color: #FF8C42;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #8B2500 0%, #D2691E 100%);
+            border: 3px solid #FF6B35;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 0 30px rgba(255, 107, 53, 0.4);
+        }
+
+        .header h1 {
+            color: #FFD700;
+            text-shadow: 0 0 20px rgba(255, 107, 53, 0.8);
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: linear-gradient(135deg, #8B2500 0%, #D2691E 100%);
+            border: 2px solid #FF6B35;
+            color: #FFD700;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .nav-btn:hover {
+            background: linear-gradient(135deg, #D2691E 0%, #FF6B35 100%);
+            box-shadow: 0 0 20px rgba(255, 107, 53, 0.6);
+            transform: translateY(-2px);
+        }
+
+        /* Stats */
+        .stats-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #4a1c00 0%, #2d1100 100%);
+            border: 2px solid #FF6B35;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 0 15px rgba(255, 107, 53, 0.3);
+        }
+
+        .stat-label {
+            color: #FF8C42;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            color: #FFD700;
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        /* Filter section */
+        .filter-section {
+            background: linear-gradient(135deg, #4a1c00 0%, #2d1100 100%);
+            border: 3px solid #FF6B35;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 0 20px rgba(255, 107, 53, 0.3);
+        }
+
+        .filter-controls {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-btn {
+            background: rgba(139, 37, 0, 0.3);
+            border: 2px solid #8B2500;
+            color: #FF8C42;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(135deg, #8B2500 0%, #D2691E 100%);
+            border-color: #FFD700;
+            color: #FFD700;
+            box-shadow: 0 0 15px rgba(255, 107, 53, 0.5);
+        }
+
+        .filter-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 2px solid #8B2500;
+            color: #FFD700;
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #FF6B35;
+            box-shadow: 0 0 15px rgba(255, 107, 53, 0.3);
+        }
+
+        /* Discovery timeline */
+        .discoveries-section {
+            background: linear-gradient(135deg, #4a1c00 0%, #2d1100 100%);
+            border: 3px solid #FF6B35;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 0 20px rgba(255, 107, 53, 0.3);
+        }
+
+        .discoveries-section h2 {
+            color: #FFD700;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            text-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(180deg, #8B2500, #FF6B35);
+        }
+
+        .discovery-item {
+            position: relative;
+            background: rgba(0, 0, 0, 0.4);
+            border: 2px solid #8B2500;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .discovery-item::before {
+            content: '';
+            position: absolute;
+            left: -25px;
+            top: 25px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #FF6B35;
+            border: 2px solid #FFD700;
+            box-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
+        }
+
+        .discovery-item:hover {
+            transform: translateX(10px);
+            border-color: #FF6B35;
+            box-shadow: 0 0 20px rgba(255, 107, 53, 0.4);
+        }
+
+        .discovery-item.rare {
+            border-color: #FFD700;
+            background: rgba(255, 215, 0, 0.05);
+        }
+
+        .discovery-item.rare::before {
+            background: #FFD700;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+        }
+
+        .discovery-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .discovery-type {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .discovery-icon {
+            font-size: 2.5em;
+            filter: drop-shadow(0 0 10px rgba(255, 107, 53, 0.5));
+        }
+
+        .discovery-title {
+            color: #FFD700;
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .discovery-subtitle {
+            color: #FF8C42;
+            font-size: 0.9em;
+        }
+
+        .discovery-timestamp {
+            color: #8B2500;
+            font-size: 0.9em;
+            text-align: right;
+        }
+
+        .discovery-description {
+            color: #FF8C42;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .discovery-rewards {
+            background: rgba(255, 215, 0, 0.1);
+            border-left: 3px solid #FFD700;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .discovery-rewards h4 {
+            color: #FFD700;
+            margin-bottom: 8px;
+            font-size: 1em;
+        }
+
+        .reward-text {
+            color: #FF8C42;
+        }
+
+        .rarity-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 5px;
+            font-size: 0.8em;
+            font-weight: bold;
+            text-transform: uppercase;
+            background: rgba(255, 215, 0, 0.2);
+            color: #FFD700;
+            border: 1px solid #FFD700;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #8B2500;
+            padding: 50px;
+            font-size: 1.2em;
+        }
+
+        .loading {
+            text-align: center;
+            color: #FFD700;
+            font-size: 1.5em;
+            padding: 50px;
+        }
+
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #8B2500;
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #D2691E;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading" class="loading">
+        📜 Loading Discovery Log...
+    </div>
+
+    <div id="main-content" style="display: none;">
+        <div class="header">
+            <h1>📜 Discovery Log</h1>
+            <p>A Complete Record of Your Expeditions and Findings</p>
+        </div>
+
+        <div class="nav-buttons">
+            <a href="red-dunes-dashboard.html" class="nav-btn">← Back to Red Dunes</a>
+            <a href="dashboard.html" class="nav-btn">🏠 Base Camp</a>
+        </div>
+
+        <!-- Statistics -->
+        <div class="stats-section">
+            <div class="stat-card">
+                <div class="stat-label">Total Discoveries</div>
+                <div class="stat-value" id="total-discoveries">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Ancient Ruins Found</div>
+                <div class="stat-value" id="ancient-ruins">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Resource Deposits</div>
+                <div class="stat-value" id="resource-deposits">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Rare Discoveries</div>
+                <div class="stat-value" id="rare-discoveries">0</div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filter-section">
+            <div class="filter-controls">
+                <button class="filter-btn active" data-filter="all">All Discoveries</button>
+                <button class="filter-btn" data-filter="Ancient Ruins">🏛️ Ancient Ruins</button>
+                <button class="filter-btn" data-filter="Resource Deposit">💎 Resource Deposits</button>
+                <button class="filter-btn" data-filter="Rare Discovery">⭐ Rare Discoveries</button>
+                <input type="text" class="search-box" id="search-box" placeholder="🔍 Search discoveries...">
+            </div>
+        </div>
+
+        <!-- Discoveries Timeline -->
+        <div class="discoveries-section">
+            <h2>🗺️ Discovery Timeline</h2>
+            <div class="timeline" id="discoveries-timeline">
+                <div class="empty-message">
+                    No discoveries recorded yet.<br>
+                    Complete expeditions to make your first discovery!
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+        import { getDatabase, ref, get } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyABq1_gk2v5PctmkAkBUFuh0k22-I6gTN0",
+            authDomain: "productivity-app-d72b8.firebaseapp.com",
+            databaseURL: "https://productivity-app-d72b8-default-rtdb.firebaseio.com",
+            projectId: "productivity-app-d72b8",
+            storageBucket: "productivity-app-d72b8.firebasestorage.app",
+            messagingSenderId: "105664971583",
+            appId: "1:105664971583:web:f44e59f1f13b24eba61b27"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+
+        let currentUser = null;
+        let discoveries = [];
+        let currentFilter = 'all';
+        let searchQuery = '';
+
+        // Discovery type metadata
+        const DISCOVERY_TYPES = {
+            'Ancient Ruins': {
+                icon: '🏛️',
+                color: '#FFD700'
+            },
+            'Resource Deposit': {
+                icon: '💎',
+                color: '#00CED1'
+            },
+            'Rare Discovery': {
+                icon: '⭐',
+                color: '#FFD700'
+            }
+        };
+
+        // Auth listener
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                await loadDiscoveries();
+                renderAll();
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('main-content').style.display = 'block';
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        // Load discoveries
+        async function loadDiscoveries() {
+            try {
+                const discoveriesRef = ref(database, `users/${currentUser.uid}/redDunes/discoveries`);
+                const snapshot = await get(discoveriesRef);
+
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    discoveries = Object.entries(data).map(([timestamp, discovery]) => ({
+                        ...discovery,
+                        timestamp: parseInt(timestamp)
+                    }));
+
+                    // Sort by timestamp (newest first)
+                    discoveries.sort((a, b) => b.timestamp - a.timestamp);
+                } else {
+                    discoveries = [];
+                }
+
+                console.log('Discoveries loaded:', discoveries);
+            } catch (error) {
+                console.error('Error loading discoveries:', error);
+                discoveries = [];
+            }
+        }
+
+        // Render all
+        function renderAll() {
+            renderStats();
+            renderDiscoveries();
+        }
+
+        // Render stats
+        function renderStats() {
+            const total = discoveries.length;
+            const ancientRuins = discoveries.filter(d => d.type === 'Ancient Ruins').length;
+            const resourceDeposits = discoveries.filter(d => d.type === 'Resource Deposit').length;
+            const rareDiscoveries = discoveries.filter(d => d.type === 'Rare Discovery').length;
+
+            document.getElementById('total-discoveries').textContent = total;
+            document.getElementById('ancient-ruins').textContent = ancientRuins;
+            document.getElementById('resource-deposits').textContent = resourceDeposits;
+            document.getElementById('rare-discoveries').textContent = rareDiscoveries;
+        }
+
+        // Render discoveries
+        function renderDiscoveries() {
+            const timeline = document.getElementById('discoveries-timeline');
+
+            // Filter discoveries
+            let filtered = discoveries;
+
+            if (currentFilter !== 'all') {
+                filtered = filtered.filter(d => d.type === currentFilter);
+            }
+
+            if (searchQuery) {
+                const query = searchQuery.toLowerCase();
+                filtered = filtered.filter(d =>
+                    d.description.toLowerCase().includes(query) ||
+                    d.type.toLowerCase().includes(query)
+                );
+            }
+
+            if (filtered.length === 0) {
+                timeline.innerHTML = `
+                    <div class="empty-message">
+                        ${discoveries.length === 0
+                            ? 'No discoveries recorded yet.<br>Complete expeditions to make your first discovery!'
+                            : 'No discoveries match your filters.'}
+                    </div>
+                `;
+                return;
+            }
+
+            timeline.innerHTML = filtered.map(discovery => {
+                const typeData = DISCOVERY_TYPES[discovery.type] || { icon: '📍', color: '#FF8C42' };
+                const isRare = discovery.type === 'Rare Discovery';
+                const date = new Date(discovery.timestamp);
+
+                return `
+                    <div class="discovery-item ${isRare ? 'rare' : ''}">
+                        <div class="discovery-header">
+                            <div class="discovery-type">
+                                <div class="discovery-icon">${typeData.icon}</div>
+                                <div>
+                                    <div class="discovery-title">${discovery.type}</div>
+                                    <div class="discovery-subtitle">
+                                        ${isRare ? '<span class="rarity-badge">Rare</span>' : ''}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="discovery-timestamp">
+                                📅 ${date.toLocaleDateString()}<br>
+                                🕐 ${date.toLocaleTimeString()}
+                            </div>
+                        </div>
+
+                        <div class="discovery-description">
+                            ${discovery.description}
+                        </div>
+
+                        <div class="discovery-rewards">
+                            <h4>🎁 Rewards</h4>
+                            <div class="reward-text">${discovery.rewards}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Filter buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.filter;
+                renderDiscoveries();
+            });
+        });
+
+        // Search box
+        document.getElementById('search-box').addEventListener('input', (e) => {
+            searchQuery = e.target.value;
+            renderDiscoveries();
+        });
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Achievements - Red Dunes Outpost</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background: linear-gradient(135deg, #1a0a00 0%, #4a1c00 50%, #2d1100 100%);
+            color: #FF8C42;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #8B2500 0%, #D2691E 100%);
+            border: 3px solid #FF6B35;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 0 30px rgba(255, 107, 53, 0.4);
+        }
+
+        .header h1 {
+            color: #FFD700;
+            text-shadow: 0 0 20px rgba(255, 107, 53, 0.8);
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: linear-gradient(135deg, #8B2500 0%, #D2691E 100%);
+            border: 2px solid #FF6B35;
+            color: #FFD700;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .nav-btn:hover {
+            background: linear-gradient(135deg, #D2691E 0%, #FF6B35 100%);
+            box-shadow: 0 0 20px rgba(255, 107, 53, 0.6);
+            transform: translateY(-2px);
+        }
+
+        /* Statistics overview */
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #4a1c00 0%, #2d1100 100%);
+            border: 2px solid #FF6B35;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 0 15px rgba(255, 107, 53, 0.3);
+        }
+
+        .stat-card .label {
+            color: #FF8C42;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .value {
+            color: #FFD700;
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        /* Filter tabs */
+        .filter-tabs {
+            background: rgba(0, 0, 0, 0.4);
+            border: 2px solid #8B2500;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 30px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-tab {
+            background: rgba(139, 37, 0, 0.3);
+            border: 2px solid #8B2500;
+            color: #FF8C42;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .filter-tab.active {
+            background: linear-gradient(135deg, #8B2500 0%, #D2691E 100%);
+            border-color: #FFD700;
+            color: #FFD700;
+            box-shadow: 0 0 15px rgba(255, 107, 53, 0.5);
+        }
+
+        .filter-tab:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Achievement grid */
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .achievement-card {
+            background: linear-gradient(135deg, #4a1c00 0%, #2d1100 100%);
+            border: 3px solid #8B2500;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .achievement-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 107, 53, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .achievement-card:hover::before {
+            left: 100%;
+        }
+
+        .achievement-card.unlocked {
+            border-color: #FFD700;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+        }
+
+        .achievement-card.locked {
+            opacity: 0.6;
+            filter: grayscale(0.5);
+        }
+
+        .achievement-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 25px rgba(255, 107, 53, 0.4);
+        }
+
+        .achievement-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .achievement-icon {
+            font-size: 3em;
+            filter: drop-shadow(0 0 10px rgba(255, 107, 53, 0.5));
+        }
+
+        .achievement-card.locked .achievement-icon {
+            filter: grayscale(1) opacity(0.5);
+        }
+
+        .achievement-info {
+            flex: 1;
+        }
+
+        .achievement-name {
+            color: #FFD700;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .achievement-rarity {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 5px;
+            font-size: 0.75em;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .rarity-common {
+            background: rgba(169, 169, 169, 0.3);
+            color: #B0B0B0;
+        }
+
+        .rarity-rare {
+            background: rgba(30, 144, 255, 0.3);
+            color: #5DADE2;
+        }
+
+        .rarity-epic {
+            background: rgba(138, 43, 226, 0.3);
+            color: #BB8FCE;
+        }
+
+        .rarity-legendary {
+            background: rgba(255, 215, 0, 0.3);
+            color: #FFD700;
+        }
+
+        .achievement-description {
+            color: #FF8C42;
+            font-size: 0.95em;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .achievement-progress {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar-container {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 5px;
+            height: 8px;
+            overflow: hidden;
+            margin-bottom: 5px;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #8B2500, #FFD700);
+            height: 100%;
+            transition: width 0.3s;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .progress-text {
+            color: #FF8C42;
+            font-size: 0.85em;
+            text-align: center;
+        }
+
+        .achievement-reward {
+            color: #FFD700;
+            font-size: 0.9em;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .unlock-timestamp {
+            color: #8B2500;
+            font-size: 0.8em;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .loading {
+            text-align: center;
+            color: #FFD700;
+            font-size: 1.5em;
+            padding: 50px;
+        }
+
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #8B2500;
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #D2691E;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading" class="loading">
+        🏆 Loading Achievements...
+    </div>
+
+    <div id="main-content" style="display: none;">
+        <div class="header">
+            <h1>🏆 Achievement System</h1>
+            <p>Track your progress and unlock exclusive rewards!</p>
+        </div>
+
+        <div class="nav-buttons">
+            <a href="red-dunes-dashboard.html" class="nav-btn">← Back to Red Dunes</a>
+            <a href="dashboard.html" class="nav-btn">🏠 Base Camp</a>
+        </div>
+
+        <!-- Statistics Overview -->
+        <div class="stats-overview">
+            <div class="stat-card">
+                <div class="label">Total Unlocked</div>
+                <div class="value" id="total-unlocked">0 / 100+</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Completion Rate</div>
+                <div class="value" id="completion-rate">0%</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Achievement Points</div>
+                <div class="value" id="achievement-points">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Rarest Achievement</div>
+                <div class="value" id="rarest-achievement" style="font-size: 1.2em;">None</div>
+            </div>
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="filter-tabs">
+            <button class="filter-tab active" data-filter="all">All</button>
+            <button class="filter-tab" data-filter="exploration">🧭 Exploration</button>
+            <button class="filter-tab" data-filter="tasks">🎯 Tasks</button>
+            <button class="filter-tab" data-filter="streaks">🔥 Streaks</button>
+            <button class="filter-tab" data-filter="social">💬 Social</button>
+            <button class="filter-tab" data-filter="resources">💰 Resources</button>
+            <button class="filter-tab" data-filter="special">⭐ Special</button>
+            <button class="filter-tab" data-filter="unlocked">✅ Unlocked</button>
+            <button class="filter-tab" data-filter="locked">🔒 Locked</button>
+        </div>
+
+        <!-- Achievements Grid -->
+        <div class="achievements-grid" id="achievements-grid">
+            <!-- Achievements will be dynamically loaded here -->
+        </div>
+    </div>
+
+    <!-- Firebase -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+        import { getDatabase, ref, get, set, update } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyABq1_gk2v5PctmkAkBUFuh0k22-I6gTN0",
+            authDomain: "productivity-app-d72b8.firebaseapp.com",
+            databaseURL: "https://productivity-app-d72b8-default-rtdb.firebaseio.com",
+            projectId: "productivity-app-d72b8",
+            storageBucket: "productivity-app-d72b8.firebasestorage.app",
+            messagingSenderId: "105664971583",
+            appId: "1:105664971583:web:f44e59f1f13b24eba61b27"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+
+        let currentUser = null;
+        let userAchievements = {};
+        let currentFilter = 'all';
+
+        // Achievement definitions (100+ achievements)
+        const ACHIEVEMENTS = [
+            // Exploration Achievements (20)
+            { id: 'first_steps', name: 'First Steps', icon: '👣', description: 'Complete your first expedition', category: 'exploration', rarity: 'common', requirement: 1, rewardXP: 50, rewardLunaris: 100 },
+            { id: 'explorer', name: 'Explorer', icon: '🧭', description: 'Complete 10 expeditions', category: 'exploration', rarity: 'common', requirement: 10, rewardXP: 100, rewardLunaris: 250 },
+            { id: 'seasoned_explorer', name: 'Seasoned Explorer', icon: '🗺️', description: 'Complete 50 expeditions', category: 'exploration', rarity: 'rare', requirement: 50, rewardXP: 500, rewardLunaris: 1000 },
+            { id: 'master_explorer', name: 'Master Explorer', icon: '🏜️', description: 'Complete 100 expeditions', category: 'exploration', rarity: 'epic', requirement: 100, rewardXP: 1000, rewardLunaris: 2500 },
+            { id: 'map_master', name: 'Map Master', icon: '🗺️', description: 'Explore all 25 areas', category: 'exploration', rarity: 'legendary', requirement: 25, rewardXP: 2000, rewardLunaris: 5000 },
+            { id: 'desert_nomad', name: 'Desert Nomad', icon: '🐪', description: 'Explore 5 different areas', category: 'exploration', rarity: 'common', requirement: 5, rewardXP: 75, rewardLunaris: 200 },
+            { id: 'dune_walker', name: 'Dune Walker', icon: '🏜️', description: 'Explore 15 different areas', category: 'exploration', rarity: 'rare', requirement: 15, rewardXP: 300, rewardLunaris: 750 },
+            { id: 'ruin_finder', name: 'Ruin Finder', icon: '🏛️', description: 'Discover 3 ancient ruins', category: 'exploration', rarity: 'rare', requirement: 3, rewardXP: 250, rewardLunaris: 500 },
+            { id: 'archaeologist', name: 'Archaeologist', icon: '🏺', description: 'Discover 10 ancient ruins', category: 'exploration', rarity: 'epic', requirement: 10, rewardXP: 750, rewardLunaris: 1500 },
+            { id: 'treasure_hunter', name: 'Treasure Hunter', icon: '💎', description: 'Find 5 resource deposits', category: 'exploration', rarity: 'common', requirement: 5, rewardXP: 100, rewardLunaris: 300 },
+            { id: 'prospector', name: 'Prospector', icon: '⛏️', description: 'Find 20 resource deposits', category: 'exploration', rarity: 'rare', requirement: 20, rewardXP: 400, rewardLunaris: 1000 },
+            { id: 'daily_explorer', name: 'Daily Explorer', icon: '📅', description: 'Complete expeditions for 7 consecutive days', category: 'exploration', rarity: 'rare', requirement: 7, rewardXP: 500, rewardLunaris: 1000 },
+            { id: 'expedition_addict', name: 'Expedition Addict', icon: '🎯', description: 'Complete expeditions for 30 consecutive days', category: 'exploration', rarity: 'epic', requirement: 30, rewardXP: 1500, rewardLunaris: 3000 },
+            { id: 'rare_finder', name: 'Rare Finder', icon: '⭐', description: 'Make 3 rare discoveries', category: 'exploration', rarity: 'epic', requirement: 3, rewardXP: 800, rewardLunaris: 2000 },
+            { id: 'legendary_discoverer', name: 'Legendary Discoverer', icon: '🌟', description: 'Make 1 legendary discovery', category: 'exploration', rarity: 'legendary', requirement: 1, rewardXP: 2500, rewardLunaris: 5000 },
+            { id: 'crater_specialist', name: 'Crater Specialist', icon: '🕳️', description: 'Discover 5 unique crater formations', category: 'exploration', rarity: 'rare', requirement: 5, rewardXP: 300, rewardLunaris: 700 },
+            { id: 'sandstorm_survivor', name: 'Sandstorm Survivor', icon: '🌪️', description: 'Complete an expedition during a sandstorm event', category: 'exploration', rarity: 'epic', requirement: 1, rewardXP: 1000, rewardLunaris: 2000 },
+            { id: 'night_explorer', name: 'Night Explorer', icon: '🌙', description: 'Complete 10 night expeditions', category: 'exploration', rarity: 'rare', requirement: 10, rewardXP: 400, rewardLunaris: 800 },
+            { id: 'speed_explorer', name: 'Speed Explorer', icon: '⚡', description: 'Complete 5 expeditions in one day', category: 'exploration', rarity: 'epic', requirement: 5, rewardXP: 750, rewardLunaris: 1500 },
+            { id: 'pathfinder', name: 'Pathfinder', icon: '🧭', description: 'Earn 10,000 exploration points', category: 'exploration', rarity: 'legendary', requirement: 10000, rewardXP: 3000, rewardLunaris: 6000 },
+
+            // Task Achievements (20)
+            { id: 'taskmaster', name: 'Taskmaster', icon: '✅', description: 'Complete 100 tasks', category: 'tasks', rarity: 'common', requirement: 100, rewardXP: 200, rewardLunaris: 500 },
+            { id: 'dedicated_worker', name: 'Dedicated Worker', icon: '💪', description: 'Complete 500 tasks', category: 'tasks', rarity: 'rare', requirement: 500, rewardXP: 750, rewardLunaris: 2000 },
+            { id: 'workaholic', name: 'Workaholic', icon: '🔥', description: 'Complete 1000 tasks', category: 'tasks', rarity: 'epic', requirement: 1000, rewardXP: 1500, rewardLunaris: 4000 },
+            { id: 'task_legend', name: 'Task Legend', icon: '👑', description: 'Complete 2500 tasks', category: 'tasks', rarity: 'legendary', requirement: 2500, rewardXP: 3000, rewardLunaris: 8000 },
+            { id: 'focus_master', name: 'Focus Master', icon: '🎯', description: 'Complete 50 focus mode sessions', category: 'tasks', rarity: 'rare', requirement: 50, rewardXP: 500, rewardLunaris: 1200 },
+            { id: 'no_distractions', name: 'No Distractions', icon: '🚫', description: 'Complete 10 focus sessions without tab changes', category: 'tasks', rarity: 'epic', requirement: 10, rewardXP: 800, rewardLunaris: 1800 },
+            { id: 'marathon_worker', name: 'Marathon Worker', icon: '⏱️', description: 'Complete a 2-hour focus session', category: 'tasks', rarity: 'epic', requirement: 1, rewardXP: 1000, rewardLunaris: 2500 },
+            { id: 'daily_achiever', name: 'Daily Achiever', icon: '📅', description: 'Complete tasks for 30 consecutive days', category: 'tasks', rarity: 'rare', requirement: 30, rewardXP: 600, rewardLunaris: 1500 },
+            { id: 'year_long_dedication', name: 'Year-Long Dedication', icon: '🗓️', description: 'Complete tasks for 365 days', category: 'tasks', rarity: 'legendary', requirement: 365, rewardXP: 5000, rewardLunaris: 10000 },
+            { id: 'multitasker', name: 'Multitasker', icon: '🔀', description: 'Complete 5 different task types in one day', category: 'tasks', rarity: 'common', requirement: 5, rewardXP: 100, rewardLunaris: 300 },
+            { id: 'hydration_hero', name: 'Hydration Hero', icon: '💧', description: 'Complete 50 hydration tasks', category: 'tasks', rarity: 'common', requirement: 50, rewardXP: 150, rewardLunaris: 400 },
+            { id: 'fitness_fanatic', name: 'Fitness Fanatic', icon: '💪', description: 'Complete 50 fitness tasks', category: 'tasks', rarity: 'common', requirement: 50, rewardXP: 150, rewardLunaris: 400 },
+            { id: 'researcher', name: 'Researcher', icon: '🔬', description: 'Complete 50 research tasks', category: 'tasks', rarity: 'common', requirement: 50, rewardXP: 150, rewardLunaris: 400 },
+            { id: 'maintenance_master', name: 'Maintenance Master', icon: '🔧', description: 'Complete 50 maintenance tasks', category: 'tasks', rarity: 'common', requirement: 50, rewardXP: 150, rewardLunaris: 400 },
+            { id: 'early_bird', name: 'Early Bird', icon: '🌅', description: 'Complete a task before 6 AM', category: 'tasks', rarity: 'rare', requirement: 1, rewardXP: 300, rewardLunaris: 600 },
+            { id: 'night_owl', name: 'Night Owl', icon: '🦉', description: 'Complete a task after midnight', category: 'tasks', rarity: 'rare', requirement: 1, rewardXP: 300, rewardLunaris: 600 },
+            { id: 'speed_demon', name: 'Speed Demon', icon: '⚡', description: 'Complete 10 tasks in one day', category: 'tasks', rarity: 'epic', requirement: 10, rewardXP: 800, rewardLunaris: 2000 },
+            { id: 'perfect_week', name: 'Perfect Week', icon: '✨', description: 'Complete at least 5 tasks every day for a week', category: 'tasks', rarity: 'epic', requirement: 7, rewardXP: 1000, rewardLunaris: 2500 },
+            { id: 'custom_creator', name: 'Custom Creator', icon: '✏️', description: 'Create 25 custom tasks', category: 'tasks', rarity: 'common', requirement: 25, rewardXP: 100, rewardLunaris: 250 },
+            { id: 'task_variety', name: 'Task Variety', icon: '🎨', description: 'Complete all task types at least once', category: 'tasks', rarity: 'rare', requirement: 9, rewardXP: 400, rewardLunaris: 1000 },
+
+            // Streak Achievements (15)
+            { id: 'streak_starter', name: 'Streak Starter', icon: '🔥', description: 'Reach a 7-day streak', category: 'streaks', rarity: 'common', requirement: 7, rewardXP: 150, rewardLunaris: 400 },
+            { id: 'dedicated', name: 'Dedicated', icon: '💎', description: 'Reach a 30-day streak', category: 'streaks', rarity: 'rare', requirement: 30, rewardXP: 500, rewardLunaris: 1200 },
+            { id: 'unstoppable', name: 'Unstoppable', icon: '🚀', description: 'Reach a 100-day streak', category: 'streaks', rarity: 'epic', requirement: 100, rewardXP: 1500, rewardLunaris: 3500 },
+            { id: 'legendary_streak', name: 'Legendary Streak', icon: '👑', description: 'Reach a 365-day streak', category: 'streaks', rarity: 'legendary', requirement: 365, rewardXP: 5000, rewardLunaris: 12000 },
+            { id: 'comeback_kid', name: 'Comeback Kid', icon: '🔄', description: 'Rebuild a streak after breaking it', category: 'streaks', rarity: 'common', requirement: 1, rewardXP: 100, rewardLunaris: 200 },
+            { id: 'consistency_master', name: 'Consistency Master', icon: '📊', description: 'Maintain a 50-day streak', category: 'streaks', rarity: 'epic', requirement: 50, rewardXP: 800, rewardLunaris: 2000 },
+            { id: 'streak_protector', name: 'Streak Protector', icon: '🛡️', description: 'Complete check-ins for 14 consecutive days', category: 'streaks', rarity: 'common', requirement: 14, rewardXP: 250, rewardLunaris: 600 },
+            { id: 'monthly_master', name: 'Monthly Master', icon: '📅', description: 'Check in every day for a month', category: 'streaks', rarity: 'rare', requirement: 30, rewardXP: 600, rewardLunaris: 1500 },
+            { id: 'quarterly_champion', name: 'Quarterly Champion', icon: '📈', description: 'Check in every day for 90 days', category: 'streaks', rarity: 'epic', requirement: 90, rewardXP: 1200, rewardLunaris: 3000 },
+            { id: 'weekend_warrior', name: 'Weekend Warrior', icon: '🌟', description: 'Complete tasks on 10 weekends', category: 'streaks', rarity: 'common', requirement: 10, rewardXP: 200, rewardLunaris: 500 },
+            { id: 'never_miss', name: 'Never Miss', icon: '🎯', description: 'Check in for 180 consecutive days', category: 'streaks', rarity: 'legendary', requirement: 180, rewardXP: 3000, rewardLunaris: 7500 },
+            { id: 'habit_former', name: 'Habit Former', icon: '🧠', description: 'Complete the same task type 21 days in a row', category: 'streaks', rarity: 'rare', requirement: 21, rewardXP: 450, rewardLunaris: 1100 },
+            { id: 'iron_will', name: 'Iron Will', icon: '💪', description: 'Complete tasks on 50 consecutive days', category: 'streaks', rarity: 'epic', requirement: 50, rewardXP: 1000, rewardLunaris: 2500 },
+            { id: 'morning_routine', name: 'Morning Routine', icon: '🌅', description: 'Check in before 9 AM for 7 days', category: 'streaks', rarity: 'common', requirement: 7, rewardXP: 200, rewardLunaris: 500 },
+            { id: 'perfect_month', name: 'Perfect Month', icon: '✨', description: 'Complete all daily check-ins for 30 days', category: 'streaks', rarity: 'epic', requirement: 30, rewardXP: 1000, rewardLunaris: 2500 },
+
+            // Resource Achievements (15)
+            { id: 'first_lunaris', name: 'First Lunaris', icon: '💰', description: 'Earn your first Lunaris token', category: 'resources', rarity: 'common', requirement: 1, rewardXP: 25, rewardLunaris: 50 },
+            { id: 'hundred_club', name: 'Hundred Club', icon: '💯', description: 'Earn 100 Lunaris tokens', category: 'resources', rarity: 'common', requirement: 100, rewardXP: 100, rewardLunaris: 200 },
+            { id: 'thousandaire', name: 'Thousandaire', icon: '💵', description: 'Earn 1,000 Lunaris tokens', category: 'resources', rarity: 'rare', requirement: 1000, rewardXP: 400, rewardLunaris: 1000 },
+            { id: 'millionaire', name: 'Millionaire', icon: '💎', description: 'Earn 10,000 Lunaris tokens', category: 'resources', rarity: 'epic', requirement: 10000, rewardXP: 1500, rewardLunaris: 3000 },
+            { id: 'tycoon', name: 'Tycoon', icon: '👑', description: 'Earn 100,000 Lunaris tokens', category: 'resources', rarity: 'legendary', requirement: 100000, rewardXP: 5000, rewardLunaris: 10000 },
+            { id: 'energy_efficient', name: 'Energy Efficient', icon: '⚡', description: 'Maintain 100% energy for 7 days', category: 'resources', rarity: 'rare', requirement: 7, rewardXP: 300, rewardLunaris: 700 },
+            { id: 'oxygen_master', name: 'Oxygen Master', icon: '💨', description: 'Maintain 100% oxygen for 7 days', category: 'resources', rarity: 'rare', requirement: 7, rewardXP: 300, rewardLunaris: 700 },
+            { id: 'hydroponics_expert', name: 'Hydroponics Expert', icon: '🌱', description: 'Maintain 100% hydroponics for 7 days', category: 'resources', rarity: 'rare', requirement: 7, rewardXP: 300, rewardLunaris: 700 },
+            { id: 'resource_hoarder', name: 'Resource Hoarder', icon: '📦', description: 'Keep all resources at 100% for 3 days', category: 'resources', rarity: 'epic', requirement: 3, rewardXP: 800, rewardLunaris: 2000 },
+            { id: 'balanced_colony', name: 'Balanced Colony', icon: '⚖️', description: 'Keep all resources above 50% for 14 days', category: 'resources', rarity: 'rare', requirement: 14, rewardXP: 500, rewardLunaris: 1200 },
+            { id: 'big_spender', name: 'Big Spender', icon: '💸', description: 'Spend 1,000 Lunaris at the marketplace', category: 'resources', rarity: 'common', requirement: 1000, rewardXP: 200, rewardLunaris: 400 },
+            { id: 'trader', name: 'Trader', icon: '🤝', description: 'Complete 10 trades at the marketplace', category: 'resources', rarity: 'common', requirement: 10, rewardXP: 150, rewardLunaris: 350 },
+            { id: 'market_master', name: 'Market Master', icon: '📈', description: 'Complete 100 trades at the marketplace', category: 'resources', rarity: 'rare', requirement: 100, rewardXP: 600, rewardLunaris: 1500 },
+            { id: 'daily_claimer', name: 'Daily Claimer', icon: '🎁', description: 'Claim daily rewards for 30 days', category: 'resources', rarity: 'rare', requirement: 30, rewardXP: 500, rewardLunaris: 1200 },
+            { id: 'resource_rush_winner', name: 'Resource Rush Winner', icon: '🏆', description: 'Win first place in Resource Rush', category: 'resources', rarity: 'epic', requirement: 1, rewardXP: 1000, rewardLunaris: 2500 },
+
+            // Social Achievements (10)
+            { id: 'first_message', name: 'First Message', icon: '💬', description: 'Send your first message in chat', category: 'social', rarity: 'common', requirement: 1, rewardXP: 50, rewardLunaris: 100 },
+            { id: 'chatty', name: 'Chatty', icon: '💭', description: 'Send 100 messages in chat', category: 'social', rarity: 'common', requirement: 100, rewardXP: 200, rewardLunaris: 500 },
+            { id: 'conversationalist', name: 'Conversationalist', icon: '🗣️', description: 'Send 500 messages in chat', category: 'social', rarity: 'rare', requirement: 500, rewardXP: 500, rewardLunaris: 1200 },
+            { id: 'social_butterfly', name: 'Social Butterfly', icon: '🦋', description: 'Chat on 30 different days', category: 'social', rarity: 'rare', requirement: 30, rewardXP: 400, rewardLunaris: 1000 },
+            { id: 'helper', name: 'Helper', icon: '🤝', description: 'Help another colonist complete a collaboration task', category: 'social', rarity: 'common', requirement: 1, rewardXP: 150, rewardLunaris: 350 },
+            { id: 'team_player', name: 'Team Player', icon: '👥', description: 'Complete 10 collaboration tasks', category: 'social', rarity: 'rare', requirement: 10, rewardXP: 600, rewardLunaris: 1500 },
+            { id: 'community_leader', name: 'Community Leader', icon: '👑', description: 'Complete 50 collaboration tasks', category: 'social', rarity: 'epic', requirement: 50, rewardXP: 1500, rewardLunaris: 3500 },
+            { id: 'note_taker', name: 'Note Taker', icon: '📝', description: 'Write 50 notes', category: 'social', rarity: 'common', requirement: 50, rewardXP: 200, rewardLunaris: 500 },
+            { id: 'journalist', name: 'Journalist', icon: '📰', description: 'Write 200 notes', category: 'social', rarity: 'rare', requirement: 200, rewardXP: 600, rewardLunaris: 1500 },
+            { id: 'leaderboard_champion', name: 'Leaderboard Champion', icon: '🥇', description: 'Reach rank 1 on any leaderboard', category: 'social', rarity: 'legendary', requirement: 1, rewardXP: 2500, rewardLunaris: 6000 },
+
+            // Special Achievements (20+)
+            { id: 'welcome_home', name: 'Welcome Home', icon: '🏠', description: 'Join the Lunaris Colony', category: 'special', rarity: 'common', requirement: 1, rewardXP: 100, rewardLunaris: 250 },
+            { id: 'role_selector', name: 'Role Selector', icon: '🎭', description: 'Choose your colony role', category: 'special', rarity: 'common', requirement: 1, rewardXP: 50, rewardLunaris: 100 },
+            { id: 'crater_discoverer', name: 'Crater Discoverer', icon: '🌊', description: 'Unlock Crater Nexus', category: 'special', rarity: 'rare', requirement: 1, rewardXP: 500, rewardLunaris: 1000 },
+            { id: 'desert_explorer', name: 'Desert Explorer', icon: '🏜️', description: 'Unlock Red Dunes Outpost', category: 'special', rarity: 'epic', requirement: 1, rewardXP: 1000, rewardLunaris: 2500 },
+            { id: 'arctic_researcher', name: 'Arctic Researcher', icon: '❄️', description: 'Unlock Arctic Research Station', category: 'special', rarity: 'epic', requirement: 1, rewardXP: 1500, rewardLunaris: 4000 },
+            { id: 'summit_seeker', name: 'Summit Seeker', icon: '⛰️', description: 'Unlock Olympus Summit', category: 'special', rarity: 'legendary', requirement: 1, rewardXP: 2500, rewardLunaris: 6000 },
+            { id: 'level_10', name: 'Level 10', icon: '🔟', description: 'Reach level 10', category: 'special', rarity: 'common', requirement: 10, rewardXP: 200, rewardLunaris: 500 },
+            { id: 'level_25', name: 'Level 25', icon: '🎖️', description: 'Reach level 25', category: 'special', rarity: 'rare', requirement: 25, rewardXP: 500, rewardLunaris: 1200 },
+            { id: 'level_50', name: 'Level 50', icon: '⭐', description: 'Reach level 50', category: 'special', rarity: 'epic', requirement: 50, rewardXP: 1500, rewardLunaris: 3500 },
+            { id: 'level_75', name: 'Level 75', icon: '💫', description: 'Reach level 75', category: 'special', rarity: 'legendary', requirement: 75, rewardXP: 3000, rewardLunaris: 7500 },
+            { id: 'wallet_creator', name: 'Wallet Creator', icon: '👛', description: 'Create your Solana wallet', category: 'special', rarity: 'common', requirement: 1, rewardXP: 100, rewardLunaris: 200 },
+            { id: 'achievement_hunter', name: 'Achievement Hunter', icon: '🏹', description: 'Unlock 25 achievements', category: 'special', rarity: 'rare', requirement: 25, rewardXP: 600, rewardLunaris: 1500 },
+            { id: 'achievement_master', name: 'Achievement Master', icon: '🎯', description: 'Unlock 50 achievements', category: 'special', rarity: 'epic', requirement: 50, rewardXP: 1500, rewardLunaris: 3500 },
+            { id: 'completionist', name: 'Completionist', icon: '💯', description: 'Unlock all achievements', category: 'special', rarity: 'legendary', requirement: 100, rewardXP: 10000, rewardLunaris: 25000 },
+            { id: 'admin_access', name: 'Admin Access', icon: '⚙️', description: 'Become a colony admin', category: 'special', rarity: 'legendary', requirement: 1, rewardXP: 5000, rewardLunaris: 10000 },
+            { id: 'early_adopter', name: 'Early Adopter', icon: '🚀', description: 'Join during beta phase', category: 'special', rarity: 'epic', requirement: 1, rewardXP: 1000, rewardLunaris: 2000 },
+            { id: 'bug_hunter', name: 'Bug Hunter', icon: '🐛', description: 'Report 5 bugs', category: 'special', rarity: 'rare', requirement: 5, rewardXP: 500, rewardLunaris: 1000 },
+            { id: 'feature_requester', name: 'Feature Requester', icon: '💡', description: 'Suggest 3 new features', category: 'special', rarity: 'common', requirement: 3, rewardXP: 200, rewardLunaris: 400 },
+            { id: 'veteran', name: 'Veteran', icon: '🎖️', description: 'Be a member for 1 year', category: 'special', rarity: 'legendary', requirement: 365, rewardXP: 5000, rewardLunaris: 12000 },
+            { id: 'collector', name: 'Collector', icon: '🎁', description: 'Unlock 10 rare achievements', category: 'special', rarity: 'epic', requirement: 10, rewardXP: 1200, rewardLunaris: 3000 },
+        ];
+
+        // Auth state listener
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                await loadAchievements();
+                renderAchievements();
+                updateStats();
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('main-content').style.display = 'block';
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        // Load user achievements from Firebase
+        async function loadAchievements() {
+            try {
+                const achievementsRef = ref(database, `users/${currentUser.uid}/achievements`);
+                const snapshot = await get(achievementsRef);
+
+                if (snapshot.exists()) {
+                    userAchievements = snapshot.val();
+                } else {
+                    // Initialize with welcome achievement
+                    userAchievements = {
+                        welcome_home: {
+                            unlocked: true,
+                            progress: 1,
+                            unlockedAt: Date.now()
+                        }
+                    };
+                    await set(achievementsRef, userAchievements);
+                }
+
+                console.log('Achievements loaded:', userAchievements);
+            } catch (error) {
+                console.error('Error loading achievements:', error);
+            }
+        }
+
+        // Render achievements
+        function renderAchievements() {
+            const grid = document.getElementById('achievements-grid');
+            let filteredAchievements = ACHIEVEMENTS;
+
+            // Apply filter
+            if (currentFilter !== 'all') {
+                if (currentFilter === 'unlocked') {
+                    filteredAchievements = ACHIEVEMENTS.filter(ach =>
+                        userAchievements[ach.id]?.unlocked
+                    );
+                } else if (currentFilter === 'locked') {
+                    filteredAchievements = ACHIEVEMENTS.filter(ach =>
+                        !userAchievements[ach.id]?.unlocked
+                    );
+                } else {
+                    filteredAchievements = ACHIEVEMENTS.filter(ach =>
+                        ach.category === currentFilter
+                    );
+                }
+            }
+
+            grid.innerHTML = filteredAchievements.map(ach => {
+                const userAch = userAchievements[ach.id] || { progress: 0, unlocked: false };
+                const progress = userAch.progress || 0;
+                const isUnlocked = userAch.unlocked || false;
+                const progressPercent = Math.min((progress / ach.requirement) * 100, 100);
+
+                return `
+                    <div class="achievement-card ${isUnlocked ? 'unlocked' : 'locked'}">
+                        <div class="achievement-header">
+                            <div class="achievement-icon">${ach.icon}</div>
+                            <div class="achievement-info">
+                                <div class="achievement-name">${ach.name}</div>
+                                <span class="achievement-rarity rarity-${ach.rarity}">${ach.rarity}</span>
+                            </div>
+                        </div>
+
+                        <div class="achievement-description">${ach.description}</div>
+
+                        ${!isUnlocked ? `
+                            <div class="achievement-progress">
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar" style="width: ${progressPercent}%"></div>
+                                </div>
+                                <div class="progress-text">${progress} / ${ach.requirement}</div>
+                            </div>
+                        ` : ''}
+
+                        <div class="achievement-reward">
+                            🎁 ${ach.rewardXP} XP + ${ach.rewardLunaris} 💰 Lunaris
+                        </div>
+
+                        ${isUnlocked ? `
+                            <div class="unlock-timestamp">
+                                Unlocked ${new Date(userAch.unlockedAt).toLocaleDateString()}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Update statistics
+        function updateStats() {
+            const totalUnlocked = Object.values(userAchievements).filter(a => a.unlocked).length;
+            const totalAchievements = ACHIEVEMENTS.length;
+            const completionRate = Math.round((totalUnlocked / totalAchievements) * 100);
+
+            // Calculate total achievement points
+            const achievementPoints = ACHIEVEMENTS.reduce((total, ach) => {
+                const userAch = userAchievements[ach.id];
+                if (userAch?.unlocked) {
+                    return total + ach.rewardXP;
+                }
+                return total;
+            }, 0);
+
+            // Find rarest unlocked achievement
+            const rarestAchievement = ACHIEVEMENTS
+                .filter(ach => userAchievements[ach.id]?.unlocked)
+                .sort((a, b) => {
+                    const rarityOrder = { common: 1, rare: 2, epic: 3, legendary: 4 };
+                    return rarityOrder[b.rarity] - rarityOrder[a.rarity];
+                })[0];
+
+            document.getElementById('total-unlocked').textContent = `${totalUnlocked} / ${totalAchievements}`;
+            document.getElementById('completion-rate').textContent = `${completionRate}%`;
+            document.getElementById('achievement-points').textContent = achievementPoints.toLocaleString();
+            document.getElementById('rarest-achievement').textContent =
+                rarestAchievement ? `${rarestAchievement.icon} ${rarestAchievement.name}` : 'None';
+        }
+
+        // Filter tabs
+        document.querySelectorAll('.filter-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentFilter = tab.dataset.filter;
+                renderAchievements();
+            });
+        });
+
+    </script>
+</body>
+</html>

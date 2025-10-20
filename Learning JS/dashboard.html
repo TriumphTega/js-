@@ -40,6 +40,21 @@
                     </button>
                 </div>
 
+                <!-- ═══════════════════════════════════════════════════════════════ -->
+                <!-- RED DUNES OUTPOST NAVIGATION (Level 25 + 60 Days Required)    -->
+                <!-- ═══════════════════════════════════════════════════════════════ -->
+                <div id="red-dunes-nav-container" style="display: contents;">
+                    <!-- Red Dunes Dashboard -->
+                    <a href="/Learning JS/red-dunes-dashboard.html" id="red-dunes-link" class="nav-btn" style="background: linear-gradient(135deg, #8B2500, #FF6B35); color: #FFD700; display: none;">
+                        🏜️ Red Dunes Outpost
+                    </a>
+
+                    <!-- Locked message (shown until unlocked) -->
+                    <button id="red-dunes-locked-btn" class="nav-btn" style="background: rgba(139, 37, 0, 0.2); color: rgba(255, 107, 53, 0.5); cursor: not-allowed; border: 2px solid rgba(255, 107, 53, 0.3);">
+                        🔒 Red Dunes Outpost (Locked)
+                    </button>
+                </div>
+
                 <a href="/Learning JS/roadmap.html" class="nav-btn">🗺️ Roadmap</a>
                 <a href="/Learning JS/chatroom.html" class="nav-btn">💬 Chat</a>
                 <a href="/Learning JS/notes.html" class="nav-btn">📝 Notes</a>
@@ -474,6 +489,8 @@
         // Shows admin button only for admins
         // ============================================
 
+        let isUserAdmin = false; // Track admin status globally
+
         async function checkAdminAccess(user) {
             if (!user) return false;
 
@@ -483,13 +500,15 @@
 
                 if (snapshot.exists()) {
                     // User is admin - show admin button
+                    isUserAdmin = true;
                     document.getElementById('admin-btn').style.display = 'flex';
-                    console.log('Admin access granted');
+                    console.log('🔓 Admin access granted - Phase unlocking bypassed for testing');
                     return true;
                 }
             } catch (error) {
                 console.error('Error checking admin access:', error);
             }
+            isUserAdmin = false;
             return false;
         }
 
@@ -649,6 +668,11 @@
                 // ═══════════════════════════════════════════════════════════════
                 await checkNexusCraterUnlock(progressSnapshot);
 
+                // ═══════════════════════════════════════════════════════════════
+                // CHECK RED DUNES OUTPOST UNLOCK STATUS
+                // ═══════════════════════════════════════════════════════════════
+                await checkRedDunesUnlock(progressSnapshot);
+
             } catch (error) {
                 console.error('Error refreshing from Firebase:', error);
             }
@@ -656,7 +680,7 @@
 
         // ═══════════════════════════════════════════════════════════════
         // NEXUS CRATER UNLOCK CHECK
-        // Requirements: Level 10 + 30 Total Login Days
+        // Requirements: Level 10 + 30 Total Login Days (BYPASSED FOR ADMINS)
         // ═══════════════════════════════════════════════════════════════
         async function checkNexusCraterUnlock(progressSnapshot) {
             try {
@@ -681,13 +705,16 @@
 
                 const hasRequiredLevel = level >= REQUIRED_LEVEL;
                 const hasRequiredDays = totalLoginDays >= REQUIRED_DAYS;
-                const isUnlocked = hasRequiredLevel && hasRequiredDays;
+
+                // 🔓 ADMIN BYPASS: Admins can access all phases for testing
+                const isUnlocked = isUserAdmin || (hasRequiredLevel && hasRequiredDays);
 
                 console.log('📊 Nexus Crater Status:', {
                     level,
                     totalLoginDays,
                     hasRequiredLevel,
                     hasRequiredDays,
+                    isAdminBypass: isUserAdmin,
                     isUnlocked
                 });
 
@@ -704,7 +731,11 @@
                     rushLink.style.display = 'inline-block';
                     lockedBtn.style.display = 'none';
 
-                    console.log('✅ Nexus Crater UNLOCKED!');
+                    if (isUserAdmin && (!hasRequiredLevel || !hasRequiredDays)) {
+                        console.log('🔓 Nexus Crater UNLOCKED (Admin Bypass Active)');
+                    } else {
+                        console.log('✅ Nexus Crater UNLOCKED!');
+                    }
                 } else {
                     // Show locked button with progress
                     const missingLevel = hasRequiredLevel ? '' : `Level ${REQUIRED_LEVEL}`;
@@ -751,7 +782,17 @@
                 { level: 12, xpRequired: 3850 },
                 { level: 13, xpRequired: 4500 },
                 { level: 14, xpRequired: 5200 },
-                { level: 15, xpRequired: 5950 }
+                { level: 15, xpRequired: 5950 },
+                { level: 16, xpRequired: 6750 },
+                { level: 17, xpRequired: 7600 },
+                { level: 18, xpRequired: 8500 },
+                { level: 19, xpRequired: 9450 },
+                { level: 20, xpRequired: 10450 },
+                { level: 21, xpRequired: 11500 },
+                { level: 22, xpRequired: 12600 },
+                { level: 23, xpRequired: 13750 },
+                { level: 24, xpRequired: 14950 },
+                { level: 25, xpRequired: 16200 } // Red Dunes Outpost unlock
             ];
 
             for (let i = levels.length - 1; i >= 0; i--) {
@@ -760,6 +801,101 @@
                 }
             }
             return 1;
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // RED DUNES OUTPOST UNLOCK CHECK
+        // Requirements: Level 25 + 60 Total Login Days (BYPASSED FOR ADMINS)
+        // Special: Exploratory Engineer can unlock with only Level 25 + 60 days
+        // Other roles: Level 25 + 100 days
+        // ═══════════════════════════════════════════════════════════════
+        async function checkRedDunesUnlock(progressSnapshot) {
+            try {
+                let progressData = {
+                    totalXP: 0,
+                    level: 1,
+                    loginDays: []
+                };
+
+                if (progressSnapshot && progressSnapshot.exists()) {
+                    progressData = progressSnapshot.val();
+                }
+
+                // Calculate level from XP
+                const xp = progressData.totalXP || 0;
+                const level = calculateLevel(xp);
+                const totalLoginDays = (progressData.loginDays || []).length;
+
+                // Check user role for special unlock conditions
+                const userRole = currentRole?.name || '';
+                const isExploratoryEngineer = userRole.includes('Exploratory Engineer');
+
+                // Unlock requirements
+                const REQUIRED_LEVEL = 25;
+                const REQUIRED_DAYS = isExploratoryEngineer ? 60 : 100;
+
+                const hasRequiredLevel = level >= REQUIRED_LEVEL;
+                const hasRequiredDays = totalLoginDays >= REQUIRED_DAYS;
+
+                // 🔓 ADMIN BYPASS: Admins can access all phases for testing
+                const isUnlocked = isUserAdmin || (hasRequiredLevel && hasRequiredDays);
+
+                console.log('🏜️ Red Dunes Outpost Status:', {
+                    level,
+                    totalLoginDays,
+                    role: userRole,
+                    isExploratoryEngineer,
+                    requiredDays: REQUIRED_DAYS,
+                    hasRequiredLevel,
+                    hasRequiredDays,
+                    isAdminBypass: isUserAdmin,
+                    isUnlocked
+                });
+
+                // Update UI
+                const redDunesLink = document.getElementById('red-dunes-link');
+                const lockedBtn = document.getElementById('red-dunes-locked-btn');
+
+                if (isUnlocked) {
+                    // Show unlocked button
+                    redDunesLink.style.display = 'inline-block';
+                    lockedBtn.style.display = 'none';
+
+                    if (isUserAdmin && (!hasRequiredLevel || !hasRequiredDays)) {
+                        console.log('🔓 Red Dunes Outpost UNLOCKED (Admin Bypass Active)');
+                    } else {
+                        console.log('✅ Red Dunes Outpost UNLOCKED!');
+                    }
+                } else {
+                    // Show locked button with progress
+                    const missingLevel = hasRequiredLevel ? '' : `Level ${REQUIRED_LEVEL}`;
+                    const missingDays = hasRequiredDays ? '' : `${REQUIRED_DAYS} Login Days`;
+                    const missing = [missingLevel, missingDays].filter(x => x).join(' + ');
+
+                    lockedBtn.textContent = `🔒 Red Dunes Outpost (Need: ${missing})`;
+                    lockedBtn.style.display = 'inline-block';
+                    redDunesLink.style.display = 'none';
+
+                    // Add click handler to show requirements
+                    lockedBtn.onclick = () => {
+                        const roleBonus = isExploratoryEngineer
+                            ? '\n\n🎖️ Exploratory Engineer Bonus: Only 60 days required!'
+                            : '\n\nNote: Exploratory Engineers only need 60 days instead of 100.';
+
+                        showModal('info', '🔒 Red Dunes Outpost Locked',
+                            `Unlock Requirements:\n\n` +
+                            `${hasRequiredLevel ? '✅' : '❌'} Level ${REQUIRED_LEVEL} (Current: ${level})\n` +
+                            `${hasRequiredDays ? '✅' : '❌'} ${REQUIRED_DAYS} Login Days (Current: ${totalLoginDays})` +
+                            roleBonus +
+                            `\n\nKeep exploring to unlock the Explorer's Domain!`
+                        );
+                    };
+
+                    console.log(`🔒 Red Dunes Outpost LOCKED - Need: ${missing}`);
+                }
+            } catch (error) {
+                console.error('Error checking Red Dunes unlock:', error);
+            }
         }
 
         // ============================================

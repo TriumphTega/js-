@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Red Dunes Outpost - Lunaris Colony</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background: linear-gradient(135deg, #1a0a00 0%, #4a1c00 50%, #2d1100 100%);
+            color: #FF8C42;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated dust particles */
+        @keyframes dust-float {
+            0%, 100% { transform: translateY(0) translateX(0); opacity: 0.3; }
+            50% { transform: translateY(-20px) translateX(10px); opacity: 0.6; }
+        }
+
+        .dust-particle {
+            position: fixed;
+            width: 3px;
+            height: 3px;
+            background: rgba(255, 140, 66, 0.3);
+            border-radius: 50%;
+            animation: dust-float 4s infinite;
+            pointer-events: none;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #8B2500 0%, #D2691E 100%);
+            border: 3px solid #FF6B35;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 0 30px rgba(255, 107, 53, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(255, 107, 53, 0.05) 10px,
+                rgba(255, 107, 53, 0.05) 20px
+            );
+            animation: scan 8s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { transform: translateX(-50%) translateY(-50%); }
+            100% { transform: translateX(0) translateY(0); }
+        }
+
+        .header h1 {
+            color: #FFD700;
+            text-shadow: 0 0 20px rgba(255, 107, 53, 0.8);
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            color: #FF8C42;
+            font-size: 1.1em;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Navigation buttons */
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: linear-gradient(135deg, #8B2500 0%, #D2691E 100%);
+            border: 2px solid #FF6B35;
+            color: #FFD700;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .nav-btn:hover {
+            background: linear-gradient(135deg, #D2691E 0%, #FF6B35 100%);
+            box-shadow: 0 0 20px rgba(255, 107, 53, 0.6);
+            transform: translateY(-2px);
+        }
+
+        /* Resource display */
+        .resources {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .resource-card {
+            background: linear-gradient(135deg, #4a1c00 0%, #2d1100 100%);
+            border: 2px solid #FF6B35;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 0 15px rgba(255, 107, 53, 0.3);
+        }
+
+        .resource-card h3 {
+            color: #FFD700;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        .resource-card .value {
+            color: #FF8C42;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        /* Main content grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Section cards */
+        .section-card {
+            background: linear-gradient(135deg, #4a1c00 0%, #2d1100 100%);
+            border: 3px solid #FF6B35;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 0 20px rgba(255, 107, 53, 0.3);
+        }
+
+        .section-card h2 {
+            color: #FFD700;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            text-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
+        }
+
+        /* Exploration map */
+        .exploration-map {
+            background: rgba(0, 0, 0, 0.4);
+            border: 2px solid #8B2500;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            min-height: 250px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .map-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            height: 100%;
+        }
+
+        .map-tile {
+            background: rgba(139, 37, 0, 0.3);
+            border: 1px solid #8B2500;
+            border-radius: 5px;
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .map-tile.explored {
+            background: rgba(255, 107, 53, 0.4);
+            border-color: #FF6B35;
+        }
+
+        .map-tile.current {
+            background: linear-gradient(135deg, #FFD700 0%, #FF6B35 100%);
+            border-color: #FFD700;
+            animation: pulse 2s infinite;
+        }
+
+        .map-tile:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(255, 107, 53, 0.5);
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+            50% { box-shadow: 0 0 25px rgba(255, 215, 0, 0.8); }
+        }
+
+        /* Expedition button */
+        .expedition-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #8B2500 0%, #D2691E 100%);
+            border: 3px solid #FFD700;
+            color: #FFD700;
+            padding: 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.3em;
+            font-weight: bold;
+            transition: all 0.3s;
+            margin-bottom: 15px;
+        }
+
+        .expedition-btn:hover:not(:disabled) {
+            background: linear-gradient(135deg, #D2691E 0%, #FF6B35 100%);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .expedition-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .expedition-timer {
+            color: #FF8C42;
+            text-align: center;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+        }
+
+        /* Discovery feed */
+        .discovery-feed {
+            max-height: 300px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.4);
+            border: 2px solid #8B2500;
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .discovery-item {
+            background: rgba(255, 107, 53, 0.1);
+            border-left: 3px solid #FF6B35;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+
+        .discovery-item .time {
+            color: #8B2500;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .discovery-item .text {
+            color: #FF8C42;
+        }
+
+        .discovery-item .reward {
+            color: #FFD700;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        /* Achievement preview */
+        .achievement-preview {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .achievement-badge {
+            background: rgba(0, 0, 0, 0.4);
+            border: 2px solid #8B2500;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .achievement-badge.unlocked {
+            border-color: #FFD700;
+            background: rgba(255, 215, 0, 0.1);
+        }
+
+        .achievement-badge:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(255, 107, 53, 0.4);
+        }
+
+        .achievement-badge .icon {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .achievement-badge .name {
+            color: #FF8C42;
+            font-size: 0.9em;
+        }
+
+        .progress-text {
+            color: #FFD700;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .view-all-btn {
+            width: 100%;
+            background: rgba(139, 37, 0, 0.5);
+            border: 2px solid #FF6B35;
+            color: #FFD700;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.1em;
+            transition: all 0.3s;
+        }
+
+        .view-all-btn:hover {
+            background: rgba(210, 105, 30, 0.5);
+            box-shadow: 0 0 15px rgba(255, 107, 53, 0.4);
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #4a1c00 0%, #2d1100 100%);
+            border: 3px solid #FF6B35;
+            border-radius: 15px;
+            margin: 5% auto;
+            padding: 30px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 0 50px rgba(255, 107, 53, 0.5);
+            animation: slideDown 0.3s;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-content h2 {
+            color: #FFD700;
+            margin-bottom: 20px;
+            text-shadow: 0 0 15px rgba(255, 107, 53, 0.5);
+        }
+
+        .modal-content p {
+            color: #FF8C42;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            background: linear-gradient(135deg, #8B2500 0%, #D2691E 100%);
+            border: 2px solid #FF6B35;
+            color: #FFD700;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .modal-btn:hover {
+            background: linear-gradient(135deg, #D2691E 0%, #FF6B35 100%);
+            box-shadow: 0 0 20px rgba(255, 107, 53, 0.5);
+        }
+
+        .modal-btn.secondary {
+            background: rgba(139, 37, 0, 0.5);
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #8B2500;
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #D2691E;
+        }
+
+        .loading {
+            text-align: center;
+            color: #FFD700;
+            font-size: 1.5em;
+            padding: 50px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated dust particles -->
+    <script>
+        for (let i = 0; i < 20; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'dust-particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 4 + 's';
+            document.body.appendChild(particle);
+        }
+    </script>
+
+    <div id="loading" class="loading">
+        🏜️ Loading Red Dunes Outpost...
+    </div>
+
+    <div id="main-content" style="display: none;">
+        <!-- Header -->
+        <div class="header">
+            <h1>🏜️ Red Dunes Outpost</h1>
+            <p>The Explorer's Domain - Where Discovery Awaits</p>
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav-buttons">
+            <a href="dashboard.html" class="nav-btn">🏠 Base Camp Alpha</a>
+            <a href="#" class="nav-btn" id="achievements-nav">🏆 Achievements</a>
+            <a href="#" class="nav-btn" id="dune-racer-nav">🏎️ Dune Racer</a>
+            <a href="#" class="nav-btn" id="expeditions-nav">⏳ Expedition Tasks</a>
+            <a href="#" class="nav-btn" id="discovery-log-nav">📜 Discovery Log</a>
+        </div>
+
+        <!-- Resources -->
+        <div class="resources">
+            <div class="resource-card">
+                <h3>💰 Lunaris Tokens</h3>
+                <div class="value" id="lunaris-value">0</div>
+            </div>
+            <div class="resource-card">
+                <h3>🧭 Exploration Points</h3>
+                <div class="value" id="exploration-points">0</div>
+            </div>
+            <div class="resource-card">
+                <h3>🗺️ Areas Explored</h3>
+                <div class="value" id="areas-explored">0 / 25</div>
+            </div>
+            <div class="resource-card">
+                <h3>🏆 Achievements</h3>
+                <div class="value" id="achievements-count">0 / 100+</div>
+            </div>
+        </div>
+
+        <!-- Main content grid -->
+        <div class="main-grid">
+            <!-- Left column: Exploration -->
+            <div class="section-card">
+                <h2>🧭 Daily Exploration</h2>
+
+                <div class="exploration-map">
+                    <div class="map-grid" id="map-grid">
+                        <!-- Map tiles will be generated here -->
+                    </div>
+                </div>
+
+                <div class="expedition-timer" id="expedition-timer">
+                    Next expedition available in: --:--:--
+                </div>
+
+                <button class="expedition-btn" id="start-expedition" disabled>
+                    🚀 Start Expedition
+                </button>
+
+                <p style="color: #FF8C42; text-align: center; font-size: 0.95em;">
+                    Explore the red dunes to discover resources, achievements, and ancient ruins!
+                </p>
+            </div>
+
+            <!-- Right column: Achievements preview -->
+            <div class="section-card">
+                <h2>🏆 Recent Achievements</h2>
+
+                <div class="progress-text">
+                    <span id="achievement-progress">0 / 100+</span> Unlocked
+                </div>
+
+                <div class="achievement-preview" id="achievement-preview">
+                    <!-- Achievement badges will be loaded here -->
+                </div>
+
+                <button class="view-all-btn" id="view-all-achievements">
+                    View All Achievements
+                </button>
+            </div>
+        </div>
+
+        <!-- Discovery feed -->
+        <div class="section-card">
+            <h2>📜 Recent Discoveries</h2>
+            <div class="discovery-feed" id="discovery-feed">
+                <p style="color: #8B2500; text-align: center; padding: 20px;">
+                    No discoveries yet. Start exploring to make your first discovery!
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for expedition results -->
+    <div id="expedition-modal" class="modal">
+        <div class="modal-content">
+            <h2 id="modal-title">🧭 Expedition Complete!</h2>
+            <div id="modal-body"></div>
+            <div class="modal-buttons">
+                <button class="modal-btn" id="modal-close">Continue Exploring</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase configuration -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+        import { getDatabase, ref, get, set, update, onValue } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyABq1_gk2v5PctmkAkBUFuh0k22-I6gTN0",
+            authDomain: "productivity-app-d72b8.firebaseapp.com",
+            databaseURL: "https://productivity-app-d72b8-default-rtdb.firebaseio.com",
+            projectId: "productivity-app-d72b8",
+            storageBucket: "productivity-app-d72b8.firebasestorage.app",
+            messagingSenderId: "105664971583",
+            appId: "1:105664971583:web:f44e59f1f13b24eba61b27"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+
+        let currentUser = null;
+        let explorationData = null;
+        let achievementsData = null;
+
+        // Auth state listener
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                await loadUserData();
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('main-content').style.display = 'block';
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        // Load user data
+        async function loadUserData() {
+            try {
+                const uid = currentUser.uid;
+
+                // Load progress data for resources
+                const progressRef = ref(database, `users/${uid}/progress`);
+                const progressSnap = await get(progressRef);
+                if (progressSnap.exists()) {
+                    const progress = progressSnap.val();
+                    document.getElementById('lunaris-value').textContent = progress.lunarisTokens || 0;
+                }
+
+                // Load or initialize exploration data
+                const explorationRef = ref(database, `users/${uid}/redDunes/exploration`);
+                const explorationSnap = await get(explorationRef);
+
+                if (explorationSnap.exists()) {
+                    explorationData = explorationSnap.val();
+                } else {
+                    // Initialize exploration data
+                    explorationData = {
+                        explorationPoints: 0,
+                        exploredAreas: [],
+                        currentPosition: { x: 2, y: 2 }, // Start in center
+                        lastExpedition: 0,
+                        totalExpeditions: 0
+                    };
+                    await set(explorationRef, explorationData);
+                }
+
+                // Load achievements
+                const achievementsRef = ref(database, `users/${uid}/redDunes/achievements`);
+                const achievementsSnap = await get(achievementsRef);
+
+                if (achievementsSnap.exists()) {
+                    achievementsData = achievementsSnap.val();
+                } else {
+                    achievementsData = { unlocked: [] };
+                    await set(achievementsRef, achievementsData);
+                }
+
+                updateUI();
+                initializeMap();
+                checkExpeditionAvailability();
+
+            } catch (error) {
+                console.error('Error loading user data:', error);
+            }
+        }
+
+        // Update UI with current data
+        function updateUI() {
+            document.getElementById('exploration-points').textContent = explorationData.explorationPoints || 0;
+            document.getElementById('areas-explored').textContent =
+                `${explorationData.exploredAreas?.length || 0} / 25`;
+            document.getElementById('achievements-count').textContent =
+                `${achievementsData.unlocked?.length || 0} / 100+`;
+            document.getElementById('achievement-progress').textContent =
+                `${achievementsData.unlocked?.length || 0} / 100+`;
+        }
+
+        // Initialize exploration map
+        function initializeMap() {
+            const mapGrid = document.getElementById('map-grid');
+            mapGrid.innerHTML = '';
+
+            const currentPos = explorationData.currentPosition || { x: 2, y: 2 };
+            const exploredAreas = explorationData.exploredAreas || [];
+
+            for (let i = 0; i < 25; i++) {
+                const x = i % 5;
+                const y = Math.floor(i / 5);
+                const tile = document.createElement('div');
+                tile.className = 'map-tile';
+
+                const areaKey = `${x},${y}`;
+                const isExplored = exploredAreas.includes(areaKey);
+                const isCurrent = x === currentPos.x && y === currentPos.y;
+
+                if (isCurrent) {
+                    tile.classList.add('current');
+                    tile.textContent = '🏕️';
+                } else if (isExplored) {
+                    tile.classList.add('explored');
+                    tile.textContent = '✓';
+                } else {
+                    tile.textContent = '?';
+                }
+
+                tile.onclick = () => showAreaInfo(x, y, isExplored);
+                mapGrid.appendChild(tile);
+            }
+        }
+
+        // Show area information
+        function showAreaInfo(x, y, isExplored) {
+            const areaTypes = ['Ancient Ruins', 'Resource Deposit', 'Crater Formation', 'Rock Outcrop', 'Sand Dunes'];
+            const areaType = areaTypes[Math.floor(Math.random() * areaTypes.length)];
+
+            const title = isExplored ? `📍 ${areaType}` : '🔒 Unexplored Area';
+            const message = isExplored
+                ? `You've explored this ${areaType.toLowerCase()}. Complete expeditions to discover more areas!`
+                : 'This area is unexplored. Complete daily expeditions to unlock new territories!';
+
+            showModal(title, message);
+        }
+
+        // Check expedition availability
+        function checkExpeditionAvailability() {
+            const lastExpedition = explorationData.lastExpedition || 0;
+            const now = Date.now();
+            const cooldown = 24 * 60 * 60 * 1000; // 24 hours
+            const timeRemaining = (lastExpedition + cooldown) - now;
+
+            if (timeRemaining <= 0) {
+                document.getElementById('start-expedition').disabled = false;
+                document.getElementById('expedition-timer').textContent = '✅ Expedition Available!';
+            } else {
+                document.getElementById('start-expedition').disabled = true;
+                startCooldownTimer(timeRemaining);
+            }
+        }
+
+        // Start cooldown timer
+        function startCooldownTimer(timeRemaining) {
+            const updateTimer = () => {
+                const hours = Math.floor(timeRemaining / (1000 * 60 * 60));
+                const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+
+                document.getElementById('expedition-timer').textContent =
+                    `Next expedition available in: ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+                timeRemaining -= 1000;
+
+                if (timeRemaining <= 0) {
+                    document.getElementById('start-expedition').disabled = false;
+                    document.getElementById('expedition-timer').textContent = '✅ Expedition Available!';
+                } else {
+                    setTimeout(updateTimer, 1000);
+                }
+            };
+            updateTimer();
+        }
+
+        // Start expedition
+        document.getElementById('start-expedition').addEventListener('click', async () => {
+            try {
+                const uid = currentUser.uid;
+
+                // Generate expedition results
+                const results = generateExpeditionResults();
+
+                // Update exploration data
+                explorationData.lastExpedition = Date.now();
+                explorationData.totalExpeditions = (explorationData.totalExpeditions || 0) + 1;
+                explorationData.explorationPoints = (explorationData.explorationPoints || 0) + results.explorationPoints;
+
+                // Add new explored area
+                if (results.newArea) {
+                    if (!explorationData.exploredAreas) explorationData.exploredAreas = [];
+                    explorationData.exploredAreas.push(results.newArea);
+                }
+
+                // Update Firebase
+                const explorationRef = ref(database, `users/${uid}/redDunes/exploration`);
+                await update(explorationRef, explorationData);
+
+                // Update resources if earned
+                if (results.lunarisReward > 0) {
+                    const progressRef = ref(database, `users/${uid}/progress`);
+                    const progressSnap = await get(progressRef);
+                    const progress = progressSnap.val() || {};
+                    progress.lunarisTokens = (progress.lunarisTokens || 0) + results.lunarisReward;
+                    await update(progressRef, { lunarisTokens: progress.lunarisTokens });
+                }
+
+                // Add to discovery log
+                const discoveryRef = ref(database, `users/${uid}/redDunes/discoveries/${Date.now()}`);
+                await set(discoveryRef, {
+                    timestamp: Date.now(),
+                    type: results.type,
+                    description: results.description,
+                    rewards: results.rewards
+                });
+
+                // Show results modal
+                showExpeditionResults(results);
+
+                // Refresh UI
+                await loadUserData();
+
+            } catch (error) {
+                console.error('Error starting expedition:', error);
+                showModal('⚠️ Error', 'Failed to start expedition. Please try again.');
+            }
+        });
+
+        // Generate expedition results
+        function generateExpeditionResults() {
+            const eventTypes = [
+                {
+                    type: 'Ancient Ruins',
+                    icon: '🏛️',
+                    descriptions: [
+                        'Discovered ancient Martian ruins with mysterious hieroglyphs',
+                        'Found a collapsed structure containing old technology',
+                        'Uncovered artifacts from an unknown civilization'
+                    ],
+                    explorationPoints: 50,
+                    lunarisReward: 100
+                },
+                {
+                    type: 'Resource Deposit',
+                    icon: '💎',
+                    descriptions: [
+                        'Located a rich mineral deposit beneath the sand',
+                        'Discovered a cache of rare materials',
+                        'Found valuable resources in a crater'
+                    ],
+                    explorationPoints: 30,
+                    lunarisReward: 150
+                },
+                {
+                    type: 'Rare Discovery',
+                    icon: '⭐',
+                    descriptions: [
+                        'Made a groundbreaking scientific discovery',
+                        'Found evidence of ancient water sources',
+                        'Discovered a unique geological formation'
+                    ],
+                    explorationPoints: 100,
+                    lunarisReward: 250
+                }
+            ];
+
+            const event = eventTypes[Math.floor(Math.random() * eventTypes.length)];
+            const description = event.descriptions[Math.floor(Math.random() * event.descriptions.length)];
+
+            // Generate new area coordinates
+            const x = Math.floor(Math.random() * 5);
+            const y = Math.floor(Math.random() * 5);
+            const newArea = `${x},${y}`;
+
+            return {
+                type: event.type,
+                icon: event.icon,
+                description: description,
+                explorationPoints: event.explorationPoints,
+                lunarisReward: event.lunarisReward,
+                newArea: newArea,
+                rewards: `+${event.explorationPoints} Exploration Points, +${event.lunarisReward} Lunaris`
+            };
+        }
+
+        // Show expedition results modal
+        function showExpeditionResults(results) {
+            const modal = document.getElementById('expedition-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalBody = document.getElementById('modal-body');
+
+            modalTitle.textContent = `${results.icon} ${results.type} Discovered!`;
+            modalBody.innerHTML = `
+                <p style="font-size: 1.1em; margin-bottom: 20px;">${results.description}</p>
+                <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; border: 2px solid #FF6B35;">
+                    <h3 style="color: #FFD700; margin-bottom: 10px;">🎁 Rewards Earned:</h3>
+                    <p style="color: #FF8C42; font-size: 1.1em;">
+                        +${results.explorationPoints} 🧭 Exploration Points<br>
+                        +${results.lunarisReward} 💰 Lunaris Tokens<br>
+                        +1 🗺️ New Area Explored
+                    </p>
+                </div>
+            `;
+
+            modal.style.display = 'block';
+        }
+
+        // Modal close button
+        document.getElementById('modal-close').addEventListener('click', () => {
+            document.getElementById('expedition-modal').style.display = 'none';
+        });
+
+        // Show generic modal
+        function showModal(title, message) {
+            const modal = document.getElementById('expedition-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalBody = document.getElementById('modal-body');
+
+            modalTitle.textContent = title;
+            modalBody.innerHTML = `<p>${message}</p>`;
+            modal.style.display = 'block';
+        }
+
+        // Navigation button handlers
+        document.getElementById('achievements-nav').addEventListener('click', (e) => {
+            e.preventDefault();
+            window.location.href = 'red-dunes-achievements.html';
+        });
+
+        document.getElementById('dune-racer-nav').addEventListener('click', (e) => {
+            e.preventDefault();
+            showModal('🏎️ Dune Racer', 'Mini-game coming soon! Race your rover through the red dunes and collect power-ups.');
+        });
+
+        document.getElementById('expeditions-nav').addEventListener('click', (e) => {
+            e.preventDefault();
+            showModal('⏳ Expedition Tasks', 'Long-duration expedition tasks coming soon! High risk, high reward missions lasting 8-24 hours.');
+        });
+
+        document.getElementById('discovery-log-nav').addEventListener('click', (e) => {
+            e.preventDefault();
+            showModal('📜 Discovery Log', 'Discovery log coming soon! View all your discoveries and share them with the colony.');
+        });
+
+        document.getElementById('view-all-achievements').addEventListener('click', () => {
+            showModal('🏆 Achievements', 'Full achievement system coming soon! Unlock over 100 unique achievements and earn special rewards.');
+        });
+
+        // Load recent achievements preview
+        async function loadAchievementPreview() {
+            const preview = document.getElementById('achievement-preview');
+            const sampleAchievements = [
+                { icon: '🎯', name: 'First Steps', unlocked: true },
+                { icon: '🏜️', name: 'Desert Explorer', unlocked: false },
+                { icon: '🏛️', name: 'Archaeologist', unlocked: false }
+            ];
+
+            preview.innerHTML = sampleAchievements.map(ach => `
+                <div class="achievement-badge ${ach.unlocked ? 'unlocked' : ''}">
+                    <div class="icon">${ach.icon}</div>
+                    <div class="name">${ach.name}</div>
+                </div>
+            `).join('');
+        }
+
+        // Initialize achievement preview
+        setTimeout(loadAchievementPreview, 500);
+
+    </script>
+</body>
+</html>

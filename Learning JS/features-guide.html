@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Features Guide - Lunaris Colony</title>
+    <link rel="icon" type="image/jpeg" href="/Learning JS/images/Lunaris Icon.JPG">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0e0a 0%, #1a2419 100%);
+            color: #e0e0e0;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding: 30px;
+            background: linear-gradient(135deg, #1e5128 0%, #2d6a4f 100%);
+            border-radius: 15px;
+            border: 3px solid #FFCC00;
+            box-shadow: 0 8px 30px rgba(255, 204, 0, 0.3);
+        }
+
+        .header h1 {
+            font-size: 3em;
+            color: #FFCC00;
+            text-shadow: 0 0 20px rgba(255, 204, 0, 0.5);
+            margin-bottom: 15px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            color: #d4d4d4;
+        }
+
+        .back-button {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #1e5128 0%, #2d6a4f 100%);
+            color: #FFCC00;
+            text-decoration: none;
+            border-radius: 10px;
+            border: 2px solid #FFCC00;
+            font-weight: bold;
+            margin-bottom: 30px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .back-button:hover {
+            background: linear-gradient(135deg, #2d6a4f 0%, #1e5128 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 204, 0, 0.4);
+        }
+
+        .phase-section {
+            background: rgba(30, 81, 40, 0.3);
+            border: 3px solid #2d6a4f;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s;
+        }
+
+        .phase-section:hover {
+            border-color: #FFCC00;
+            box-shadow: 0 6px 30px rgba(255, 204, 0, 0.2);
+        }
+
+        .phase-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #FFCC00;
+        }
+
+        .phase-icon {
+            font-size: 3em;
+            margin-right: 20px;
+        }
+
+        .phase-title {
+            flex: 1;
+        }
+
+        .phase-title h2 {
+            font-size: 2.2em;
+            color: #FFCC00;
+            margin-bottom: 5px;
+        }
+
+        .phase-subtitle {
+            color: #b0b0b0;
+            font-style: italic;
+        }
+
+        .unlock-requirement {
+            background: rgba(255, 204, 0, 0.1);
+            border-left: 4px solid #FFCC00;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .unlock-requirement strong {
+            color: #FFCC00;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 25px;
+        }
+
+        .feature-card {
+            background: rgba(45, 106, 79, 0.2);
+            border: 2px solid #2d6a4f;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            border-color: #FFCC00;
+            background: rgba(45, 106, 79, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(255, 204, 0, 0.2);
+        }
+
+        .feature-name {
+            font-size: 1.3em;
+            color: #FFCC00;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .feature-description {
+            color: #d4d4d4;
+            line-height: 1.7;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin-top: 15px;
+        }
+
+        .feature-list li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+            color: #c0c0c0;
+        }
+
+        .feature-list li:before {
+            content: "▸";
+            position: absolute;
+            left: 0;
+            color: #FFCC00;
+            font-weight: bold;
+        }
+
+        .coming-soon {
+            opacity: 0.6;
+            position: relative;
+        }
+
+        .coming-soon::after {
+            content: "Coming Soon";
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 204, 0, 0.2);
+            color: #FFCC00;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+            border: 1px solid #FFCC00;
+        }
+
+        .progression-note {
+            background: linear-gradient(135deg, rgba(30, 81, 40, 0.4) 0%, rgba(45, 106, 79, 0.4) 100%);
+            border: 2px solid #FFCC00;
+            border-radius: 10px;
+            padding: 25px;
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        .progression-note h3 {
+            color: #FFCC00;
+            font-size: 1.8em;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .phase-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .phase-icon {
+                margin-right: 0;
+                margin-bottom: 15px;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/Learning JS/dashboard.html" class="back-button">← Back to Dashboard</a>
+
+        <div class="header">
+            <h1>🌙 Lunaris Colony Features Guide</h1>
+            <p>Your comprehensive guide to all features across the five phases of lunar colonization</p>
+        </div>
+
+        <!-- PHASE 1: BASE CAMP ALPHA -->
+        <div class="phase-section">
+            <div class="phase-header">
+                <div class="phase-icon">🏕️</div>
+                <div class="phase-title">
+                    <h2>Phase 1: Base Camp Alpha</h2>
+                    <p class="phase-subtitle">The Foundation of Your Lunar Empire</p>
+                </div>
+            </div>
+
+            <div class="unlock-requirement">
+                <strong>🔓 Unlock Requirement:</strong> Available from start - This is your beginning point on the Moon!
+            </div>
+
+            <p style="margin: 20px 0; font-size: 1.1em;">
+                Base Camp Alpha is where your journey begins. This phase introduces you to the core mechanics of resource management,
+                daily rewards, and the fundamental gameplay loop that will carry you through your entire lunar adventure.
+            </p>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-name">
+                        <span>📊</span> Dashboard
+                    </div>
+                    <div class="feature-description">
+                        Your central command center displaying all vital statistics and progress metrics.
+                        <ul class="feature-list">
+                            <li>Real-time Lunaris coin balance</li>
+                            <li>Experience points (XP) and level tracking</li>
+                            <li>Phase unlock progress indicators</li>
+                            <li>Quick navigation to all features</li>
+                            <li>Achievement progress overview</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-name">
+                        <span>🎁</span> Daily Claims
+                    </div>
+                    <div class="feature-description">
+                        Return every day to claim your daily rewards and build your login streak.
+                        <ul class="feature-list">
+                            <li>Daily Lunaris coin rewards</li>
+                            <li>Increasing XP bonuses for consecutive days</li>
+                            <li>Streak multiplier (up to 7x rewards)</li>
+                            <li>Claim resets at midnight UTC</li>
+                            <li>Visual celebration effects on claim</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-name">
+                        <span>🏪</span> Marketplace
+                    </div>
+                    <div class="feature-description">
+                        Trade and purchase items to enhance your colony and progress faster.
+                        <ul class="feature-list">
+                            <li>XP Boosts (1.5x, 2x, 3x multipliers)</li>
+                            <li>Timed duration boosters</li>
+                            <li>Resource packs for quick progression</li>
+                            <li>Dynamic pricing based on rarity</li>
+                            <li>Purchase history tracking</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-name">
+                        <span>💰</span> Wallet System
+                    </div>
+                    <div class="feature-description">
+                        Manage your Lunaris coins and track all your transactions.
+                        <ul class="feature-list">
+                            <li>Complete transaction history</li>
+                            <li>Categorized income and expenses</li>
+                            <li>Real-time balance updates</li>
+                            <li>Firebase cloud synchronization</li>
+                            <li>Secure transaction logging</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-name">
+                        <span>📋</span> Task Management
+                    </div>
+                    <div class="feature-description">
+                        Create and complete tasks to earn rewards and organize your colony activities.
+                        <ul class="feature-list">
+                            <li>Create unlimited custom tasks</li>
+                            <li>Set priorities (Low, Medium, High, Urgent)</li>
+                            <li>Assign categories for organization</li>
+                            <li>Earn Lunaris and XP on completion</li>
+                            <li>Persistent cloud storage</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-name">
+                        <span>📝</span> Notes System
+                    </div>
+                    <div class="feature-description">
+                        Document your journey with a powerful note-taking system.
+                        <ul class="feature-list">
+                            <li>Rich text formatting support</li>
+                            <li>Custom categories and tags</li>
+                            <li>Search and filter capabilities</li>
+                            <li>Date grouping (Today, Yesterday, This Week, etc.)</li>
+                            <li>Cloud synchronization across devices</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PHASE 2: NEXUS CRATER -->
+        <div class="phase-section">
+            <div class="phase-header">
+                <div class="phase-icon">⚡</div>
+                <div class="phase-title">
+                    <h2>Phase 2: Nexus Crater</h2>
+                    <p class="phase-subtitle">Advanced Resource Management & Competition</p>
+                </div>
+            </div>
+
+            <div class="unlock-requirement">
+                <strong>🔓 Unlock Requirement:</strong> Reach Level 5 and accumulate 500 Lunaris coins
+            </div>
+
+            <p style="margin: 20px 0; font-size: 1.1em;">
+                Nexus Crater introduces competitive elements and advanced resource gathering. This is where your strategic
+                planning skills will be tested as you compete with other colonists for valuable resources.
+            </p>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-name">
+                        <span>🎁</span> Enhanced Daily Claims
+                    </div>
+                    <div class="feature-description">
+                        Upgraded claim station with better rewards and special bonuses.
+                        <ul class="feature-list">
+                            <li>Higher base Lunaris rewards</li>
+                            <li>Bonus XP multipliers</li>
+                            <li>Special weekend bonuses</li>
+                            <li>Rare item drops on long streaks</li>
+                            <li>Phase-specific achievement triggers</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-name">
+                        <span>🏪</span> Advanced Marketplace
+                    </div>
+                    <div class="feature-description">
+                        Expanded marketplace with exclusive Nexus Crater items.
+                        <ul class="feature-list">
+                            <li>Premium XP boosters (up to 5x)</li>
+                            <li>Exclusive cosmetic items</li>
+                            <li>Resource Rush entry tickets</li>
+                            <li>Limited-time special offers</li>
+                            <li>Bulk purchase discounts</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-name">
+                        <span>⚡</span> Resource Rush
+                    </div>
+                    <div class="feature-description">
+                        Compete in timed events to collect the most resources and climb the leaderboard!
+                        <ul class="feature-list">
+                            <li>5-minute intense clicking challenges</li>
+                            <li>Global leaderboard rankings</li>
+                            <li>Real-time score tracking</li>
+                            <li>Massive Lunaris rewards for top performers</li>
+                            <li>XP bonuses based on placement</li>
+                            <li>Special achievements for milestones</li>
+                            <li>Combo multipliers for rapid clicking</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PHASE 3: RED DUNES OUTPOST -->
+        <div class="phase-section">
+            <div class="phase-header">
+                <div class="phase-icon">🏜️</div>
+                <div class="phase-title">
+                    <h2>Phase 3: Red Dunes Outpost</h2>
+                    <p class="phase-subtitle">Exploration, Racing & Achievement Mastery</p>
+                </div>
+            </div>
+
+            <div class="unlock-requirement">
+                <strong>🔓 Unlock Requirement:</strong> Reach Level 10 and accumulate 2,000 Lunaris coins
+            </div>
+
+            <p style="margin: 20px 0; font-size: 1.1em;">
+                The Red Dunes Outpost expands your horizons with exploration mechanics, competitive racing, and a
+                comprehensive achievement system. This phase rewards mastery and dedication across all gameplay aspects.
+            </p>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-name">
+                        <span>🏆</span> Achievement System
+                    </div>
+                    <div class="feature-description">
+                        Comprehensive achievement tracking with meaningful rewards.
+                        <ul class="feature-list">
+                            <li>100+ unique achievements across all categories</li>
+                            <li>Tiered progression (Bronze, Silver, Gold, Platinum)</li>
+                            <li>Special title unlocks for collections</li>
+                            <li>Lunaris and XP rewards for completion</li>
+                            <li>Hidden secret achievements to discover</li>
+                            <li>Real-time progress tracking</li>
+                            <li>Achievement showcase on profile</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-name">
+                        <span>🏎️</span> Dune Racer
+                    </div>
+                    <div class="feature-description">
+                        High-speed racing game across treacherous lunar dunes!
+                        <ul class="feature-list">
+                            <li>Multiple challenging tracks</li>
+                            <li>Obstacle avoidance mechanics</li>
+                            <li>Speed boost power-ups</li>
+                            <li>Personal best time tracking</li>
+                            <li>Lunaris rewards based on performance</li>
+                            <li>Difficulty scaling with progression</li>
+                            <li>Leaderboard for fastest times</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-name">
+                        <span>🗺️</span> Expedition Tasks
+                    </div>
+                    <div class="feature-description">
+                        Embark on timed expeditions to explore the lunar surface.
+                        <ul class="feature-list">
+                            <li>15+ unique expedition missions</li>
+                            <li>Varying difficulty levels and durations</li>
+                            <li>Real-time countdown timers</li>
+                            <li>Automatic completion and rewards</li>
+                            <li>XP scaling based on difficulty</li>
+                            <li>Multiple active expeditions allowed</li>
+                            <li>Progress tracking and history</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-name">
+                        <span>🔍</span> Discovery Log
+                    </div>
+                    <div class="feature-description">
+                        Document your findings and discoveries across the Moon.
+                        <ul class="feature-list">
+                            <li>Collectible discovery cards</li>
+                            <li>Categorized findings (Minerals, Artifacts, Phenomena, etc.)</li>
+                            <li>Rarity tiers (Common to Legendary)</li>
+                            <li>Detailed descriptions and lore</li>
+                            <li>Completion percentage tracking</li>
+                            <li>Filter and search capabilities</li>
+                            <li>Special bonuses for complete collections</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-name">
+                        <span>🏜️</span> Red Dunes Hub
+                    </div>
+                    <div class="feature-description">
+                        Central command center for the Red Dunes Outpost phase.
+                        <ul class="feature-list">
+                            <li>Phase-specific dashboard</li>
+                            <li>Quick access to all Red Dunes features</li>
+                            <li>Progress overview and statistics</li>
+                            <li>Achievement highlights</li>
+                            <li>Expedition status overview</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PHASE 4: ARCTIC RESEARCH STATION -->
+        <div class="phase-section coming-soon">
+            <div class="phase-header">
+                <div class="phase-icon">❄️</div>
+                <div class="phase-title">
+                    <h2>Phase 4: Arctic Research Station</h2>
+                    <p class="phase-subtitle">Scientific Discovery & Advanced Technologies</p>
+                </div>
+            </div>
+
+            <div class="unlock-requirement">
+                <strong>🔓 Unlock Requirement:</strong> Reach Level 15 and accumulate 5,000 Lunaris coins
+            </div>
+
+            <p style="margin: 20px 0; font-size: 1.1em;">
+                The Arctic Research Station will introduce scientific research mechanics, advanced technologies, and
+                collaborative multiplayer features. Harness the power of lunar ice deposits for groundbreaking discoveries.
+            </p>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-name">
+                        <span>🔬</span> Research Laboratory
+                    </div>
+                    <div class="feature-description">
+                        Conduct scientific research to unlock permanent upgrades and bonuses.
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-name">
+                        <span>🧪</span> Resource Synthesis
+                    </div>
+                    <div class="feature-description">
+                        Combine resources to create rare materials and powerful items.
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-name">
+                        <span>👥</span> Collaborative Projects
+                    </div>
+                    <div class="feature-description">
+                        Team up with other colonists to complete massive research projects.
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-name">
+                        <span>⚙️</span> Technology Tree
+                    </div>
+                    <div class="feature-description">
+                        Unlock and upgrade technologies to enhance all aspects of your colony.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PHASE 5: OLYMPUS SUMMIT -->
+        <div class="phase-section coming-soon">
+            <div class="phase-header">
+                <div class="phase-icon">⛰️</div>
+                <div class="phase-title">
+                    <h2>Phase 5: Olympus Summit</h2>
+                    <p class="phase-subtitle">The Ultimate Endgame Challenge</p>
+                </div>
+            </div>
+
+            <div class="unlock-requirement">
+                <strong>🔓 Unlock Requirement:</strong> Reach Level 20 and accumulate 10,000 Lunaris coins
+            </div>
+
+            <p style="margin: 20px 0; font-size: 1.1em;">
+                Olympus Summit represents the pinnacle of lunar colonization. Face ultimate challenges, compete for
+                global supremacy, and cement your legacy as one of the greatest lunar colonists.
+            </p>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-name">
+                        <span>👑</span> Prestige System
+                    </div>
+                    <div class="feature-description">
+                        Reset your progress for permanent bonuses and exclusive prestige rewards.
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-name">
+                        <span>⚔️</span> Colony Wars
+                    </div>
+                    <div class="feature-description">
+                        Competitive PvP battles for resources, territory, and glory.
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-name">
+                        <span>🌌</span> Deep Space Missions
+                    </div>
+                    <div class="feature-description">
+                        Launch missions beyond the Moon to explore the solar system.
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-name">
+                        <span>🏛️</span> Monument Building
+                    </div>
+                    <div class="feature-description">
+                        Construct massive monuments that provide colony-wide permanent bonuses.
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-name">
+                        <span>📜</span> Legacy System
+                    </div>
+                    <div class="feature-description">
+                        Leave your mark on lunar history with permanent legacy achievements.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PROGRESSION NOTES -->
+        <div class="progression-note">
+            <h3>🚀 Your Journey Awaits</h3>
+            <p style="font-size: 1.1em; margin-bottom: 15px;">
+                Each phase builds upon the last, introducing new mechanics and deepening the gameplay experience.
+                Focus on completing tasks, maintaining your daily login streak, and strategically managing your resources
+                to unlock new phases as quickly as possible.
+            </p>
+            <p style="color: #FFCC00; font-weight: bold;">
+                Remember: The Moon rewards dedication, strategy, and persistence!
+            </p>
+        </div>
+
+        <a href="/Learning JS/dashboard.html" class="back-button" style="margin-top: 30px;">← Back to Dashboard</a>
+    </div>
+</body>
+</html>

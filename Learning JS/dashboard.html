@@ -5,62 +5,396 @@
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
     <title>Colony Dashboard - Lunaris</title>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel="icon" type="image/jpeg" href="/Learning JS/images/Lunaris Icon.JPG">
     <link rel="stylesheet" href="/Learning JS/dashboard.css">
+    <style>
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            width: 280px;
+            background: linear-gradient(180deg, #1e5128 0%, #2d6a4f 100%);
+            border-right: 3px solid #FFCC00;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(-280px);
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-bottom: 2px solid #FFCC00;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid #FFCC00;
+        }
+
+        .sidebar-title {
+            color: #FFCC00;
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        .sidebar-nav {
+            padding: 20px 0;
+        }
+
+        .nav-section {
+            margin-bottom: 25px;
+        }
+
+        .nav-section-title {
+            color: rgba(255, 204, 0, 0.7);
+            font-size: 0.85em;
+            text-transform: uppercase;
+            padding: 10px 20px;
+            letter-spacing: 1px;
+            font-weight: bold;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            color: #fff;
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 204, 0, 0.1);
+            border-left-color: #FFCC00;
+            padding-left: 25px;
+        }
+
+        .nav-item.active {
+            background: rgba(255, 204, 0, 0.2);
+            border-left-color: #FFCC00;
+            color: #FFCC00;
+        }
+
+        .nav-item.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .nav-item.locked:hover {
+            background: transparent;
+            border-left-color: transparent;
+            padding-left: 20px;
+        }
+
+        .nav-icon {
+            font-size: 1.3em;
+            width: 25px;
+            text-align: center;
+        }
+
+        .nav-text {
+            flex: 1;
+        }
+
+        .nav-badge {
+            background: #FFCC00;
+            color: #1e5128;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75em;
+            font-weight: bold;
+        }
+
+        .sidebar-toggle {
+            position: fixed;
+            left: 20px;
+            top: 20px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #1e5128 0%, #2d6a4f 100%);
+            border: 3px solid #FFCC00;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1001;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .sidebar-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 25px rgba(255, 204, 0, 0.5);
+        }
+
+        .sidebar-toggle.active {
+            left: 300px;
+        }
+
+        .hamburger {
+            width: 24px;
+            height: 18px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .hamburger span {
+            display: block;
+            position: absolute;
+            height: 3px;
+            width: 100%;
+            background: #FFCC00;
+            border-radius: 3px;
+            opacity: 1;
+            left: 0;
+            transition: 0.25s ease-in-out;
+        }
+
+        .hamburger span:nth-child(1) {
+            top: 0;
+        }
+
+        .hamburger span:nth-child(2) {
+            top: 7px;
+        }
+
+        .hamburger span:nth-child(3) {
+            top: 14px;
+        }
+
+        .sidebar-toggle.active .hamburger span:nth-child(1) {
+            top: 7px;
+            transform: rotate(135deg);
+        }
+
+        .sidebar-toggle.active .hamburger span:nth-child(2) {
+            opacity: 0;
+            left: -30px;
+        }
+
+        .sidebar-toggle.active .hamburger span:nth-child(3) {
+            top: 7px;
+            transform: rotate(-135deg);
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        #app-container {
+            margin-left: 280px;
+            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #app-container.sidebar-collapsed {
+            margin-left: 0;
+        }
+
+        #page-header {
+            padding: 30px;
+            background: linear-gradient(135deg, #1e5128 0%, #2d6a4f 100%);
+            border: 3px solid #FFCC00;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                max-width: 280px;
+            }
+
+            .sidebar.collapsed {
+                transform: translateX(-100%);
+            }
+
+            .sidebar-toggle.active {
+                left: calc(100vw - 70px);
+                max-width: 300px;
+            }
+
+            #app-container {
+                margin-left: 0;
+            }
+
+            #app-container.sidebar-collapsed {
+                margin-left: 0;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #FFCC00;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #FFD700;
+        }
+    </style>
 </head>
 <body>
+    <!-- Sidebar Toggle Button -->
+    <div class="sidebar-toggle active" id="sidebarToggle">
+        <div class="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <img src="/Learning JS/images/Lunaris Icon.JPG" alt="Lunaris" class="sidebar-logo">
+            <div class="sidebar-title">Lunaris Colony</div>
+        </div>
+
+        <div class="sidebar-nav">
+            <!-- Main Navigation -->
+            <div class="nav-section">
+                <div class="nav-section-title">Main</div>
+                <a href="/index.html" class="nav-item">
+                    <span class="nav-icon">🏠</span>
+                    <span class="nav-text">Home</span>
+                </a>
+                <a href="/Learning JS/dashboard.html" class="nav-item active">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+                <a href="/Learning JS/console.html" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span class="nav-text">Console</span>
+                </a>
+                <div class="nav-item" id="wallet-nav-item">
+                    <span class="nav-icon">👛</span>
+                    <span class="nav-text">Wallet</span>
+                </div>
+            </div>
+
+            <!-- Base Camp Alpha -->
+            <div class="nav-section">
+                <div class="nav-section-title">Base Camp Alpha</div>
+                <a href="/Learning JS/chatroom.html" class="nav-item">
+                    <span class="nav-icon">💬</span>
+                    <span class="nav-text">Chatroom</span>
+                </a>
+                <a href="/Learning JS/notes.html" class="nav-item">
+                    <span class="nav-icon">📝</span>
+                    <span class="nav-text">Notes</span>
+                </a>
+            </div>
+
+            <!-- Nexus Crater -->
+            <div class="nav-section" id="nexus-section">
+                <div class="nav-section-title">Nexus Crater</div>
+                <a href="/Learning JS/nexus-claim-station.html" id="sidebar-nexus-claim" class="nav-item" style="display: none;">
+                    <span class="nav-icon">🎁</span>
+                    <span class="nav-text">Daily Claims</span>
+                </a>
+                <a href="/Learning JS/nexus-marketplace.html" id="sidebar-nexus-market" class="nav-item" style="display: none;">
+                    <span class="nav-icon">💱</span>
+                    <span class="nav-text">Marketplace</span>
+                </a>
+                <a href="/Learning JS/nexus-resource-rush.html" id="sidebar-nexus-rush" class="nav-item" style="display: none;">
+                    <span class="nav-icon">⚡</span>
+                    <span class="nav-text">Resource Rush</span>
+                </a>
+                <div id="sidebar-nexus-locked" class="nav-item locked">
+                    <span class="nav-icon">🔒</span>
+                    <span class="nav-text">Locked</span>
+                </div>
+            </div>
+
+            <!-- Red Dunes Outpost -->
+            <div class="nav-section" id="red-dunes-section">
+                <div class="nav-section-title">Red Dunes Outpost</div>
+                <a href="/Learning JS/red-dunes-dashboard.html" id="sidebar-red-dunes" class="nav-item" style="display: none;">
+                    <span class="nav-icon">🏜️</span>
+                    <span class="nav-text">Exploration Hub</span>
+                </a>
+                <a href="/Learning JS/red-dunes-achievements.html" id="sidebar-achievements" class="nav-item" style="display: none;">
+                    <span class="nav-icon">🏆</span>
+                    <span class="nav-text">Achievements</span>
+                </a>
+                <a href="/Learning JS/dune-racer.html" id="sidebar-dune-racer" class="nav-item" style="display: none;">
+                    <span class="nav-icon">🏎️</span>
+                    <span class="nav-text">Dune Racer</span>
+                </a>
+                <a href="/Learning JS/expedition-tasks.html" id="sidebar-expeditions" class="nav-item" style="display: none;">
+                    <span class="nav-icon">⏳</span>
+                    <span class="nav-text">Expeditions</span>
+                </a>
+                <a href="/Learning JS/discovery-log.html" id="sidebar-discovery" class="nav-item" style="display: none;">
+                    <span class="nav-icon">📜</span>
+                    <span class="nav-text">Discovery Log</span>
+                </a>
+                <div id="sidebar-red-dunes-locked" class="nav-item locked">
+                    <span class="nav-icon">🔒</span>
+                    <span class="nav-text">Locked</span>
+                </div>
+            </div>
+
+            <!-- Resources -->
+            <div class="nav-section">
+                <div class="nav-section-title">Resources</div>
+                <a href="/Learning JS/features-guide.html" class="nav-item">
+                    <span class="nav-icon">📘</span>
+                    <span class="nav-text">Features Guide</span>
+                </a>
+                <a href="/Learning JS/roadmap.html" class="nav-item">
+                    <span class="nav-icon">🗺️</span>
+                    <span class="nav-text">Roadmap</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
     <div id="app-container">
         <!-- Header -->
         <div id="page-header">
             <h1 id="page-title">🚀 Colony Dashboard</h1>
-            <div id="nav-buttons">
-                <button id="walletBtn" class="nav-btn wallet-btn">👛 Wallet</button>
-
-                <!-- ═══════════════════════════════════════════════════════════════ -->
-                <!-- NEXUS CRATER NAVIGATION (Level 10 + 30 Days Required)         -->
-                <!-- ═══════════════════════════════════════════════════════════════ -->
-                <div id="nexus-nav-container" style="display: contents;">
-                    <!-- Daily Claim Station -->
-                    <a href="/Learning JS/nexus-claim-station.html" id="nexus-claim-link" class="nav-btn nexus-btn" style="background: linear-gradient(135deg, #00CED1, #00FFFF); color: #000; display: none;">
-                        🎁 Daily Claims
-                    </a>
-
-                    <!-- Marketplace -->
-                    <a href="/Learning JS/nexus-marketplace.html" id="nexus-market-link" class="nav-btn nexus-btn" style="background: linear-gradient(135deg, #00CED1, #00FFFF); color: #000; display: none;">
-                        💱 Marketplace
-                    </a>
-
-                    <!-- Resource Rush Mini-Game -->
-                    <a href="/Learning JS/nexus-resource-rush.html" id="nexus-rush-link" class="nav-btn nexus-btn" style="background: linear-gradient(135deg, #7b2ff7, #f72585); color: #fff; display: none;">
-                        ⚡ Resource Rush
-                    </a>
-
-                    <!-- Locked message (shown until unlocked) -->
-                    <button id="nexus-locked-btn" class="nav-btn" style="background: rgba(0,206,209,0.2); color: rgba(0,255,255,0.5); cursor: not-allowed; border: 2px solid rgba(0,255,255,0.3);">
-                        🔒 Nexus Crater (Locked)
-                    </button>
-                </div>
-
-                <!-- ═══════════════════════════════════════════════════════════════ -->
-                <!-- RED DUNES OUTPOST NAVIGATION (Level 25 + 60 Days Required)    -->
-                <!-- ═══════════════════════════════════════════════════════════════ -->
-                <div id="red-dunes-nav-container" style="display: contents;">
-                    <!-- Red Dunes Dashboard -->
-                    <a href="/Learning JS/red-dunes-dashboard.html" id="red-dunes-link" class="nav-btn" style="background: linear-gradient(135deg, #8B2500, #FF6B35); color: #FFD700; display: none;">
-                        🏜️ Red Dunes Outpost
-                    </a>
-
-                    <!-- Locked message (shown until unlocked) -->
-                    <button id="red-dunes-locked-btn" class="nav-btn" style="background: rgba(139, 37, 0, 0.2); color: rgba(255, 107, 53, 0.5); cursor: not-allowed; border: 2px solid rgba(255, 107, 53, 0.3);">
-                        🔒 Red Dunes Outpost (Locked)
-                    </button>
-                </div>
-
-                <a href="/Learning JS/roadmap.html" class="nav-btn">🗺️ Roadmap</a>
-                <a href="/Learning JS/chatroom.html" class="nav-btn">💬 Chat</a>
-                <a href="/Learning JS/notes.html" class="nav-btn">📝 Notes</a>
-                <a href="/Learning JS/console.html" class="nav-btn">⚙️ Console</a>
-                <a href="/index.html" class="nav-btn secondary">← Home</a>
-            </div>
         </div>
 
         <!-- User Role Display -->
@@ -1775,6 +2109,101 @@
                 document.getElementById('sendAmount').value = '';
             } catch (error) {
                 throw error;
+            }
+        }
+
+        // ============================================
+        // SIDEBAR FUNCTIONALITY
+        // ============================================
+
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const appContainer = document.getElementById('app-container');
+
+        // Toggle sidebar
+        function toggleSidebar() {
+            sidebar.classList.toggle('collapsed');
+            sidebarToggle.classList.toggle('active');
+            sidebarOverlay.classList.toggle('active');
+            appContainer.classList.toggle('sidebar-collapsed');
+
+            // Save state to localStorage
+            const isCollapsed = sidebar.classList.contains('collapsed');
+            localStorage.setItem('sidebarCollapsed', isCollapsed);
+        }
+
+        // Event listeners
+        sidebarToggle.addEventListener('click', toggleSidebar);
+        sidebarOverlay.addEventListener('click', toggleSidebar);
+
+        // Wallet nav item trigger
+        document.getElementById('wallet-nav-item').addEventListener('click', () => {
+            loadWalletData();
+            walletModal.classList.add('show');
+            // Close sidebar on mobile
+            if (window.innerWidth <= 768) {
+                toggleSidebar();
+            }
+        });
+
+        // Load saved sidebar state
+        const savedState = localStorage.getItem('sidebarCollapsed');
+        if (savedState === 'true') {
+            toggleSidebar();
+        }
+
+        // Close sidebar on mobile when clicking nav links
+        document.querySelectorAll('.sidebar .nav-item[href]').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    toggleSidebar();
+                }
+            });
+        });
+
+        // Update sidebar items based on phase unlocks (called from unlock functions)
+        function updateSidebarNexusCrater(isUnlocked) {
+            const sidebarClaim = document.getElementById('sidebar-nexus-claim');
+            const sidebarMarket = document.getElementById('sidebar-nexus-market');
+            const sidebarRush = document.getElementById('sidebar-nexus-rush');
+            const sidebarLocked = document.getElementById('sidebar-nexus-locked');
+
+            if (isUnlocked) {
+                sidebarClaim.style.display = 'flex';
+                sidebarMarket.style.display = 'flex';
+                sidebarRush.style.display = 'flex';
+                sidebarLocked.style.display = 'none';
+            } else {
+                sidebarClaim.style.display = 'none';
+                sidebarMarket.style.display = 'none';
+                sidebarRush.style.display = 'none';
+                sidebarLocked.style.display = 'flex';
+            }
+        }
+
+        function updateSidebarRedDunes(isUnlocked) {
+            const sidebarHub = document.getElementById('sidebar-red-dunes');
+            const sidebarAchievements = document.getElementById('sidebar-achievements');
+            const sidebarRacer = document.getElementById('sidebar-dune-racer');
+            const sidebarExpeditions = document.getElementById('sidebar-expeditions');
+            const sidebarDiscovery = document.getElementById('sidebar-discovery');
+            const sidebarLocked = document.getElementById('sidebar-red-dunes-locked');
+
+            if (isUnlocked) {
+                sidebarHub.style.display = 'flex';
+                sidebarAchievements.style.display = 'flex';
+                sidebarRacer.style.display = 'flex';
+                sidebarExpeditions.style.display = 'flex';
+                sidebarDiscovery.style.display = 'flex';
+                sidebarLocked.style.display = 'none';
+            } else {
+                sidebarHub.style.display = 'none';
+                sidebarAchievements.style.display = 'none';
+                sidebarRacer.style.display = 'none';
+                sidebarExpeditions.style.display = 'none';
+                sidebarDiscovery.style.display = 'none';
+                sidebarLocked.style.display = 'flex';
             }
         }
     </script>

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Outer circle (coin edge) -->
+  <circle cx="50" cy="50" r="48" fill="#FFD700" stroke="#FFA500" stroke-width="2"/>
+
+  <!-- Inner circle (coin face) -->
+  <circle cx="50" cy="50" r="40" fill="#FFCC00"/>
+
+  <!-- Shine effect -->
+  <path d="M 30 30 Q 35 25, 40 30 T 50 30" fill="#FFFACD" opacity="0.6"/>
+
+  <!-- Letter "L" for Lunaris -->
+  <text x="50" y="70" font-family="Arial, sans-serif" font-size="50" font-weight="bold" fill="#8B6914" text-anchor="middle">L</text>
+
+  <!-- Small crescent moon -->
+  <path d="M 70 25 Q 75 30, 70 35 Q 68 30, 70 25" fill="#FFA500"/>
+</svg>

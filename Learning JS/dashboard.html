@@ -269,6 +269,258 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #FFD700;
         }
+
+        /* Wallet Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.show {
+            display: block;
+            opacity: 1;
+        }
+
+        .wallet-modal-content {
+            background: linear-gradient(135deg, #1e5128 0%, #2d6a4f 100%);
+            margin: 5% auto;
+            padding: 0;
+            border: 3px solid #FFCC00;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-bottom: 2px solid #FFCC00;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            color: #FFCC00;
+            margin: 0;
+            font-size: 1.5em;
+        }
+
+        .close-btn {
+            color: #FFCC00;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            line-height: 1;
+        }
+
+        .close-btn:hover {
+            color: #FFD700;
+            transform: scale(1.2);
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        .wallet-section {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            color: #FFCC00;
+            font-weight: bold;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .address-display {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 12px;
+            border-radius: 8px;
+            border: 2px solid rgba(255, 204, 0, 0.3);
+        }
+
+        .address-display span {
+            flex: 1;
+            color: #fff;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+
+        .icon-btn {
+            background: #FFCC00;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: all 0.3s;
+        }
+
+        .icon-btn:hover {
+            background: #FFD700;
+            transform: scale(1.1);
+        }
+
+        .balance-display {
+            background: rgba(255, 204, 0, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid rgba(255, 204, 0, 0.3);
+            text-align: center;
+        }
+
+        .balance-label {
+            color: rgba(255, 204, 0, 0.8);
+            font-size: 0.9em;
+            margin-bottom: 8px;
+        }
+
+        .balance-value {
+            color: #FFCC00;
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .refresh-btn {
+            background: #2d6a4f;
+            color: #FFCC00;
+            border: 2px solid #FFCC00;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .refresh-btn:hover {
+            background: #1e5128;
+            transform: scale(1.05);
+        }
+
+        .wallet-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .wallet-tab {
+            flex: 1;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(255, 204, 0, 0.3);
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .wallet-tab.active {
+            background: rgba(255, 204, 0, 0.2);
+            border-color: #FFCC00;
+            color: #FFCC00;
+        }
+
+        .wallet-tab:hover {
+            background: rgba(255, 204, 0, 0.15);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(255, 204, 0, 0.3);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #FFCC00;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .confirm-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #FFCC00 0%, #FFD700 100%);
+            border: none;
+            border-radius: 8px;
+            color: #1e5128;
+            font-weight: bold;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .confirm-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 204, 0, 0.4);
+        }
+
+        .receive-section {
+            text-align: center;
+        }
+
+        .modal-description {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 20px;
+        }
+
+        .qr-code-container {
+            background: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px auto;
+            width: fit-content;
+        }
+
+        .address-display.large {
+            margin-top: 20px;
+            font-size: 0.85em;
+        }
     </style>
 </head>
 <body>
@@ -1891,22 +2143,16 @@
         // ============================================
 
         const walletModal = document.getElementById('walletModal');
-        const walletBtn = document.getElementById('walletBtn');
         const closeWallet = document.getElementById('closeWallet');
         let userWalletAddress = null;
-
-        // Open wallet modal
-        walletBtn.addEventListener('click', () => {
-            loadWalletData();
-            walletModal.classList.add('show');
-        });
 
         // Close wallet modal
         closeWallet.addEventListener('click', () => {
             walletModal.classList.remove('show');
         });
 
-        window.addEventListener('click', (e) => {
+        // Close modal when clicking outside
+        walletModal.addEventListener('click', (e) => {
             if (e.target === walletModal) {
                 walletModal.classList.remove('show');
             }

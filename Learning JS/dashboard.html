@@ -2181,8 +2181,25 @@
                 const userData = JSON.parse(localStorage.getItem('currentUser'));
 
                 if (userData) {
-                    // Get wallet address - prioritize connected wallet, fallback to app-created
+                    // Check localStorage first
                     userWalletAddress = userData.walletAddress || userData.solanaWallet;
+
+                    // If not in localStorage, check Firebase
+                    if (!userWalletAddress && userData.uid) {
+                        console.log('No wallet in localStorage, checking Firebase...');
+                        const walletRef = ref(database, `user-wallets/${userData.uid}`);
+                        const snapshot = await get(walletRef);
+
+                        if (snapshot.exists()) {
+                            const walletData = snapshot.val();
+                            userWalletAddress = walletData.address;
+
+                            // Update localStorage with Firebase wallet
+                            userData.solanaWallet = userWalletAddress;
+                            localStorage.setItem('currentUser', JSON.stringify(userData));
+                            console.log('✅ Loaded wallet from Firebase:', userWalletAddress);
+                        }
+                    }
 
                     if (userWalletAddress) {
                         // Display wallet address
@@ -2405,10 +2422,13 @@
             }
         });
 
-        // Load saved sidebar state
+        // Load saved sidebar state - start with sidebar OPEN by default
         const savedState = localStorage.getItem('sidebarCollapsed');
         if (savedState === 'true') {
-            toggleSidebar();
+            // Only collapse if user explicitly collapsed it before
+            sidebar.classList.add('collapsed');
+            sidebarToggle.classList.remove('active');
+            appContainer.classList.add('sidebar-collapsed');
         }
 
         // Close sidebar on mobile when clicking nav links

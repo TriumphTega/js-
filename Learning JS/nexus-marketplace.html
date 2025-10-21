@@ -1349,34 +1349,266 @@
         </div>
     </div>
 
-    <script>
-        // Market prices
-        const marketPrices = {
-            oxygen: { price: 10, change: 5 },
-            hydroponics: { price: 15, change: -2 },
+    <!-- Solana Web3.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getDatabase, ref, get, set, push, remove, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyClPgII54QDvJB3kiV1dWbqm1et_lHasvs",
+            authDomain: "lunaris-45d84.firebaseapp.com",
+            projectId: "lunaris-45d84",
+            storageBucket: "lunaris-45d84.firebasestorage.app",
+            messagingSenderId: "74359858445",
+            appId: "1:74359858445:web:37772cebcbb0d71d707c44",
+            measurementId: "G-ETRK2NL1N2",
+            databaseURL: "https://lunaris-45d84-default-rtdb.firebaseio.com"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // Get current user
+        const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+        const userUID = currentUser.uid;
+
+        if (!userUID) {
+            alert('⚠️ Please sign in to access the marketplace!');
+            window.location.href = '/index.html';
+        }
+
+        // Market prices (now stored in Firebase for realtime sync)
+        let marketPrices = {
+            oxygen: { price: 10, change: 0 },
+            hydroponics: { price: 15, change: 0 },
             energy: { price: 20, change: 0 }
         };
 
-        // User wallet
+        // User wallet (loaded from Firebase)
         let wallet = {
-            lunaris: 2450,
-            oxygen: 85,
-            hydroponics: 92,
-            energy: 78
+            lunaris: 0,
+            oxygen: 0,
+            hydroponics: 0,
+            energy: 0
         };
+
+        // Load user wallet from Firebase
+        async function loadWallet() {
+            try {
+                const userDataRef = ref(database, `colony-data/${userUID}`);
+                const snapshot = await get(userDataRef);
+
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    wallet.lunaris = data.lunaris || 0;
+                    wallet.oxygen = data.oxygen || 100;
+                    wallet.hydroponics = data.hydroponics || 100;
+                    wallet.energy = data.energy || 100;
+                    updateWalletDisplay();
+                    console.log('✅ Wallet loaded from Firebase');
+                }
+            } catch (error) {
+                console.error('Error loading wallet:', error);
+            }
+        }
+
+        // Save wallet to Firebase
+        async function saveWallet() {
+            try {
+                const userDataRef = ref(database, `colony-data/${userUID}`);
+                const snapshot = await get(userDataRef);
+                const existingData = snapshot.exists() ? snapshot.val() : {};
+
+                await set(userDataRef, {
+                    ...existingData,
+                    lunaris: wallet.lunaris,
+                    oxygen: wallet.oxygen,
+                    hydroponics: wallet.hydroponics,
+                    energy: wallet.energy,
+                    lastUpdated: Date.now()
+                });
+                console.log('✅ Wallet saved to Firebase');
+            } catch (error) {
+                console.error('Error saving wallet:', error);
+            }
+        }
+
+        // Load market prices from Firebase
+        async function loadMarketPrices() {
+            try {
+                const pricesRef = ref(database, 'marketplace/prices');
+                const snapshot = await get(pricesRef);
+
+                if (snapshot.exists()) {
+                    marketPrices = snapshot.val();
+                } else {
+                    // Initialize prices in Firebase
+                    await set(pricesRef, marketPrices);
+                }
+                renderPriceTicker();
+            } catch (error) {
+                console.error('Error loading market prices:', error);
+            }
+        }
+
+        // Listen for marketplace listings in realtime
+        function listenToMarketplace() {
+            const listingsRef = ref(database, 'marketplace/listings');
+            onValue(listingsRef, (snapshot) => {
+                renderMarketListings(snapshot.val() || {});
+            });
+        }
+
+        // Listen for user's own listings
+        function listenToMyListings() {
+            const listingsRef = ref(database, 'marketplace/listings');
+            onValue(listingsRef, (snapshot) => {
+                const allListings = snapshot.val() || {};
+                const myListings = {};
+
+                Object.keys(allListings).forEach(key => {
+                    if (allListings[key].sellerUID === userUID) {
+                        myListings[key] = allListings[key];
+                    }
+                });
+
+                renderMyListings(myListings);
+            });
+        }
+
+        // Render market listings
+        function renderMarketListings(listings) {
+            const container = document.getElementById('market-listings');
+            const listingsArray = Object.entries(listings);
+
+            if (listingsArray.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: rgba(255, 255, 255, 0.5);">No listings available</p>';
+                return;
+            }
+
+            container.innerHTML = listingsArray
+                .filter(([key, listing]) => listing.sellerUID !== userUID) // Hide own listings
+                .map(([key, listing]) => `
+                    <div class="listing-card">
+                        <div class="listing-header">
+                            <span class="listing-resource">${getResourceIcon(listing.resource)} ${getResourceName(listing.resource)}</span>
+                            <span class="listing-seller">Seller: ${listing.sellerName}</span>
+                        </div>
+                        <div class="listing-details">
+                            <div class="listing-amount">
+                                <div class="listing-label">Amount</div>
+                                <div class="listing-value">${listing.amount}</div>
+                            </div>
+                            <div class="listing-price">
+                                <div class="listing-label">Price/Unit</div>
+                                <div class="listing-value">${listing.price} 💰</div>
+                            </div>
+                            <div class="listing-total">
+                                <div class="listing-label">Total</div>
+                                <div class="listing-value">${listing.amount * listing.price} 💰</div>
+                            </div>
+                        </div>
+                        <div class="listing-actions">
+                            <button class="listing-btn buy" onclick="buyListing('${key}', ${JSON.stringify(listing).replace(/"/g, '&quot;')})">
+                                💰 Buy with Lunaris
+                            </button>
+                            <button class="listing-btn buy" onclick="buyWithSOL('${key}', ${JSON.stringify(listing).replace(/"/g, '&quot;')})">
+                                ◎ Buy with SOL (Testnet)
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+        }
+
+        // Render user's own listings
+        function renderMyListings(listings) {
+            const container = document.getElementById('my-listings');
+            const listingsArray = Object.entries(listings);
+
+            if (listingsArray.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: rgba(255, 255, 255, 0.5);">No active listings</p>';
+                return;
+            }
+
+            container.innerHTML = listingsArray.map(([key, listing]) => `
+                <div class="listing-card">
+                    <div class="listing-header">
+                        <span class="listing-resource">${getResourceIcon(listing.resource)} ${getResourceName(listing.resource)}</span>
+                    </div>
+                    <div class="listing-details">
+                        <div class="listing-amount">
+                            <div class="listing-label">Amount</div>
+                            <div class="listing-value">${listing.amount}</div>
+                        </div>
+                        <div class="listing-price">
+                            <div class="listing-label">Price/Unit</div>
+                            <div class="listing-value">${listing.price} 💰</div>
+                        </div>
+                        <div class="listing-total">
+                            <div class="listing-label">Total Value</div>
+                            <div class="listing-value">${listing.amount * listing.price} 💰</div>
+                        </div>
+                    </div>
+                    <div class="listing-actions">
+                        <button class="listing-btn cancel" onclick="cancelListing('${key}', ${JSON.stringify(listing).replace(/"/g, '&quot;')})">
+                            ❌ Cancel Listing
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Helper functions
+        function getResourceIcon(resource) {
+            const icons = { oxygen: '💨', hydroponics: '🌱', energy: '⚡' };
+            return icons[resource] || '';
+        }
+
+        function getResourceName(resource) {
+            const names = { oxygen: 'Oxygen', hydroponics: 'Hydroponics', energy: 'Energy' };
+            return names[resource] || resource;
+        }
+
+        // Render price ticker
+        function renderPriceTicker() {
+            const ticker = document.getElementById('price-list');
+            ticker.innerHTML = Object.entries(marketPrices).map(([resource, data]) => `
+                <div class="price-item">
+                    <span class="price-resource">${getResourceIcon(resource)} ${getResourceName(resource)}</span>
+                    <span class="price-value">${data.price} 💰</span>
+                    <span class="price-change ${data.change >= 0 ? 'positive' : 'negative'}">
+                        ${data.change >= 0 ? '▲' : '▼'} ${Math.abs(data.change).toFixed(1)}
+                    </span>
+                </div>
+            `).join('');
+        }
+
+        // Make functions globally available
+        window.switchTab = switchTab;
+        window.updateSellCalculation = updateSellCalculation;
+        window.createListing = createListing;
+        window.buyListing = buyListing;
+        window.buyWithSOL = buyWithSOL;
+        window.cancelListing = cancelListing;
+        window.closeModal = closeModal;
+
+        // Initialize
+        loadWallet();
+        loadMarketPrices();
+        listenToMarketplace();
+        listenToMyListings();
+    </script>
+    <script>
 
         // Tab switching
         function switchTab(tabName) {
-            // Update tab buttons
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
             document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
-
-            // Update content
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             document.querySelector(`[data-content="${tabName}"]`).classList.add('active');
         }
 
@@ -1394,26 +1626,19 @@
             document.getElementById('calc-fee').textContent = fee + ' 💰';
             document.getElementById('calc-total').textContent = total + ' 💰';
 
-            // Update market price hint
             if (resource && marketPrices[resource]) {
                 const marketPrice = marketPrices[resource].price;
                 const diff = price - marketPrice;
                 let hint = `Market price: ${marketPrice} 💰`;
-
-                if (diff > 0) {
-                    hint += ` (You're ${diff} 💰 above market)`;
-                } else if (diff < 0) {
-                    hint += ` (You're ${Math.abs(diff)} 💰 below market)`;
-                } else {
-                    hint += ` (At market price)`;
-                }
-
+                if (diff > 0) hint += ` (You're ${diff} 💰 above market)`;
+                else if (diff < 0) hint += ` (You're ${Math.abs(diff)} 💰 below market)`;
+                else hint += ` (At market price)`;
                 document.getElementById('market-price-hint').textContent = hint;
             }
         }
 
-        // Create listing
-        function createListing(event) {
+        // Create listing (Firebase)
+        async function createListing(event) {
             event.preventDefault();
 
             const resource = document.getElementById('sell-resource').value;
@@ -1430,82 +1655,163 @@
                 return;
             }
 
-            const resourceNames = {
-                oxygen: 'Oxygen',
-                hydroponics: 'Hydroponics',
-                energy: 'Energy'
-            };
-
-            const available = wallet[resource];
-            if (amount > available) {
-                alert(`⚠️ Insufficient ${resourceNames[resource]}! You only have ${available} units.`);
+            if (amount > wallet[resource]) {
+                alert(`⚠️ Insufficient ${resource}! You only have ${wallet[resource]} units.`);
                 return;
             }
 
-            const subtotal = amount * price;
-            const fee = Math.floor(subtotal * 0.05);
-            const total = subtotal - fee;
+            try {
+                // Deduct from wallet
+                wallet[resource] -= amount;
+                await saveWallet();
 
-            // Deduct from wallet
-            wallet[resource] -= amount;
-            updateWalletDisplay();
+                // Create listing in Firebase
+                const listingsRef = ref(database, 'marketplace/listings');
+                const newListingRef = push(listingsRef);
+                await set(newListingRef, {
+                    sellerUID: userUID,
+                    sellerName: currentUser.displayName || currentUser.email || 'Anonymous',
+                    resource,
+                    amount,
+                    price,
+                    createdAt: Date.now()
+                });
 
-            alert(`✅ Listing Created!\n\n${amount} ${resourceNames[resource]} listed at ${price} 💰 per unit.\n\nYou'll receive ${total} 💰 when sold (after 5% fee).`);
-
-            // Reset form
-            document.getElementById('sell-form').reset();
-            updateSellCalculation();
+                alert(`✅ Listing Created!\n\n${amount} ${resource} listed at ${price} 💰 per unit.`);
+                document.getElementById('sell-form').reset();
+                updateSellCalculation();
+                updateWalletDisplay();
+            } catch (error) {
+                console.error('Error creating listing:', error);
+                alert('❌ Failed to create listing');
+                wallet[resource] += amount; // Refund on error
+                updateWalletDisplay();
+            }
         }
 
-        // Buy resource
-        function buyResource(resource, amount, cost, seller) {
-            const modal = document.getElementById('confirm-modal');
-            const resourceNames = {
-                oxygen: 'Oxygen 💨',
-                hydroponics: 'Hydroponics 🌱',
-                energy: 'Energy ⚡'
-            };
+        // Buy listing with Lunaris
+        async function buyListing(listingKey, listing) {
+            const totalCost = listing.amount * listing.price;
 
-            document.getElementById('modal-header').textContent = 'Confirm Purchase';
-            document.getElementById('modal-body').innerHTML = `
-                <strong>Resource:</strong> ${amount} ${resourceNames[resource]}<br>
-                <strong>Total Cost:</strong> ${cost} 💰<br>
-                <strong>Seller:</strong> ${seller}<br><br>
-                Do you want to complete this purchase?
-            `;
+            if (wallet.lunaris < totalCost) {
+                alert('⚠️ Insufficient Lunaris tokens!');
+                return;
+            }
 
-            const confirmBtn = document.getElementById('modal-confirm-btn');
-            confirmBtn.onclick = () => {
-                if (wallet.lunaris < cost) {
-                    alert('⚠️ Insufficient Lunaris tokens!');
-                    closeModal();
-                    return;
+            if (confirm(`Buy ${listing.amount} ${listing.resource} for ${totalCost} 💰?`)) {
+                try {
+                    // Deduct Lunaris from buyer
+                    wallet.lunaris -= totalCost;
+                    wallet[listing.resource] += listing.amount;
+                    await saveWallet();
+
+                    // Pay seller (minus 5% fee)
+                    const fee = Math.floor(totalCost * 0.05);
+                    const sellerAmount = totalCost - fee;
+                    const sellerDataRef = ref(database, `colony-data/${listing.sellerUID}`);
+                    const sellerSnapshot = await get(sellerDataRef);
+                    if (sellerSnapshot.exists()) {
+                        const sellerData = sellerSnapshot.val();
+                        await set(sellerDataRef, {
+                            ...sellerData,
+                            lunaris: (sellerData.lunaris || 0) + sellerAmount,
+                            lastUpdated: Date.now()
+                        });
+                    }
+
+                    // Remove listing from Firebase
+                    const listingRef = ref(database, `marketplace/listings/${listingKey}`);
+                    await remove(listingRef);
+
+                    alert(`✅ Purchase Successful!\n\n+${listing.amount} ${listing.resource}\n-${totalCost} 💰`);
+                    updateWalletDisplay();
+                } catch (error) {
+                    console.error('Error buying listing:', error);
+                    alert('❌ Purchase failed');
+                    wallet.lunaris += totalCost;
+                    wallet[listing.resource] -= listing.amount;
+                    updateWalletDisplay();
                 }
-
-                // Process purchase
-                wallet.lunaris -= cost;
-                wallet[resource] += amount;
-                updateWalletDisplay();
-
-                alert(`✅ Purchase Successful!\n\n+${amount} ${resourceNames[resource]}\n-${cost} 💰`);
-                closeModal();
-            };
-
-            modal.classList.add('active');
+            }
         }
 
-        // Cancel listing
-        function cancelListing(resource, amount, value) {
-            const resourceNames = {
-                oxygen: 'Oxygen 💨',
-                hydroponics: 'Hydroponics 🌱',
-                energy: 'Energy ⚡'
-            };
+        // Buy listing with testnet SOL
+        async function buyWithSOL(listingKey, listing) {
+            // Calculate SOL equivalent (1 Lunaris = 0.001 SOL on testnet)
+            const totalLunaris = listing.amount * listing.price;
+            const solCost = (totalLunaris * 0.001).toFixed(4);
 
-            if (confirm(`Cancel listing for ${amount} ${resourceNames[resource]}?\n\nThe resource will be returned to your inventory.`)) {
-                wallet[resource] += amount;
-                updateWalletDisplay();
-                alert(`✅ Listing cancelled! ${amount} ${resourceNames[resource]} returned to your inventory.`);
+            if (!window.solana || !window.solana.isPhantom) {
+                alert('⚠️ Phantom wallet not detected!\n\nPlease install Phantom wallet to pay with SOL.');
+                window.open('https://phantom.app/', '_blank');
+                return;
+            }
+
+            if (confirm(`Buy ${listing.amount} ${listing.resource} for ${solCost} SOL (testnet)?\n\nThis will send SOL to the seller's wallet.`)) {
+                try {
+                    // Get seller's Solana wallet
+                    const sellerWalletRef = ref(database, `user-wallets/${listing.sellerUID}`);
+                    const sellerWalletSnapshot = await get(sellerWalletRef);
+
+                    if (!sellerWalletSnapshot.exists()) {
+                        alert('❌ Seller wallet not found!');
+                        return;
+                    }
+
+                    const sellerWallet = sellerWalletSnapshot.val();
+                    const sellerAddress = sellerWallet.address;
+
+                    // Connect to devnet
+                    const connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl('devnet'));
+
+                    // Create transaction
+                    const transaction = new solanaWeb3.Transaction().add(
+                        solanaWeb3.SystemProgram.transfer({
+                            fromPubkey: window.solana.publicKey,
+                            toPubkey: new solanaWeb3.PublicKey(sellerAddress),
+                            lamports: parseFloat(solCost) * solanaWeb3.LAMPORTS_PER_SOL
+                        })
+                    );
+
+                    // Sign and send transaction
+                    const { signature } = await window.solana.signAndSendTransaction(transaction);
+                    await connection.confirmTransaction(signature);
+
+                    // Update buyer's inventory
+                    wallet[listing.resource] += listing.amount;
+                    await saveWallet();
+
+                    // Remove listing from Firebase
+                    const listingRef = ref(database, `marketplace/listings/${listingKey}`);
+                    await remove(listingRef);
+
+                    alert(`✅ Purchase Successful with SOL!\n\n+${listing.amount} ${listing.resource}\nTransaction: ${signature.substring(0, 8)}...`);
+                    updateWalletDisplay();
+                } catch (error) {
+                    console.error('Error buying with SOL:', error);
+                    alert('❌ SOL transaction failed: ' + error.message);
+                }
+            }
+        }
+
+        // Cancel listing (Firebase)
+        async function cancelListing(listingKey, listing) {
+            if (confirm(`Cancel listing for ${listing.amount} ${listing.resource}?\n\nThe resource will be returned to your inventory.`)) {
+                try {
+                    // Refund resource
+                    wallet[listing.resource] += listing.amount;
+                    await saveWallet();
+
+                    // Remove listing from Firebase
+                    const listingRef = ref(database, `marketplace/listings/${listingKey}`);
+                    await remove(listingRef);
+
+                    alert(`✅ Listing cancelled! ${listing.amount} ${listing.resource} returned.`);
+                    updateWalletDisplay();
+                } catch (error) {
+                    console.error('Error cancelling listing:', error);
+                    alert('❌ Failed to cancel listing');
+                }
             }
         }
 
@@ -1523,23 +1829,9 @@
         }
 
         // Close modal on outside click
-        document.getElementById('confirm-modal').addEventListener('click', (e) => {
-            if (e.target.id === 'confirm-modal') {
-                closeModal();
-            }
+        document.getElementById('confirm-modal')?.addEventListener('click', (e) => {
+            if (e.target.id === 'confirm-modal') closeModal();
         });
-
-        // Simulate price fluctuations
-        function updatePrices() {
-            Object.keys(marketPrices).forEach(resource => {
-                const change = (Math.random() * 2 - 1).toFixed(1);
-                marketPrices[resource].change = parseFloat(change);
-                marketPrices[resource].price += Math.round(change);
-                marketPrices[resource].price = Math.max(5, marketPrices[resource].price);
-            });
-        }
-
-        setInterval(updatePrices, 30000);
 
         // ============================================
         // SIDEBAR FUNCTIONALITY

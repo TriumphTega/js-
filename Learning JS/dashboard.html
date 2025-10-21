@@ -144,7 +144,7 @@
             box-shadow: 0 0 25px rgba(255, 204, 0, 0.5);
         }
 
-        .sidebar-toggle.active {
+        .sidebar-toggle.sidebar-open {
             left: 300px;
         }
 
@@ -179,17 +179,17 @@
             top: 14px;
         }
 
-        .sidebar-toggle.active .hamburger span:nth-child(1) {
+        .sidebar-toggle.sidebar-open .hamburger span:nth-child(1) {
             top: 7px;
             transform: rotate(135deg);
         }
 
-        .sidebar-toggle.active .hamburger span:nth-child(2) {
+        .sidebar-toggle.sidebar-open .hamburger span:nth-child(2) {
             opacity: 0;
             left: -30px;
         }
 
-        .sidebar-toggle.active .hamburger span:nth-child(3) {
+        .sidebar-toggle.sidebar-open .hamburger span:nth-child(3) {
             top: 7px;
             transform: rotate(-135deg);
         }
@@ -525,7 +525,7 @@
 </head>
 <body>
     <!-- Sidebar Toggle Button -->
-    <div class="sidebar-toggle active" id="sidebarToggle">
+    <div class="sidebar-toggle sidebar-open" id="sidebarToggle">
         <div class="hamburger">
             <span></span>
             <span></span>
@@ -2331,7 +2331,7 @@
             `;
         }
 
-        // Send SOL functionality
+        // Send SOL functionality - supports both Phantom and app-created wallets
         document.getElementById('sendTokenBtn').addEventListener('click', async () => {
             const recipientAddress = document.getElementById('recipientAddress').value.trim();
             const amount = parseFloat(document.getElementById('sendAmount').value);
@@ -2347,11 +2347,20 @@
             }
 
             try {
-                // Check if user has a connected wallet
-                if (typeof window.solana !== 'undefined' && window.solana.isPhantom) {
+                // Validate recipient address
+                try {
+                    new solanaWeb3.PublicKey(recipientAddress);
+                } catch (e) {
+                    showModal('error', '❌ Invalid Address', 'Please enter a valid Solana address');
+                    return;
+                }
+
+                // Check if user has Phantom wallet connected
+                if (typeof window.solana !== 'undefined' && window.solana.isPhantom && userWalletAddress === window.solana.publicKey.toString()) {
                     await sendWithPhantom(recipientAddress, amount);
                 } else {
-                    showModal('info', 'ℹ️ Wallet Not Connected', 'Please connect a Phantom wallet to send transactions. App-created wallets can only receive funds.');
+                    // Use app-created wallet
+                    await sendWithAppWallet(recipientAddress, amount);
                 }
             } catch (error) {
                 console.error('Send error:', error);
@@ -2387,6 +2396,174 @@
             }
         }
 
+        // Send with app-created wallet (Google login wallets)
+        async function sendWithAppWallet(recipientAddress, amount) {
+            try {
+                const userData = JSON.parse(localStorage.getItem('currentUser'));
+                if (!userData || !userData.uid) {
+                    showModal('error', '❌ Error', 'User not found. Please sign in again.');
+                    return;
+                }
+
+                // Retrieve private key from Firebase
+                const walletRef = ref(database, `user-wallets/${userData.uid}`);
+                const snapshot = await get(walletRef);
+
+                if (!snapshot.exists() || !snapshot.val().privateKey) {
+                    showModal('error', '❌ Error', 'Wallet private key not found. This wallet cannot send transactions.');
+                    return;
+                }
+
+                const walletData = snapshot.val();
+
+                // ⚠️ SECURITY NOTE: Retrieving private key from Firebase
+                // In production, this should be encrypted at rest and decrypted here
+                const privateKeyBuffer = Buffer.from(walletData.privateKey, 'base64');
+                const keypair = solanaWeb3.Keypair.fromSecretKey(privateKeyBuffer);
+
+                // Verify the keypair matches the displayed wallet
+                if (keypair.publicKey.toString() !== userWalletAddress) {
+                    showModal('error', '❌ Error', 'Wallet mismatch. Please refresh and try again.');
+                    return;
+                }
+
+                // Connect to devnet (change to mainnet-beta for production)
+                const connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl('devnet'));
+
+                // Check balance
+                const balance = await connection.getBalance(keypair.publicKey);
+                const balanceInSOL = balance / solanaWeb3.LAMPORTS_PER_SOL;
+
+                if (balanceInSOL < amount) {
+                    showModal('error', '❌ Insufficient Balance', `You only have ${balanceInSOL.toFixed(4)} SOL`);
+                    return;
+                }
+
+                // Create and send transaction
+                const transaction = new solanaWeb3.Transaction().add(
+                    solanaWeb3.SystemProgram.transfer({
+                        fromPubkey: keypair.publicKey,
+                        toPubkey: new solanaWeb3.PublicKey(recipientAddress),
+                        lamports: amount * solanaWeb3.LAMPORTS_PER_SOL
+                    })
+                );
+
+                // Sign and send
+                const signature = await solanaWeb3.sendAndConfirmTransaction(
+                    connection,
+                    transaction,
+                    [keypair]
+                );
+
+                showModal('success', '✅ Transaction Successful!',
+                    `Sent ${amount} SOL to ${recipientAddress.substring(0, 4)}...${recipientAddress.substring(40)}\n\n` +
+                    `Signature: ${signature.substring(0, 8)}...\n\n` +
+                    `View on Solana Explorer: https://explorer.solana.com/tx/${signature}?cluster=devnet`
+                );
+
+                // Refresh balance
+                await fetchBalance();
+
+                // Clear form
+                document.getElementById('recipientAddress').value = '';
+                document.getElementById('sendAmount').value = '';
+            } catch (error) {
+                console.error('App wallet send error:', error);
+                throw error;
+            }
+        }
+
+        // ============================================
+        // LUNARIS SPL TOKEN FUNCTIONS (Future Integration)
+        // ============================================
+
+        // Send Lunaris SPL tokens (to be implemented when token is deployed)
+        async function sendLunarisToken(recipientAddress, amount) {
+            try {
+                const userData = JSON.parse(localStorage.getItem('currentUser'));
+                if (!userData || !userData.uid) {
+                    showModal('error', '❌ Error', 'User not found. Please sign in again.');
+                    return;
+                }
+
+                // Retrieve private key from Firebase
+                const walletRef = ref(database, `user-wallets/${userData.uid}`);
+                const snapshot = await get(walletRef);
+
+                if (!snapshot.exists() || !snapshot.val().privateKey) {
+                    showModal('error', '❌ Error', 'Wallet private key not found.');
+                    return;
+                }
+
+                const walletData = snapshot.val();
+                const privateKeyBuffer = Buffer.from(walletData.privateKey, 'base64');
+                const keypair = solanaWeb3.Keypair.fromSecretKey(privateKeyBuffer);
+
+                const connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl('devnet'));
+
+                // TODO: Replace with actual Lunaris token mint address when deployed
+                const LUNARIS_TOKEN_MINT = 'YOUR_TOKEN_MINT_ADDRESS_HERE';
+
+                // This will use @solana/spl-token library
+                // Example code structure (uncomment when token is deployed):
+                /*
+                const { Token, TOKEN_PROGRAM_ID } = require('@solana/spl-token');
+
+                const mintPublicKey = new solanaWeb3.PublicKey(LUNARIS_TOKEN_MINT);
+                const recipientPublicKey = new solanaWeb3.PublicKey(recipientAddress);
+
+                // Get or create associated token accounts
+                const fromTokenAccount = await Token.getAssociatedTokenAddress(
+                    ASSOCIATED_TOKEN_PROGRAM_ID,
+                    TOKEN_PROGRAM_ID,
+                    mintPublicKey,
+                    keypair.publicKey
+                );
+
+                const toTokenAccount = await Token.getAssociatedTokenAddress(
+                    ASSOCIATED_TOKEN_PROGRAM_ID,
+                    TOKEN_PROGRAM_ID,
+                    mintPublicKey,
+                    recipientPublicKey
+                );
+
+                // Create transfer instruction
+                const transaction = new solanaWeb3.Transaction().add(
+                    Token.createTransferInstruction(
+                        TOKEN_PROGRAM_ID,
+                        fromTokenAccount,
+                        toTokenAccount,
+                        keypair.publicKey,
+                        [],
+                        amount * Math.pow(10, 9) // Assuming 9 decimals
+                    )
+                );
+
+                const signature = await solanaWeb3.sendAndConfirmTransaction(
+                    connection,
+                    transaction,
+                    [keypair]
+                );
+
+                showModal('success', '✅ Lunaris Sent!',
+                    `Sent ${amount} LUNARIS\n\nSignature: ${signature.substring(0, 8)}...`
+                );
+                */
+
+                showModal('info', 'ℹ️ Coming Soon',
+                    'Lunaris SPL token integration is ready for deployment!\n\n' +
+                    'Once the token is minted on Solana, this function will enable transfers.'
+                );
+
+            } catch (error) {
+                console.error('Lunaris token send error:', error);
+                showModal('error', '❌ Error', error.message);
+            }
+        }
+
+        // Make Lunaris token function globally available
+        window.sendLunarisToken = sendLunarisToken;
+
         // ============================================
         // SIDEBAR FUNCTIONALITY
         // ============================================
@@ -2398,8 +2575,10 @@
 
         // Toggle sidebar
         function toggleSidebar() {
+            const isCurrentlyOpen = !sidebar.classList.contains('collapsed');
+
             sidebar.classList.toggle('collapsed');
-            sidebarToggle.classList.toggle('active');
+            sidebarToggle.classList.toggle('sidebar-open');
             sidebarOverlay.classList.toggle('active');
             appContainer.classList.toggle('sidebar-collapsed');
 
@@ -2418,7 +2597,9 @@
             walletModal.classList.add('show');
             // Close sidebar on mobile
             if (window.innerWidth <= 768) {
-                toggleSidebar();
+                if (!sidebar.classList.contains('collapsed')) {
+                    toggleSidebar();
+                }
             }
         });
 
@@ -2427,14 +2608,15 @@
         if (savedState === 'true') {
             // Only collapse if user explicitly collapsed it before
             sidebar.classList.add('collapsed');
-            sidebarToggle.classList.remove('active');
+            sidebarToggle.classList.remove('sidebar-open');
             appContainer.classList.add('sidebar-collapsed');
+            sidebarOverlay.classList.remove('active');
         }
 
         // Close sidebar on mobile when clicking nav links
         document.querySelectorAll('.sidebar .nav-item[href]').forEach(link => {
             link.addEventListener('click', () => {
-                if (window.innerWidth <= 768) {
+                if (window.innerWidth <= 768 && !sidebar.classList.contains('collapsed')) {
                     toggleSidebar();
                 }
             });

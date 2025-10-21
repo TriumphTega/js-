@@ -676,6 +676,130 @@
         <a href="/Learning JS/dashboard.html" id="back-button">← Back to Dashboard</a>
     </div>
 
+    <!-- Custom Modal -->
+    <div id="claimModal" class="claim-modal">
+        <div class="modal-content-claim">
+            <div class="modal-header-claim">
+                <span class="modal-icon-claim" id="modalIcon">🎉</span>
+                <h2 id="modalTitle">Success!</h2>
+            </div>
+            <div class="modal-body-claim">
+                <p id="modalMessage"></p>
+            </div>
+            <div class="modal-footer-claim">
+                <button id="modalOkBtn" class="modal-btn-claim">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* Modal Styles */
+        .claim-modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .claim-modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content-claim {
+            background: linear-gradient(135deg, #0a2f2f 0%, #1a4f4f 100%);
+            border: 3px solid #00FFFF;
+            border-radius: 20px;
+            padding: 0;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 0 50px rgba(0, 255, 255, 0.5);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header-claim {
+            background: rgba(0, 255, 255, 0.1);
+            border-bottom: 2px solid #00FFFF;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .modal-icon-claim {
+            font-size: 4rem;
+            display: block;
+            margin-bottom: 15px;
+            animation: bounce 0.5s ease;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .modal-header-claim h2 {
+            color: #00FFFF;
+            font-size: 1.8rem;
+            margin: 0;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.6);
+        }
+
+        .modal-body-claim {
+            padding: 30px;
+            text-align: center;
+        }
+
+        .modal-body-claim p {
+            color: #fff;
+            font-size: 1.2rem;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .modal-footer-claim {
+            padding: 20px 30px 30px;
+            text-align: center;
+        }
+
+        .modal-btn-claim {
+            background: linear-gradient(135deg, #00CED1, #00FFFF);
+            color: #000;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Courier New', Courier, monospace;
+            letter-spacing: 1px;
+        }
+
+        .modal-btn-claim:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 255, 255, 0.5);
+        }
+
+        .modal-btn-claim:active {
+            transform: translateY(0);
+        }
+    </style>
+
     <!-- ═══════════════════════════════════════════════════════════════ -->
     <!-- FIREBASE INTEGRATION - DAILY CLAIM STATION                     -->
     <!-- ═══════════════════════════════════════════════════════════════ -->
@@ -715,6 +839,46 @@
         const database = getDatabase(app);
 
         let currentUserId = null;
+
+        // ═══════════════════════════════════════════════════════════════
+        // CUSTOM MODAL FUNCTIONS
+        // ═══════════════════════════════════════════════════════════════
+
+        function showModal(type, title, message) {
+            const modal = document.getElementById('claimModal');
+            const modalIcon = document.getElementById('modalIcon');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalMessage = document.getElementById('modalMessage');
+            const modalBtn = document.getElementById('modalOkBtn');
+
+            // Set icon based on type
+            const icons = {
+                success: '🎉',
+                error: '❌',
+                warning: '⚠️',
+                info: 'ℹ️'
+            };
+            modalIcon.textContent = icons[type] || '💬';
+
+            // Set title and message
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+
+            // Show modal
+            modal.classList.add('show');
+
+            // Close on button click
+            modalBtn.onclick = () => {
+                modal.classList.remove('show');
+            };
+
+            // Close on outside click
+            modal.onclick = (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('show');
+                }
+            };
+        }
 
         // ═══════════════════════════════════════════════════════════════
         // SECTION 2: RESOURCE CONFIGURATION
@@ -958,8 +1122,10 @@
 
         window.claimResource = async function(resourceKey) {
             if (!currentUserId) {
-                alert('❌ Please sign in to claim resources!');
-                window.location.href = '/index.html';
+                showModal('error', '🔒 Sign In Required', 'Please sign in to claim resources!');
+                setTimeout(() => {
+                    window.location.href = '/index.html';
+                }, 2000);
                 return;
             }
 
@@ -971,7 +1137,7 @@
             const claimSnapshot = await get(claimRef);
 
             if (claimSnapshot.exists() && claimSnapshot.val().claimed) {
-                alert('⚠️ You already claimed this resource today!');
+                showModal('warning', 'Already Claimed', 'You already claimed this resource today! Come back tomorrow for more.');
                 return;
             }
 
@@ -1000,7 +1166,7 @@
                 });
 
                 if (!result.committed) {
-                    alert('❌ Sorry! This resource is sold out. Try again tomorrow!');
+                    showModal('error', 'Sold Out!', 'Sorry! This resource is sold out. Try again tomorrow when supplies refresh!');
                     return;
                 }
 
@@ -1013,33 +1179,48 @@
 
                 // Update user's colony resources
                 const userResourceRef = ref(database, `colony-data/${currentUserId}`);
+                const userSnapshot = await get(userResourceRef);
+                const currentData = userSnapshot.exists() ? userSnapshot.val() : {};
+
+                const currentValue = currentData[config.resourceKey] || 0;
                 await update(userResourceRef, {
-                    [config.resourceKey]: increment(config.claimAmount)
+                    [config.resourceKey]: currentValue + config.claimAmount,
+                    lastUpdated: Date.now()
                 });
 
                 // Update reputation
                 const repRef = ref(database, `nexus-reputation/${currentUserId}`);
-                await update(repRef, {
-                    totalRep: increment(2),
+                const repSnapshot = await get(repRef);
+                const currentRep = repSnapshot.exists() ? (repSnapshot.val().totalRep || 0) : 0;
+
+                await set(repRef, {
+                    totalRep: currentRep + 2,
                     lastClaimDate: today
                 });
 
                 // Success!
                 const card = document.querySelector(`[data-resource="${resourceKey}"]`);
-                card.classList.add('celebrating');
-                markAsAlreadyClaimed(resourceKey);
+                if (card) {
+                    card.classList.add('celebrating');
+                    markAsAlreadyClaimed(resourceKey);
+                }
 
                 const totalClaimed = document.getElementById('total-claimed');
-                totalClaimed.textContent = parseInt(totalClaimed.textContent) + 1;
+                if (totalClaimed) {
+                    totalClaimed.textContent = parseInt(totalClaimed.textContent) + 1;
+                }
 
                 setTimeout(() => {
-                    alert(`🎉 Success! You claimed ${config.claimAmount} ${config.resourceKey}!\n\nCheck your dashboard to see your new resources.`);
-                    card.classList.remove('celebrating');
+                    showModal('success', 'Claim Successful!',
+                        `You claimed ${config.claimAmount} ${config.name}!\n\n+2 Reputation Points\n\nCheck your dashboard to see your new resources.`);
+                    if (card) {
+                        card.classList.remove('celebrating');
+                    }
                 }, 500);
 
             } catch (error) {
                 console.error('❌ Error claiming resource:', error);
-                alert('❌ An error occurred. Please try again.');
+                showModal('error', 'Claim Failed', 'An error occurred while claiming. Please try again.');
             }
         };
 
@@ -1058,6 +1239,7 @@
 
                 await initializeDailyResources();
                 await loadResourceStatus();
+                await checkUserClaims();
                 setupRealtimeListeners();
 
                 // Load user's claim streak
@@ -1069,8 +1251,10 @@
                 }
             } else {
                 console.log('❌ No user authenticated - redirecting...');
-                alert('⚠️ Please sign in to access Nexus Crater features!');
-                window.location.href = '/index.html';
+                showModal('warning', 'Authentication Required', 'Please sign in to access Nexus Crater features!');
+                setTimeout(() => {
+                    window.location.href = '/index.html';
+                }, 2000);
             }
         });
     </script>

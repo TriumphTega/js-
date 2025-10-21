@@ -1053,16 +1053,16 @@
                 });
 
                 // Update UI
-                const claimLink = document.getElementById('nexus-claim-link');
-                const marketLink = document.getElementById('nexus-market-link');
-                const rushLink = document.getElementById('nexus-rush-link');
-                const lockedBtn = document.getElementById('nexus-locked-btn');
+                const claimLink = document.getElementById('sidebar-nexus-claim');
+                const marketLink = document.getElementById('sidebar-nexus-market');
+                const rushLink = document.getElementById('sidebar-nexus-rush');
+                const lockedBtn = document.getElementById('sidebar-nexus-locked');
 
                 if (isUnlocked) {
                     // Show unlocked buttons
-                    claimLink.style.display = 'inline-block';
-                    marketLink.style.display = 'inline-block';
-                    rushLink.style.display = 'inline-block';
+                    claimLink.style.display = 'flex';
+                    marketLink.style.display = 'flex';
+                    rushLink.style.display = 'flex';
                     lockedBtn.style.display = 'none';
 
                     if (isUserAdmin && (!hasRequiredLevel || !hasRequiredDays)) {
@@ -1076,8 +1076,8 @@
                     const missingDays = hasRequiredDays ? '' : `${REQUIRED_DAYS} Login Days`;
                     const missing = [missingLevel, missingDays].filter(x => x).join(' + ');
 
-                    lockedBtn.textContent = `🔒 Nexus Crater (Need: ${missing})`;
-                    lockedBtn.style.display = 'inline-block';
+                    lockedBtn.textContent = `🔒 Locked (Need: ${missing})`;
+                    lockedBtn.style.display = 'flex';
                     claimLink.style.display = 'none';
                     marketLink.style.display = 'none';
                     rushLink.style.display = 'none';
@@ -1187,12 +1187,20 @@
                 });
 
                 // Update UI
-                const redDunesLink = document.getElementById('red-dunes-link');
-                const lockedBtn = document.getElementById('red-dunes-locked-btn');
+                const redDunesLink = document.getElementById('sidebar-red-dunes');
+                const achievementsLink = document.getElementById('sidebar-achievements');
+                const racerLink = document.getElementById('sidebar-dune-racer');
+                const expeditionsLink = document.getElementById('sidebar-expeditions');
+                const discoveryLink = document.getElementById('sidebar-discovery');
+                const lockedBtn = document.getElementById('sidebar-red-dunes-locked');
 
                 if (isUnlocked) {
-                    // Show unlocked button
-                    redDunesLink.style.display = 'inline-block';
+                    // Show unlocked buttons
+                    redDunesLink.style.display = 'flex';
+                    achievementsLink.style.display = 'flex';
+                    racerLink.style.display = 'flex';
+                    expeditionsLink.style.display = 'flex';
+                    discoveryLink.style.display = 'flex';
                     lockedBtn.style.display = 'none';
 
                     if (isUserAdmin && (!hasRequiredLevel || !hasRequiredDays)) {
@@ -1206,9 +1214,13 @@
                     const missingDays = hasRequiredDays ? '' : `${REQUIRED_DAYS} Login Days`;
                     const missing = [missingLevel, missingDays].filter(x => x).join(' + ');
 
-                    lockedBtn.textContent = `🔒 Red Dunes Outpost (Need: ${missing})`;
-                    lockedBtn.style.display = 'inline-block';
+                    lockedBtn.textContent = `🔒 Locked (Need: ${missing})`;
+                    lockedBtn.style.display = 'flex';
                     redDunesLink.style.display = 'none';
+                    achievementsLink.style.display = 'none';
+                    racerLink.style.display = 'none';
+                    expeditionsLink.style.display = 'none';
+                    discoveryLink.style.display = 'none';
 
                     // Add click handler to show requirements
                     lockedBtn.onclick = () => {

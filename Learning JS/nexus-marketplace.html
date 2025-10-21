@@ -715,7 +715,7 @@
             box-shadow: 0 0 25px rgba(255, 204, 0, 0.5);
         }
 
-        .sidebar-toggle.active {
+        .sidebar-toggle.sidebar-open {
             left: 300px;
         }
 
@@ -750,17 +750,17 @@
             top: 14px;
         }
 
-        .sidebar-toggle.active .hamburger span:nth-child(1) {
+        .sidebar-toggle.sidebar-open .hamburger span:nth-child(1) {
             top: 7px;
             transform: rotate(135deg);
         }
 
-        .sidebar-toggle.active .hamburger span:nth-child(2) {
+        .sidebar-toggle.sidebar-open .hamburger span:nth-child(2) {
             opacity: 0;
             left: -30px;
         }
 
-        .sidebar-toggle.active .hamburger span:nth-child(3) {
+        .sidebar-toggle.sidebar-open .hamburger span:nth-child(3) {
             top: 7px;
             transform: rotate(-135deg);
         }
@@ -802,7 +802,7 @@
                 transform: translateX(-100%);
             }
 
-            .sidebar-toggle.active {
+            .sidebar-toggle.sidebar-open {
                 left: calc(100vw - 70px);
                 max-width: 300px;
             }
@@ -836,7 +836,7 @@
 </head>
 <body>
     <!-- Sidebar Toggle Button -->
-    <div class="sidebar-toggle active" id="sidebarToggle">
+    <div class="sidebar-toggle sidebar-open" id="sidebarToggle">
         <div class="hamburger">
             <span></span>
             <span></span>
@@ -1845,7 +1845,7 @@
         // Toggle sidebar
         function toggleSidebar() {
             sidebar.classList.toggle('collapsed');
-            sidebarToggle.classList.toggle('active');
+            sidebarToggle.classList.toggle('sidebar-open');
             sidebarOverlay.classList.toggle('active');
             appContainer.classList.toggle('sidebar-collapsed');
 
@@ -1858,16 +1858,20 @@
         sidebarToggle.addEventListener('click', toggleSidebar);
         sidebarOverlay.addEventListener('click', toggleSidebar);
 
-        // Load saved sidebar state
+        // Load saved sidebar state - start with sidebar OPEN by default
         const savedState = localStorage.getItem('sidebarCollapsed');
         if (savedState === 'true') {
-            toggleSidebar();
+            // Only collapse if user explicitly collapsed it before
+            sidebar.classList.add('collapsed');
+            sidebarToggle.classList.remove('sidebar-open');
+            appContainer.classList.add('sidebar-collapsed');
+            sidebarOverlay.classList.remove('active');
         }
 
         // Close sidebar on mobile when clicking nav links
         document.querySelectorAll('.sidebar .nav-item[href]').forEach(link => {
             link.addEventListener('click', () => {
-                if (window.innerWidth <= 768) {
+                if (window.innerWidth <= 768 && !sidebar.classList.contains('collapsed')) {
                     toggleSidebar();
                 }
             });
